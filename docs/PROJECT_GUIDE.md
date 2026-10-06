@@ -94,6 +94,7 @@ An anime is one series row in `public.anime`; each season is a row in `public.an
 - Keep each series together with separate episode progress and status per season; add seasons from the series details page.
 - Track favorites, ratings, notes, genres, and series/season dates.
 - Open a profile from the account menu; edit username/full name and upload a JPG, PNG, or WEBP avatar (maximum 5 MB).
+- Change the Supabase Auth password from Settings after confirming the current password.
 - Switch dark/light appearance from the top bar. The preference is saved in browser local storage.
 
 Series are stored per user in `public.anime`, with episode progress in `public.anime_seasons`. Both tables have owner-scoped row-level policies; the admin interface does not fetch private season rows.

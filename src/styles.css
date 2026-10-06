@@ -358,6 +358,16 @@ html[data-theme="light"] .admin-stat-icon{background:#fbe8ea;color:#bd303e}
 .season-global-range,.card-season-meta span:last-child{color:#ff9299}
 html[data-theme="light"] .heading-count{background:#fff4f4;border-color:#efd2d5;color:#a22e3b}
 html[data-theme="light"] .admin-rank-row>span,html[data-theme="light"] .popular-rank{color:#a5323e}
+.welcome-row h1 em{color:#fb7180}
+html[data-theme="light"] .welcome-row h1 em{color:#dc3545}
+.password-card-content{min-width:0;flex:1}
+.password-card-content>h2{margin:0 0 7px;color:#eeeaf2;font:650 15px Manrope}
+.password-card-content>p{max-width:560px;margin:0 0 17px;color:#aaa6b1;font-size:11px;line-height:1.6}
+.password-form{max-width:460px;display:grid;gap:14px}
+.password-form .primary-btn{justify-self:start;margin-top:4px;font-size:10px}
+.profile-settings-link{margin-top:13px}
+html[data-theme="light"] .password-card-content>h2{color:#302d36}
+html[data-theme="light"] .password-card-content>p{color:#6f6975}
 :root{--accent:#fb7180;--accent2:#e54857;--red:#fb7180}
 .auth-art{background:radial-gradient(ellipse at 90% 20%,#54343a 0,transparent 37%),radial-gradient(ellipse at 4% 94%,#322329 0,transparent 43%),linear-gradient(150deg,#241b20,#141419 66%)}
 .auth-art:after{background:linear-gradient(145deg,transparent 60%,#fb718010)}
