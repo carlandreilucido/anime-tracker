@@ -1,0 +1,2 @@
+import { progressPercent } from '../../utils/format'
+export default function ProgressBar({ anime, compact=false }) { const percent=progressPercent(anime); return <div className="progress-wrap"><div className="progress-track"><div className="progress-fill" style={{width:`${percent}%`}}/></div>{!compact&&<div className="progress-meta"><span>Episode {anime.current_episode || 0} / {anime.total_episodes || '?'}</span><span>{percent}%</span></div>}</div> }
