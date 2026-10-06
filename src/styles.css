@@ -196,3 +196,204 @@ html[data-theme="light"] .small-btn:hover{background:#f2eef6;border-color:#cfc2d
 html[data-theme="light"] .rating-input>svg{color:#a17b2d}
 .brand-mark{background-image:url('/logo.png');background-position:center;background-size:cover;box-shadow:none}
 .brand-mark svg{display:none}
+.season-count{margin-left:auto;color:#827d88;font-size:9px}
+.card-season-list{display:grid;gap:5px;margin:8px 0 10px;padding:8px 0;border-top:1px solid #2a2930;border-bottom:1px solid #2a2930}
+.card-season-row{display:flex;align-items:center;justify-content:space-between;gap:8px;color:#a7a3ad;font-size:9px}
+.card-season-row>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card-season-row strong{color:#ddd9e3;font-size:9px;font-weight:600;white-space:nowrap}
+.card-season-row strong i{color:#85818b;font-style:normal;font-weight:400}
+.more-seasons{color:#a990c5;font-size:8px}
+.season-editor{grid-column:1/-1;margin-top:20px;padding-top:18px;border-top:1px solid #2d2b33}
+.season-editor-heading,.season-details-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px}
+.season-editor-heading h3{margin:5px 0 4px;color:#e8e5ed;font:650 14px Manrope}
+.season-editor-heading p,.season-details-heading p{margin:0;color:#918d98;font-size:10px}
+.season-add-btn{flex:none;font-size:9px}
+.season-edit-list{display:grid;gap:10px}
+.season-edit-card{min-width:0;margin:0;padding:13px;border:1px solid #34313a;border-radius:8px;background:#1b1a20}
+.season-edit-card legend{padding:0 5px;color:#d3c1e8;font-size:10px;font-weight:600}
+.season-form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.season-remove-btn{display:inline-flex;align-items:center;gap:5px;margin-top:11px;padding:0;border:0;background:none;color:#d69a9e;font-size:9px;cursor:pointer}
+.season-editor-hint,.season-form-intro{margin:15px 0;color:#918d98;font-size:10px;line-height:1.6}
+.season-details-section{margin-top:28px}
+.season-details-heading{align-items:flex-end;margin-bottom:14px}
+.season-details-heading h2{margin:5px 0;font:650 18px Manrope;letter-spacing:-.4px}
+.season-details-heading .primary-btn{font-size:10px}
+.season-detail-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.season-detail-card{min-width:0;padding:15px;border:1px solid #302e37;border-radius:10px;background:#19191f}
+.season-detail-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.season-detail-badges{display:flex;align-items:center;gap:6px}
+.season-edit-btn{width:26px;height:26px;display:grid;place-items:center;border:1px solid #37343d;border-radius:6px;background:#222128;color:#aaa5b0;cursor:pointer}
+.season-edit-btn:hover{background:#302a38;color:#dac3f5;border-color:#5d4a70}
+.season-global-range{display:inline-block;margin-top:5px;color:#a998b9;font-size:9px}
+.card-season-meta{color:#85818c;font-size:8px}
+.card-season-meta span:last-child{color:#b498d4;font-weight:600}
+.season-stepper span{min-width:27px}
+.season-detail-top h3{margin:4px 0 0;color:#ebe8f0;font:650 14px Manrope}
+.season-number-label{color:#8c8793;font-size:8px;font-weight:700;letter-spacing:1px}
+.season-detail-top .status-badge{flex:none}
+.season-episode-summary{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:17px 0 9px}
+.season-episode-summary strong{color:#e1dee7;font:600 12px Manrope}
+.season-episode-summary strong span{color:#898590;font-weight:400}
+.season-episode-summary>span{color:#aaa5b0;font-size:9px;text-align:right}
+.season-progress-track{height:5px}
+.season-detail-footer{display:flex;align-items:center;justify-content:space-between;margin-top:11px;color:#88848f;font-size:9px}
+.season-stepper{height:31px}
+.season-stepper button{height:25px;width:26px}
+.season-details-section .empty-state{margin-top:12px}
+.season-form .form-actions{margin-top:14px}
+@media(max-width:650px){.season-form-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.season-details-section{margin-top:21px}.season-details-heading{align-items:flex-start}.season-details-heading h2{font-size:16px}.season-details-heading .primary-btn{padding:8px 9px;font-size:9px}.season-detail-list{grid-template-columns:1fr;gap:9px}.season-detail-card{padding:13px}.card-season-list{gap:4px}.card-season-row{font-size:8px}.season-count{font-size:8px}}
+@media(max-width:390px){.season-form-grid{grid-template-columns:1fr}.season-episode-summary{align-items:flex-start;flex-direction:column}.season-episode-summary>span{text-align:left}}
+html[data-theme="light"] .season-count{color:#706a77}
+html[data-theme="light"] .card-season-list{border-color:#e6e2ea}
+html[data-theme="light"] .card-season-row{color:#645e6b}
+html[data-theme="light"] .card-season-row strong{color:#39343f}
+html[data-theme="light"] .card-season-row strong i{color:#746e7a}
+html[data-theme="light"] .more-seasons{color:#755892}
+html[data-theme="light"] .season-editor{border-color:#e3dfe7}
+html[data-theme="light"] .season-editor-heading h3,html[data-theme="light"] .season-details-heading h2{color:#302d36}
+html[data-theme="light"] .season-editor-heading p,html[data-theme="light"] .season-details-heading p,html[data-theme="light"] .season-editor-hint,html[data-theme="light"] .season-form-intro{color:#706a77}
+html[data-theme="light"] .season-edit-card,html[data-theme="light"] .season-detail-card{background:#fff;border-color:#e2dfe7}
+html[data-theme="light"] .season-edit-card legend{color:#684b88}
+html[data-theme="light"] .season-detail-top h3,html[data-theme="light"] .season-episode-summary strong{color:#302d36}
+html[data-theme="light"] .season-number-label,html[data-theme="light"] .season-episode-summary strong span,html[data-theme="light"] .season-episode-summary>span,html[data-theme="light"] .season-detail-footer{color:#706a77}
+html[data-theme="light"] .season-remove-btn{color:#a3424a}
+html[data-theme="light"] .season-edit-btn{background:#fff;border-color:#dedbe3;color:#706a77}
+html[data-theme="light"] .season-edit-btn:hover{background:#f2eef6;border-color:#d3c4e1;color:#60447d}
+html[data-theme="light"] .season-global-range{color:#71617f}
+html[data-theme="light"] .card-season-meta{color:#706a77}
+html[data-theme="light"] .card-season-meta span:last-child{color:#684b88}
+/* Red replaces the former purple accent while preserving status-specific colors. */
+:root{--accent:#fb7180;--accent2:#e54857;--red:#fb7180}
+::selection{background:#ef444455;color:#fff}
+.brand-mark{filter:hue-rotate(78deg) saturate(1.15)}
+.brand-dot{color:#fb7180}
+.primary-btn{background:#f0525f;border-color:#fb7180;color:#fff}
+.primary-btn:hover:not(:disabled){background:#fa6873}
+.nav-link.active,.admin-nav-link.active{background:#3b2025;color:#ffc4c8}
+.nav-link.active svg,.admin-nav-link.active svg{color:#fb858d}
+.nav-child-link.active{background:#342126;color:#ffc4c8}
+.nav-child-link.active svg{color:#fb858d}
+.progress-fill{background:linear-gradient(90deg,#e54857,#ff9298)}
+.status-watching{background:#43252b;color:#ffb0b5}
+.stat-icon,.admin-stat-icon,.shortcut-icon{background:#3b252b;color:#ff9299}
+.stat-icon-0{background:#3b252b;color:#ff9299}
+.stat-total{background:linear-gradient(135deg,#302126,#1b1920);border-color:#553138}
+.note-icon,.text-link:hover,.back-link:hover,.recent-footer:hover{color:#fb858d}
+.heading-count{border-color:#573139;color:#ff9ca2}
+.theme-toggle{color:#fb858d}
+.theme-toggle:hover{color:#ffc0c4}
+.detail-next b{color:#ff9ca2}
+.detail-genres span:hover,.season-edit-card legend{color:#ffc0c4}
+.genre-option.selected{background:#3b242a;border-color:#85515a;color:#ffc1c5}
+.favorite-btn.active,.favorite-btn:hover{color:#ff92a1}
+.favorite-action.active{color:#ff92a1;border-color:#70434a;background:#38242a}
+.admin-panel-link,.admin-clear-filters,.admin-user-count-card svg,.admin-user-info-grid svg{color:#f7838b}
+.admin-stat-icon{background:#38252b;color:#fb858d}
+.admin-shortcut:hover strong{color:#ff9ca2}
+.admin-nav-link.active{background:#3b2025;color:#ffc4c8}
+.admin-nav-link.active svg{color:#fb858d}
+.admin-role-tag.admin{border-color:#81434b;background:#3a2429;color:#ffb8bd}
+.role-pill.admin{border-color:#81434b;background:#3a2429;color:#ffb8bd}
+.admin-icon-action{color:#ff9aa1}
+.admin-user-avatar{background:#3b252b;color:#ffc1c5}
+.admin-activity-icon{background:#38252b;color:#fb858d}
+.admin-activity-icon.audit{background:#312326;color:#f08b92}
+.daily-activity-added,.chart-bar{background:#e85b65}
+.daily-activity-legend i{background:#e85b65}
+.art-copy h1 em{color:#fb858d}
+.art-copy .eyebrow{color:#f4a1a6}
+.art-lines span{background:linear-gradient(#ff9da3,#bc4651)}
+.profile-avatar-large,.admin-user-hero-avatar{background:linear-gradient(135deg,#46272c,#292126);border-color:#6e3b42;color:#ffc1c5}
+.avatar,.admin-user-avatar{background:#3b252b;color:#ffc1c5}
+.settings-icon{background:#38252b;color:#fb858d}
+.profile-info-item>span svg{color:#f08a92}
+.auth-box>.eyebrow,.setup-card>a{color:#f08a92}
+.admin-brand .brand-mark{filter:hue-rotate(78deg) saturate(1.15)}
+html[data-theme="light"] .brand-mark{filter:hue-rotate(78deg) saturate(1.15)}
+html[data-theme="light"] .brand-dot{color:#dc3545}
+html[data-theme="light"] .primary-btn{background:#dc3545;border-color:#dc3545;color:#fff}
+html[data-theme="light"] .primary-btn:hover:not(:disabled){background:#c92d3c;border-color:#c92d3c;color:#fff}
+html[data-theme="light"] .nav-link.active,html[data-theme="light"] .admin-nav-link.active,html[data-theme="light"] .nav-child-link.active{background:#fdebed;color:#962a35}
+html[data-theme="light"] .nav-link.active svg,html[data-theme="light"] .admin-nav-link.active svg,html[data-theme="light"] .nav-child-link.active svg{color:#c93645}
+html[data-theme="light"] .progress-fill{background:linear-gradient(90deg,#dc3545,#f27a83)}
+html[data-theme="light"] .status-watching{background:#fbe7e9;color:#962a35}
+html[data-theme="light"] .stat-icon,html[data-theme="light"] .stat-icon-0,html[data-theme="light"] .admin-stat-icon,html[data-theme="light"] .shortcut-icon{background:#fbe8ea;color:#bf3442}
+html[data-theme="light"] .stat-total{background:linear-gradient(135deg,#fff1f2,#fff);border-color:#f0d3d6}
+html[data-theme="light"] .note-icon,html[data-theme="light"] .text-link:hover,html[data-theme="light"] .back-link:hover,html[data-theme="light"] .recent-footer:hover{color:#bd303e}
+html[data-theme="light"] .heading-count{background:#fff4f4;border-color:#efd2d5;color:#a22e3b}
+html[data-theme="light"] .theme-toggle{color:#bd303e}
+html[data-theme="light"] .theme-toggle:hover{color:#8f202a}
+html[data-theme="light"] .detail-next b{color:#b52c3a}
+html[data-theme="light"] .genre-option.selected{background:#fce9eb;border-color:#e9b9be;color:#932834}
+html[data-theme="light"] .favorite-btn.active,html[data-theme="light"] .favorite-btn:hover,html[data-theme="light"] .favorite-action.active{color:#b52c3a}
+html[data-theme="light"] .favorite-action.active{border-color:#efc6ca;background:#fff0f1}
+html[data-theme="light"] .admin-panel-link,html[data-theme="light"] .admin-clear-filters,html[data-theme="light"] .admin-user-count-card svg,html[data-theme="light"] .admin-user-info-grid svg{color:#b93442}
+html[data-theme="light"] .admin-shortcut:hover strong{color:#ae2d3b}
+html[data-theme="light"] .admin-role-tag.admin,html[data-theme="light"] .role-pill.admin{border-color:#edbec2;background:#fce9eb;color:#982a35}
+html[data-theme="light"] .admin-icon-action{color:#b33442}
+html[data-theme="light"] .admin-user-avatar{background:#fbe8ea;color:#9e303b;border-color:#edcdd0}
+html[data-theme="light"] .admin-activity-icon,html[data-theme="light"] .admin-activity-icon.audit{background:#fcecee;color:#b23542}
+html[data-theme="light"] .daily-activity-added,html[data-theme="light"] .chart-bar,html[data-theme="light"] .daily-activity-legend i{background:#d94b57}
+html[data-theme="light"] .art-copy h1 em{color:#c93645}
+html[data-theme="light"] .art-copy .eyebrow{color:#a5323e}
+html[data-theme="light"] .art-lines span{background:linear-gradient(#ef8990,#ca4551)}
+html[data-theme="light"] .profile-avatar-large,html[data-theme="light"] .admin-user-hero-avatar{background:linear-gradient(135deg,#fcebed,#fff5f6);border-color:#efcdd0;color:#a32f3b}
+html[data-theme="light"] .avatar,html[data-theme="light"] .admin-user-avatar{background:#fbe8ea;color:#a32f3b}
+html[data-theme="light"] .settings-icon{background:#fce9eb;color:#b33442}
+html[data-theme="light"] .profile-info-item>span svg{color:#b33442}
+html[data-theme="light"] .auth-box>.eyebrow,html[data-theme="light"] .setup-card>a{color:#a5323e}
+html[data-theme="light"] .poster-placeholder,html[data-theme="light"] .details-placeholder{background:radial-gradient(circle at 70% 20%,#f3dadd,#fbf0f1 62%,#f1e5e7);color:#a4323f}
+html[data-theme="light"] .recent-cover{background:#fbe8ea;color:#a4323f}
+html[data-theme="light"] .empty-symbol{color:#b93442}
+html[data-theme="light"] .admin-page-btn:hover:not(:disabled){background:#fce9eb;color:#912b36}
+html[data-theme="light"] .setup-card pre{color:#9d303c}
+html[data-theme="light"] .season-edit-card legend{color:#a5323e}
+html[data-theme="light"] .admin-stat-icon{background:#fbe8ea;color:#bd303e}
+.poster-placeholder,.details-placeholder{background:radial-gradient(circle at 70% 20%,#54363b,#292126 62%,#211d21);color:#ffc1c5}
+.recent-cover{background:#3b252b;color:#ffc1c5}
+.empty-symbol{color:#fb858d}
+.admin-rank-row>span,.popular-rank{color:#ff9299}
+.heading-count{background:#38252b;border-color:#754149;color:#ffb1b6}
+.profile-info-item>span svg{color:#f08a92}
+.season-global-range,.card-season-meta span:last-child{color:#ff9299}
+html[data-theme="light"] .heading-count{background:#fff4f4;border-color:#efd2d5;color:#a22e3b}
+html[data-theme="light"] .admin-rank-row>span,html[data-theme="light"] .popular-rank{color:#a5323e}
+:root{--accent:#fb7180;--accent2:#e54857;--red:#fb7180}
+.auth-art{background:radial-gradient(ellipse at 90% 20%,#54343a 0,transparent 37%),radial-gradient(ellipse at 4% 94%,#322329 0,transparent 43%),linear-gradient(150deg,#241b20,#141419 66%)}
+.auth-art:after{background:linear-gradient(145deg,transparent 60%,#fb718010)}
+.empty-symbol,.note-icon,.admin-profile-error>svg{color:#fb858d}
+.profile-dropdown a:hover,.profile-dropdown button:hover{background:#3b2025;color:#ffc4c8}
+.profile-dropdown svg{color:#f28a92}
+.stat-total{background:linear-gradient(135deg,#302126,#1b1920);border-color:#553138}
+.stat-icon,.admin-stat-icon,.shortcut-icon{background:#3b252b;color:#fb858d}
+.stat-icon-1{background:#26323c;color:#94c9f3}
+.stat-icon-2{background:#26352c;color:#a7dbba}
+.stat-icon-3{background:#393326;color:#e3c28b}
+.stat-icon-4{background:#3a292d;color:#df9a9e}
+.genre-option.selected{background:#3b242a;border-color:#85515a;color:#ffc1c5}
+.season-edit-btn:hover{background:#3b2025;color:#ffc4c8;border-color:#85515a}
+.season-remove-btn{color:#fa9298}
+.season-global-range,.card-season-meta span:last-child,.more-seasons{color:#ff9299}
+.admin-role-tag.admin,.role-pill.admin{border-color:#81434b;background:#3a2429;color:#ffb8bd}
+.spinner{border-top-color:#fb7180}
+.admin-panel-link,.admin-clear-filters{color:#fb858d}
+.art-copy .eyebrow,.auth-box>.eyebrow{color:#f4a1a6}
+html[data-theme="light"] .auth-art{background:radial-gradient(ellipse at 90% 20%,#f8dfe1 0,transparent 39%),radial-gradient(ellipse at 4% 94%,#f3e3e5 0,transparent 44%),linear-gradient(150deg,#fff6f6,#f6f1f2 66%)}
+html[data-theme="light"] .auth-art:after{background:linear-gradient(145deg,transparent 60%,#cf39460d)}
+html[data-theme="light"] .empty-symbol,html[data-theme="light"] .note-icon,html[data-theme="light"] .admin-profile-error>svg{color:#bd303e}
+html[data-theme="light"] .profile-dropdown a:hover,html[data-theme="light"] .profile-dropdown button:hover{background:#fdebed;color:#962a35}
+html[data-theme="light"] .profile-dropdown svg{color:#bd303e}
+html[data-theme="light"] .stat-total{background:linear-gradient(135deg,#fff1f2,#fff);border-color:#f0d3d6}
+html[data-theme="light"] .stat-icon,html[data-theme="light"] .admin-stat-icon,html[data-theme="light"] .shortcut-icon{background:#fbe8ea;color:#bf3442}
+html[data-theme="light"] .stat-icon-1{background:#eaf1f7;color:#537595}
+html[data-theme="light"] .stat-icon-2{background:#eaf4ed;color:#4e7b5d}
+html[data-theme="light"] .stat-icon-3{background:#f5f0e4;color:#896d36}
+html[data-theme="light"] .stat-icon-4{background:#f8e9eb;color:#9b5860}
+html[data-theme="light"] .genre-option.selected{background:#fce9eb;border-color:#e9b9be;color:#932834}
+html[data-theme="light"] .season-edit-btn:hover{background:#fdebed;color:#962a35;border-color:#edbec2}
+html[data-theme="light"] .season-remove-btn{color:#a1323c}
+html[data-theme="light"] .season-global-range,html[data-theme="light"] .card-season-meta span:last-child,html[data-theme="light"] .more-seasons{color:#a5323e}
+html[data-theme="light"] .admin-role-tag.admin,html[data-theme="light"] .role-pill.admin{border-color:#edbec2;background:#fce9eb;color:#982a35}
+html[data-theme="light"] .spinner{border-color:#f0d3d6;border-top-color:#dc3545}
+html[data-theme="light"] .admin-panel-link,html[data-theme="light"] .admin-clear-filters{color:#b93442}
+html[data-theme="light"] .art-copy .eyebrow,html[data-theme="light"] .auth-box>.eyebrow{color:#a5323e}

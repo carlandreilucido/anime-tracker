@@ -1,11 +1,87 @@
 import { useState } from 'react'
 import { GENRES, STATUSES, STATUS_LABELS } from '../../constants'
-import { Star } from 'lucide-react'
-const blank={title:'',alternative_title:'',poster_url:'',genres:[],total_episodes:'',current_episode:0,status:'plan_to_watch',rating:'',notes:'',season_number:'',date_started:''}
+import { Minus, Plus, Star } from 'lucide-react'
+
+const blank = { title: '', alternative_title: '', poster_url: '', genres: [], rating: '', notes: '' }
+const newSeason = number => ({ season_number: number, season_title: `Season ${number}`, total_episodes: '', current_episode: 0, status: 'plan_to_watch', date_started: '' })
+
 export default function AnimeForm({ initial, onSubmit, saving }) {
- const [form,setForm]=useState({...blank,...initial,genres:initial?.genres||[]}); const [custom,setCustom]=useState(''); const [error,setError]=useState('')
- const set=(key,value)=>setForm(v=>({...v,[key]:value}))
- const toggleGenre=g=>set('genres',form.genres.includes(g)?form.genres.filter(x=>x!==g):[...form.genres,g])
- const submit=async e=>{e.preventDefault();setError('');const total=form.total_episodes===''?null:Number(form.total_episodes);const current=Number(form.current_episode)||0;const rating=form.rating===''?null:Number(form.rating);if(!form.title.trim())return setError('Anime title is required.');if(total!==null&&(!Number.isInteger(total)||total<0))return setError('Total episodes must be zero or higher.');if(current<0||!Number.isInteger(current)||(total!==null&&current>total))return setError('Current episode must be between 0 and total episodes.');if(rating!==null&&(rating<1||rating>10))return setError('Rating must be between 1 and 10.');const status=total&&current===total&&current>0?'completed':form.status;try{await onSubmit({...form,title:form.title.trim(),total_episodes:total,current_episode:current,rating,season_number:form.season_number?Number(form.season_number):null,genres:form.genres,status,date_completed:status==='completed'?(form.date_completed||new Date().toISOString().slice(0,10)):null,date_started:form.date_started||null})}catch(err){setError(err.message||'Could not save anime.')}}
- return <form className="anime-form" onSubmit={submit}><div className="form-grid"><label className="field full">Anime title *<input required autoFocus value={form.title} onChange={e=>set('title',e.target.value)} placeholder="e.g. Frieren: Beyond Journey’s End"/></label><label className="field full">Alternative title<input value={form.alternative_title||''} onChange={e=>set('alternative_title',e.target.value)} placeholder="Optional"/></label><label className="field full">Poster image URL<input type="url" value={form.poster_url||''} onChange={e=>set('poster_url',e.target.value)} placeholder="https://..."/></label><label className="field">Total episodes<input type="number" min="0" value={form.total_episodes??''} onChange={e=>set('total_episodes',e.target.value)} placeholder="e.g. 24"/></label><label className="field">Last episode watched<input type="number" min="0" max={form.total_episodes||undefined} value={form.current_episode??0} onChange={e=>set('current_episode',e.target.value)}/></label><label className="field">Watch status<select value={form.status} onChange={e=>set('status',e.target.value)}>{STATUSES.map(s=><option key={s} value={s}>{STATUS_LABELS[s]}</option>)}</select></label><label className="field">Season number<input type="number" min="1" value={form.season_number??''} onChange={e=>set('season_number',e.target.value)} placeholder="Optional"/></label><label className="field">Rating <span className="optional">(optional)</span><span className="rating-input"><Star size={16} fill="currentColor"/><select value={form.rating??''} onChange={e=>set('rating',e.target.value)}><option value="">Not rated</option>{Array.from({length:10},(_,i)=><option value={i+1} key={i}>{i+1} / 10</option>)}</select></span></label><label className="field">Date started<input type="date" value={form.date_started||''} onChange={e=>set('date_started',e.target.value)}/></label></div><fieldset className="genre-picker"><legend>Genres</legend><div className="genre-options">{GENRES.map(g=><button type="button" key={g} onClick={()=>toggleGenre(g)} className={`genre-option ${form.genres.includes(g)?'selected':''}`}>{g}</button>)}</div><div className="custom-genre"><input value={custom} onChange={e=>setCustom(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();if(custom.trim()){toggleGenre(custom.trim());setCustom('')}}}} placeholder="Add a custom genre"/><button type="button" className="small-btn" onClick={()=>{if(custom.trim()&&!form.genres.includes(custom.trim()))set('genres',[...form.genres,custom.trim()]);setCustom('')}}>Add</button></div></fieldset><label className="field notes-field">Personal notes<textarea rows="3" value={form.notes||''} onChange={e=>set('notes',e.target.value)} placeholder="Your thoughts, reminders, or where to pick up next…"/></label>{error&&<p className="form-error" role="alert">{error}</p>}<div className="form-actions"><button type="submit" className="primary-btn" disabled={saving}>{saving?'Saving…':initial?.id?'Save changes':'Add to my list'}</button></div></form>
+  const [form, setForm] = useState({ ...blank, ...initial, genres: initial?.genres || [] })
+  const [seasons, setSeasons] = useState(initial?.id ? [] : [newSeason(1)])
+  const [custom, setCustom] = useState('')
+  const [error, setError] = useState('')
+  const isEditing = Boolean(initial?.id)
+  const set = (key, value) => setForm(current => ({ ...current, [key]: value }))
+  const setSeason = (index, key, value) => setSeasons(current => current.map((season, seasonIndex) => seasonIndex === index ? { ...season, [key]: value } : season))
+  const toggleGenre = genre => set('genres', form.genres.includes(genre) ? form.genres.filter(value => value !== genre) : [...form.genres, genre])
+
+  const submit = async event => {
+    event.preventDefault()
+    setError('')
+    const rating = form.rating === '' ? null : Number(form.rating)
+    if (!form.title.trim()) return setError('Anime title is required.')
+    if (rating !== null && (rating < 1 || rating > 10)) return setError('Rating must be between 1 and 10.')
+
+    let seasonValues = []
+    if (!isEditing) {
+      if (!seasons.length) return setError('Add at least one season.')
+      const numbers = seasons.map(season => Number(season.season_number))
+      if (numbers.some(value => !Number.isInteger(value) || value < 1)) return setError('Season numbers must be positive whole numbers.')
+      if (new Set(numbers).size !== numbers.length) return setError('Each season number must be unique.')
+      for (const season of seasons) {
+        const total = season.total_episodes === '' ? null : Number(season.total_episodes)
+        const current = Number(season.current_episode) || 0
+        if (total !== null && (!Number.isInteger(total) || total < 0)) return setError(`Season ${season.season_number}: total episodes must be zero or higher.`)
+        if (!Number.isInteger(current) || current < 0 || (total !== null && current > total)) return setError(`Season ${season.season_number}: watched episodes must be between 0 and the total.`)
+        const status = total && current === total ? 'completed' : season.status
+        seasonValues.push({
+          ...season,
+          season_number: Number(season.season_number),
+          season_title: season.season_title?.trim() || `Season ${season.season_number}`,
+          total_episodes: total,
+          current_episode: current,
+          status,
+          date_started: season.date_started || null,
+          date_completed: status === 'completed' ? (season.date_completed || new Date().toISOString().slice(0, 10)) : null,
+        })
+      }
+    }
+
+    try {
+      await onSubmit({
+        title: form.title.trim(),
+        alternative_title: form.alternative_title?.trim() || null,
+        poster_url: form.poster_url?.trim() || null,
+        genres: form.genres,
+        rating,
+        notes: form.notes?.trim() || null,
+        ...(!isEditing ? { seasons: seasonValues } : {}),
+      })
+    } catch (cause) {
+      setError(cause.message || 'Could not save anime.')
+    }
+  }
+
+  return <form className="anime-form" onSubmit={submit}>
+    <div className="form-grid">
+      <label className="field full">Anime title *<input required autoFocus value={form.title} onChange={event => set('title', event.target.value)} placeholder="e.g. Frieren: Beyond Journey’s End"/></label>
+      <label className="field full">Alternative title<input value={form.alternative_title || ''} onChange={event => set('alternative_title', event.target.value)} placeholder="Optional"/></label>
+      <label className="field full">Poster image URL<input type="url" value={form.poster_url || ''} onChange={event => set('poster_url', event.target.value)} placeholder="https://..."/></label>
+      <label className="field">Rating <span className="optional">(optional)</span><span className="rating-input"><Star size={16} fill="currentColor"/><select value={form.rating ?? ''} onChange={event => set('rating', event.target.value)}><option value="">Not rated</option>{Array.from({ length: 10 }, (_, index) => <option value={index + 1} key={index}>{index + 1} / 10</option>)}</select></span></label>
+    </div>
+
+    {!isEditing ? <section className="season-editor">
+      <div className="season-editor-heading"><div><span className="section-kicker">SEASON TRACKING</span><h3>Add seasons</h3><p>Each season has its own episode count and progress.</p></div><button className="outline-btn season-add-btn" type="button" onClick={() => setSeasons(current => [...current, newSeason(Math.max(0, ...current.map(season => Number(season.season_number) || 0)) + 1)])}><Plus size={14}/> Add season</button></div>
+      <div className="season-edit-list">{seasons.map((season, index) => <fieldset className="season-edit-card" key={index}>
+        <legend>Season {season.season_number || index + 1}</legend>
+        <div className="season-form-grid"><label className="field">Season number<input type="number" min="1" step="1" required value={season.season_number} onChange={event => setSeason(index, 'season_number', event.target.value)}/></label><label className="field">Season name<input value={season.season_title || ''} onChange={event => setSeason(index, 'season_title', event.target.value)} placeholder={`Season ${index + 1}`}/></label><label className="field">Total episodes<input type="number" min="0" step="1" value={season.total_episodes} onChange={event => setSeason(index, 'total_episodes', event.target.value)} placeholder="e.g. 24"/></label><label className="field">Episodes watched<input type="number" min="0" step="1" max={season.total_episodes || undefined} value={season.current_episode} onChange={event => setSeason(index, 'current_episode', event.target.value)}/></label><label className="field">Status<select value={season.status} onChange={event => setSeason(index, 'status', event.target.value)}>{STATUSES.map(status => <option key={status} value={status}>{STATUS_LABELS[status]}</option>)}</select></label><label className="field">Date started<input type="date" value={season.date_started || ''} onChange={event => setSeason(index, 'date_started', event.target.value)}/></label></div>
+        {seasons.length > 1 && <button type="button" className="season-remove-btn" onClick={() => setSeasons(current => current.filter((_, seasonIndex) => seasonIndex !== index))}><Minus size={13}/> Remove season</button>}
+      </fieldset>)}</div>
+    </section> : <div className="season-editor-hint">Season episode progress is managed on the anime details page.</div>}
+
+    <fieldset className="genre-picker"><legend>Genres</legend><div className="genre-options">{GENRES.map(genre => <button type="button" key={genre} onClick={() => toggleGenre(genre)} className={`genre-option ${form.genres.includes(genre) ? 'selected' : ''}`}>{genre}</button>)}</div><div className="custom-genre"><input value={custom} onChange={event => setCustom(event.target.value)} onKeyDown={event => { if (event.key === 'Enter') { event.preventDefault(); if (custom.trim()) { toggleGenre(custom.trim()); setCustom('') } } }} placeholder="Add a custom genre"/><button type="button" className="small-btn" onClick={() => { if (custom.trim() && !form.genres.includes(custom.trim())) set('genres', [...form.genres, custom.trim()]); setCustom('') }}>Add</button></div></fieldset>
+    <label className="field notes-field">Personal notes<textarea rows="3" value={form.notes || ''} onChange={event => set('notes', event.target.value)} placeholder="Your thoughts, reminders, or where to pick back up…"/></label>
+    {error && <p className="form-error" role="alert">{error}</p>}
+    <div className="form-actions"><button type="submit" className="primary-btn" disabled={saving}>{saving ? 'Saving…' : isEditing ? 'Save changes' : 'Add series to my list'}</button></div>
+  </form>
 }

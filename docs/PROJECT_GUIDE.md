@@ -51,6 +51,7 @@ Run the migrations in order, either with the Supabase SQL Editor or Supabase CLI
 | `202610070001_create_anime_table.sql` | Creates the user-owned anime/watchlist table, constraints, indexes, timestamp trigger, and per-user RLS policies. |
 | `202610070002_create_profiles.sql` | Creates/backfills profiles, generates profiles on Auth signup, limits profile updates, and creates the `avatars` bucket and per-user write policies. |
 | `202610070003_admin_system.sql` | Adds the admin role helper, profile/audit RLS, protected admin RPCs, indexes, aggregate statistics, and role-change auditing. |
+| `202610070004_multi_season_anime.sql` | Consolidates same-title season entries into one series and creates per-season progress rows with owner RLS and summary synchronization. |
 
 If earlier migrations have already been applied to the project, apply only the remaining migration(s). Do not rerun or skip migrations without checking their effects first.
 
@@ -84,15 +85,18 @@ src/
 
 The Supabase client is created once in `src/lib/supabase.js`. `AuthContext` owns the Supabase session, `ProfileContext` loads the signed-in user's row, and service modules keep database requests out of page components. React Router lazy-loads feature pages. `vercel.json` rewrites direct SPA route requests to the Vite entry point.
 
+An anime is one series row in `public.anime`; each season is a row in `public.anime_seasons`. A database trigger keeps series-level status and episode totals synchronized from its seasons. The multi-season migration consolidates existing duplicate series rows and moves their previous season progress into the related season records.
+
 ## User features
 
 - Register, sign in, and sign out through Supabase Auth.
-- Add, edit, delete, search, filter, sort, and paginate private anime entries.
-- Track episode progress, status, favorites, ratings, notes, season, and dates.
+- Add, edit, delete, search, filter, sort, and paginate private anime series.
+- Keep each series together with separate episode progress and status per season; add seasons from the series details page.
+- Track favorites, ratings, notes, genres, and series/season dates.
 - Open a profile from the account menu; edit username/full name and upload a JPG, PNG, or WEBP avatar (maximum 5 MB).
 - Switch dark/light appearance from the top bar. The preference is saved in browser local storage.
 
-Anime rows are stored per user in `public.anime`. The table has row-level policies scoped to `auth.uid()`; the admin interface does not fetch private anime rows.
+Series are stored per user in `public.anime`, with episode progress in `public.anime_seasons`. Both tables have owner-scoped row-level policies; the admin interface does not fetch private season rows.
 
 ## Admin area
 
@@ -135,7 +139,8 @@ Admin routes are `/admin`, `/admin/users`, `/admin/users/:userId`, `/admin/anime
 2. Open `/admin`; check the dashboard metrics, user pagination/search/date and role filters, user detail, analytics, and activity.
 3. Change a user's role with the confirmation dialog; verify the event appears in Activity.
 4. Try demoting the only remaining administrator; the database must reject it.
-5. Open `/profile`, `/admin/users`, and `/admin` directly or refresh them to verify SPA routes load.
+5. Add one anime series with multiple seasons; verify each season and episode count is visible on the library card and details page. Update progress in one season and confirm other seasons keep their own episode counts.
+6. Open `/profile`, `/admin/users`, and `/admin` directly or refresh them to verify SPA routes load.
 
 Build verification:
 
