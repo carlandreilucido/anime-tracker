@@ -3,6 +3,7 @@ import { ArrowLeft, ClipboardList, LayoutDashboard, Library, LogOut, Menu, Setti
 import { useEffect, useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useProfile } from '../../contexts/ProfileContext'
+import ThemeToggle from '../ui/ThemeToggle'
 
 const adminLinks = [
   { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -37,7 +38,7 @@ export default function AdminLayout() {
       <nav className="admin-nav">{adminLinks.map(({to,label,icon:Icon,end})=><NavLink key={to} to={to} end={end} className={({isActive})=>`admin-nav-link ${isActive?'active':''}`}><Icon size={17}/><span>{label}</span></NavLink>)}</nav>
       <div className="admin-sidebar-bottom"><NavLink className="admin-back-link" to="/"><ArrowLeft size={16}/> Back to website</NavLink><div className="admin-profile"><span className="avatar">{profile.avatar_url?<img src={profile.avatar_url} alt=""/>:name?.[0]?.toUpperCase()}</span><span className="admin-profile-copy"><strong>{name}</strong><span>Administrator</span></span><button className="icon-btn" onClick={logout} aria-label="Log out"><LogOut size={16}/></button></div></div>
     </aside>
-    <main className="admin-main"><header className="admin-topbar"><button className="admin-menu-toggle icon-btn" aria-label="Open admin navigation" onClick={()=>setMobileOpen(true)}><Menu size={20}/></button><div className="admin-breadcrumb">Administration <span>/</span> {adminLinks.find(link=>link.to===location.pathname)?.label||'User details'}</div><div className="admin-top-user"><span className="avatar">{profile.avatar_url?<img src={profile.avatar_url} alt=""/>:name?.[0]?.toUpperCase()}</span><span>{name}</span></div></header><div className="admin-content"><Outlet/></div></main>
+    <main className="admin-main"><header className="admin-topbar"><button className="admin-menu-toggle icon-btn" aria-label="Open admin navigation" onClick={()=>setMobileOpen(true)}><Menu size={20}/></button><div className="admin-breadcrumb">Administration <span>/</span> {adminLinks.find(link=>link.to===location.pathname)?.label||'User details'}</div><div className="admin-top-user"><span className="avatar">{profile.avatar_url?<img src={profile.avatar_url} alt=""/>:name?.[0]?.toUpperCase()}</span><span>{name}</span><ThemeToggle/></div></header><div className="admin-content"><Outlet/></div></main>
   </div>
 }
 

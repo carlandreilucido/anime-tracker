@@ -2,6 +2,8 @@
 
 A responsive personal anime tracker built with React, Vite, Tailwind CSS, and Supabase. User-owned data is protected by PostgreSQL Row Level Security.
 
+For the full project setup, architecture, database security, admin operations, test checklist, and Vercel deployment guide, see [the Project Guide](docs/PROJECT_GUIDE.md).
+
 ## Run locally
 
 1. Install Node.js 18+ and dependencies: `npm install`

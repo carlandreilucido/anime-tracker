@@ -1,8 +1,9 @@
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
-import { LayoutDashboard, Library, Play, Bookmark, Check, Heart, LogOut, Plus, Menu, X, Sparkles, ChevronDown, UserRound, Settings, Shield } from 'lucide-react'
+import { LayoutDashboard, Library, Play, Bookmark, Check, Heart, LogOut, Menu, X, Sparkles, ChevronDown, UserRound, Settings, Shield } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useProfile } from '../../contexts/ProfileContext'
+import ThemeToggle from '../ui/ThemeToggle'
 
 const links = [
   { to: '/', key: 'overview', label: 'Overview', icon: LayoutDashboard },
@@ -30,7 +31,7 @@ function getActiveLink(pathname, search) {
   return 'library'
 }
 
-export default function AppLayout({ onAdd }) {
+export default function AppLayout() {
   const { user, signOut } = useAuth()
   const { profile } = useProfile()
   const [open, setOpen] = useState(false)
@@ -61,6 +62,6 @@ export default function AppLayout({ onAdd }) {
       </nav>
       <div className="sidebar-bottom"><div className="sidebar-note"><Sparkles className="note-icon" size={16}/><p>Every episode is a little closer to the ending.</p></div><div className="profile-menu" ref={profileMenuRef}><button className="user-profile profile-menu-trigger" aria-haspopup="menu" aria-expanded={profileMenuOpen} onClick={()=>setProfileMenuOpen(value=>!value)}><span className="avatar">{profile?.avatar_url?<img src={profile.avatar_url} alt=""/>:displayName[0]?.toUpperCase()}</span><span className="user-info"><strong>{displayName}</strong><span>{profile?.username?`@${profile.username}`:'Personal account'}</span></span><ChevronDown className="profile-menu-chevron" size={15}/></button>{profileMenuOpen&&<div className="profile-dropdown" role="menu"><NavLink role="menuitem" to="/profile"><UserRound size={15}/> Profile</NavLink><NavLink role="menuitem" to="/settings"><Settings size={15}/> Settings</NavLink>{profile?.role==='admin'&&<NavLink role="menuitem" to="/admin"><Shield size={15}/> Admin dashboard</NavLink>}<button role="menuitem" onClick={logout}><LogOut size={15}/> Log out</button></div>}</div></div>
     </aside>
-    <div className="main-column"><header className="topbar"><button className="menu-toggle icon-btn" onClick={() => setOpen(true)} aria-label="Open menu"><Menu size={20}/></button><div className="topbar-crumb">Your anime, <span>your pace.</span></div><button className="primary-btn add-top" onClick={onAdd}><Plus size={17}/> Add anime</button></header>{open && <button className="mobile-scrim" onClick={() => setOpen(false)} aria-label="Close menu"/>}<main className="main-content"><Outlet/></main><footer className="site-footer">Made for the stories that stay with you <Sparkles size={11}/></footer></div>
+      <div className="main-column"><header className="topbar"><button className="menu-toggle icon-btn" onClick={() => setOpen(true)} aria-label="Open menu"><Menu size={20}/></button><div className="topbar-crumb">Your anime, <span>your pace.</span></div><ThemeToggle/></header>{open && <button className="mobile-scrim" onClick={() => setOpen(false)} aria-label="Close menu"/>}<main className="main-content"><Outlet/></main><footer className="site-footer">Made for the stories that stay with you <Sparkles size={11}/></footer></div>
   </div>
 }
