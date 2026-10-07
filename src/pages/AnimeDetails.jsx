@@ -8,6 +8,7 @@ import StatusBadge from '../components/anime/StatusBadge'
 import ProgressBar from '../components/anime/ProgressBar'
 import AnimeForm from '../components/anime/AnimeForm'
 import SeasonForm from '../components/anime/SeasonForm'
+import WatchProviders from '../components/anime/WatchProviders'
 import { useToast } from '../components/ui/Toast'
 import Modal from '../components/ui/Modal'
 
@@ -124,6 +125,7 @@ export default function AnimeDetails({ refresh, onChanged }) {
       </div>
     </div>
 
+    <WatchProviders anime={anime}/>
     <section className="season-details-section"><header className="season-details-heading"><div><span className="section-kicker">EPISODE TRACKING</span><h2>Seasons <span className="heading-count">{seasons.length}</span></h2><p>Each season keeps its own episode count and progress.</p></div><button className="primary-btn" onClick={() => setAddingSeason(true)}><Plus size={15}/> Add season</button></header>
       {seasons.length ? <div className="season-detail-list">{seasons.map(season => {
         const finished = season.total_episodes > 0 && season.current_episode >= season.total_episodes

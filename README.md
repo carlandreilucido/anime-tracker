@@ -8,7 +8,7 @@ For the full project setup, architecture, database security, admin operations, t
 
 1. Install Node.js 18+ and dependencies: `npm install`
 2. Copy `.env.example` to `.env.local` and set your Supabase project URL and anon/public key.
-3. Run all four SQL files in `supabase/migrations/` in order in the Supabase SQL editor (or apply them with the Supabase CLI). The profile migration creates/backfills profiles and configures avatar storage; the admin migration adds authorization and aggregate RPCs; the multi-season migration groups seasons under one series.
+3. Run all six SQL files in `supabase/migrations/` in order in the Supabase SQL editor (or apply them with the Supabase CLI). The provider migrations add the provider directory, cached watch links, preferences, anime metadata identifiers, and general provider pricing labels.
 4. In Supabase Auth settings, configure the site URL and allowed redirect URLs for your local and deployed app.
 5. Run `npm run dev`.
 
@@ -54,3 +54,5 @@ Deploy the repository to Vercel as a Vite project. Set `VITE_SUPABASE_URL` and `
 Library search, filtering, sorting, and pagination are executed by Supabase. Dashboard totals use efficient count queries. The initial schema stores user-owned anime records and can later be separated into shared anime metadata and user-specific tracking data.
 
 Series with multiple seasons are stored once in `public.anime`; independent episode counts and progress live in `public.anime_seasons`. Apply migration `202610070004_multi_season_anime.sql` to group any existing same-title season entries before using the multi-season UI.
+
+Watch Options are generated from the database provider directory and cached in `public.watch_providers` for 24 hours. Apply `202610070005_watch_providers.sql` and `202610070006_provider_pricing.sql`, then deploy `supabase/functions/find-watch-providers/` to enable them. Pricing labels describe a service generally, not whether a particular title is free in your region. Current adapters create approved HTTPS search links because the providers do not offer reliable public catalog APIs for this app. Search links are not claims of regional availability. Kitsu does not host, proxy, scrape, or download video.

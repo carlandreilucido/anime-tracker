@@ -1,0 +1,4 @@
+project_id = "kitsu"
+
+[functions.find-watch-providers]
+verify_jwt = true

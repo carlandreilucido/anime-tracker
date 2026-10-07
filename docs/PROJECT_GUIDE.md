@@ -52,6 +52,8 @@ Run the migrations in order, either with the Supabase SQL Editor or Supabase CLI
 | `202610070002_create_profiles.sql` | Creates/backfills profiles, generates profiles on Auth signup, limits profile updates, and creates the `avatars` bucket and per-user write policies. |
 | `202610070003_admin_system.sql` | Adds the admin role helper, profile/audit RLS, protected admin RPCs, indexes, aggregate statistics, and role-change auditing. |
 | `202610070004_multi_season_anime.sql` | Consolidates same-title season entries into one series and creates per-season progress rows with owner RLS and summary synchronization. |
+| `202610070005_watch_providers.sql` | Adds provider search configuration, cached per-anime links, user preferences, optional anime metadata identifiers, and RLS. |
+| `202610070006_provider_pricing.sql` | Adds each provider's general access model (`free`, `subscription`, `mixed`, or `unknown`) and a generated `is_free` value when it is definitive. |
 
 If earlier migrations have already been applied to the project, apply only the remaining migration(s). Do not rerun or skip migrations without checking their effects first.
 
@@ -93,6 +95,7 @@ An anime is one series row in `public.anime`; each season is a row in `public.an
 - Add, edit, delete, search, filter, sort, and paginate private anime series.
 - Keep each series together with separate episode progress and status per season; add seasons from the series details page.
 - Track favorites, ratings, notes, genres, and series/season dates.
+- View generated external provider search/watch links from the details page or a card's Watch button; select a preferred provider in Settings.
 - Open a profile from the account menu; edit username/full name and upload a JPG, PNG, or WEBP avatar (maximum 5 MB).
 - Change the Supabase Auth password from Settings after confirming the current password.
 - Switch dark/light appearance from the top bar. The preference is saved in browser local storage.
@@ -109,6 +112,14 @@ Admin routes are `/admin`, `/admin/users`, `/admin/users/:userId`, `/admin/anime
 - Dashboard/watchlist analytics are returned by the admin-verified `admin_dashboard_stats()` RPC. Popular anime and daily additions/completions are aggregated in SQL.
 - Activity combines recent registrations, aggregate watchlist activity, and role changes. Role changes are inserted into `admin_audit_logs` by the database RPC, not by browser code.
 - Admin settings reuse the profile editor. User deletion/suspension is not implemented; there is no insecure browser-side Auth Admin API call.
+
+## External watch providers
+
+`public.streaming_providers` is the enabled provider directory. The UI renders this directory dynamically; the seeded providers are Bilibili, Crunchyroll, Netflix, Disney+, Prime Video, YouTube, AnimeKai, and LokLok. The directory includes general pricing labels: Free, Subscription, Free + paid, or Pricing unknown. `is_free` is nullable when a service has mixed or unverified pricing. These labels describe providers generally, not whether a specific title is free in a user's region. `public.watch_providers` caches a per-series provider URL/type for 24 hours, with a user region code for future regional integrations. `public.user_preferences` stores the preferred provider and optional two-letter country code.
+
+Provider lookup runs in the `find-watch-providers` Supabase Edge Function. It validates the caller's JWT, fetches the anime through the caller's RLS-scoped client, then uses the service-role key only inside the Edge Function to save generated links. The frontend never receives that key. The function is configured with JWT verification in `supabase/config.toml`. Deploy it with `supabase functions deploy find-watch-providers` after linking the Supabase CLI to your project. Supabase provides its standard `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` to Edge Functions; if you configure secrets manually, set them only in Supabase Edge Function secrets, never in Vite/Vercel `VITE_` variables.
+
+There are no reliable public catalog lookup APIs configured for the seeded services, so the current adapters generate official-site HTTPS search URLs. The buttons say “Search” rather than claiming a title is available. Adapters normalize and deduplicate canonical, English, romaji, Japanese, and alternative titles; optional MAL/AniList/provider IDs are available for future API-backed adapters. External URLs are restricted to each provider's allowlisted hosts, opened in a new tab with `noopener noreferrer`. Kitsu does not host, proxy, scrape, extract, or download streams. One provider lookup failure does not block adding an anime; the Watch Options panel offers retry and manual refresh.
 
 ### Admin authorization and role changes
 
@@ -141,7 +152,8 @@ Admin routes are `/admin`, `/admin/users`, `/admin/users/:userId`, `/admin/anime
 3. Change a user's role with the confirmation dialog; verify the event appears in Activity.
 4. Try demoting the only remaining administrator; the database must reject it.
 5. Add one anime series with multiple seasons; verify each season and episode count is visible on the library card and details page. Update progress in one season and confirm other seasons keep their own episode counts.
-6. Open `/profile`, `/admin/users`, and `/admin` directly or refresh them to verify SPA routes load.
+6. Open Watch Options; confirm providers show Search unless a future official adapter confirms a direct available link. Click one to verify it opens in a new tab. Change preferred provider under Settings and confirm it is ordered first.
+7. Open `/profile`, `/admin/users`, and `/admin` directly or refresh them to verify SPA routes load.
 
 Build verification:
 
@@ -167,4 +179,5 @@ Vercel builds with `npm run build` and serves `dist`. `vercel.json` rewrites dir
 - **Admin pages deny access:** verify the profile row has role `admin`, re-authenticate to refresh profile state, and apply the admin migration.
 - **Admin RPC missing:** apply `202610070003_admin_system.sql` after the profile and anime tables exist, then refresh the Supabase API schema cache if needed.
 - **Avatar upload denied:** confirm the avatar migration ran, the authenticated session is valid, file type/size is allowed, and the object path uses the current user's UID folder.
+- **Watch Options unavailable:** apply `202610070005_watch_providers.sql` and `202610070006_provider_pricing.sql`, deploy `find-watch-providers`, and confirm Supabase Edge Function JWT verification is enabled.
 - **Route refresh gives 404 on Vercel:** confirm the root `vercel.json` rewrite is deployed.

@@ -1,6 +1,7 @@
 import { Heart, Plus, Minus, Star, MoreHorizontal } from 'lucide-react'
 import ProgressBar from './ProgressBar'
 import StatusBadge from './StatusBadge'
+import WatchProviders from './WatchProviders'
 import { progressPercent } from '../../utils/format'
 import { episodeRangeLabel, getSeasonEpisodeNumbers } from '../../utils/seasonEpisodes'
 
@@ -28,6 +29,7 @@ export default function AnimeCard({ anime, onOpen, onProgress, onFavorite, busy 
       <div className="card-season-list" aria-label="Season episode numbering">{seasons.slice(0, 3).map(season => { const numbering = episodeNumbers.get(season.id); return <div className="card-season-entry" key={season.id}><div className="card-season-row"><span>{seasonName(season)}</span><strong>{episodeRangeLabel(numbering)}</strong></div><div className="card-season-row card-season-meta"><span>Season episodes: {season.current_episode || 0} / {season.total_episodes ?? '?'}</span><span>{numbering?.lastWatchedNumber ? `Last #${numbering.lastWatchedNumber}` : numbering?.nextEpisodeNumber ? `Next #${numbering.nextEpisodeNumber}` : 'Overall #?'}</span></div></div>})}{seasons.length > 3 && <span className="more-seasons">+{seasons.length - 3} more seasons</span>}</div>
       {anime.status === 'watching' && activeSeason ? <><ProgressBar anime={anime}/><div className="episode-actions"><span className="next-episode">{hasNextEpisode ? <>Next <b>{episodeNumbers.get(activeSeason.id)?.nextEpisodeNumber ? `#${episodeNumbers.get(activeSeason.id).nextEpisodeNumber} · ` : ''}{seasonName(activeSeason)} ep. {(activeSeason.current_episode || 0) + 1}</b></> : seasonFinished ? 'Current season complete' : 'No season selected'}</span><div className="stepper"><button disabled={busy || activeSeason.current_episode <= 0} onClick={() => onProgress(-1, activeSeason.id)} aria-label={`Decrease ${seasonName(activeSeason)} episode`}><Minus size={14}/></button><span>{episodeNumbers.get(activeSeason.id)?.lastWatchedNumber || 0}</span><button disabled={busy || !hasNextEpisode} onClick={() => onProgress(1, activeSeason.id)} aria-label={`Increase ${seasonName(activeSeason)} to overall episode ${episodeNumbers.get(activeSeason.id)?.nextEpisodeNumber ?? 'number unknown'}`}><Plus size={14}/></button></div></div></> : <div className="card-footer"><span>{anime.current_episode || 0} / {anime.total_episodes ?? '?'} total episodes watched</span><button className="subtle-btn" onClick={onOpen}>Seasons <MoreHorizontal size={15}/></button></div>}
       {anime.genres?.length > 0 && <div className="genre-line">{anime.genres.slice(0, 3).join(' · ')}</div>}
+      <div className="card-watch-row"><WatchProviders anime={anime} compact/></div>
     </div>
   </article>
 }
