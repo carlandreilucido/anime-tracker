@@ -33,7 +33,7 @@ The browser uses only `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. Never pl
 
 2. Copy `.env.example` to `.env.local` and set the Supabase project URL and publishable/anon key.
 3. Apply any unapplied SQL migrations from `supabase/migrations/` in filename order. See [Database migrations](#database-migrations).
-4. In Supabase Auth URL Configuration, allow your local URL (usually `http://localhost:5173`) and production Vercel URL. Configure email confirmation to match how you want account registration to behave.
+4. In Supabase Auth URL Configuration, set the Site URL to `https://animewatchlisttracker.vercel.app` and add it to the Redirect URLs allowlist (for example, `https://animewatchlisttracker.vercel.app/**`). Also allow your local URL (usually `http://localhost:5173`) for local development. Registration emails explicitly redirect to the production URL in production builds.
 5. Start the Vite development server:
 
    ```sh
