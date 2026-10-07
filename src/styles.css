@@ -262,7 +262,7 @@ html[data-theme="light"] .season-edit-btn:hover{background:#f2eef6;border-color:
 html[data-theme="light"] .season-global-range{color:#71617f}
 html[data-theme="light"] .card-season-meta{color:#706a77}
 html[data-theme="light"] .card-season-meta span:last-child{color:#684b88}
-/* Red replaces the former purple accent while preserving status-specific colors. */
+/* Accent theme overrides; status and alert colors keep their own semantics. */
 :root{--accent:#fb7180;--accent2:#e54857;--red:#fb7180}
 ::selection{background:#ef444455;color:#fff}
 .brand-mark{filter:hue-rotate(78deg) saturate(1.15)}
@@ -417,6 +417,187 @@ html[data-theme="light"] .watch-options-heading>svg{color:#bd303e}
 .provider-external-icon{position:absolute;top:8px;right:8px;width:13px;height:13px}
 @media(max-width:650px){.provider-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.provider-link{min-height:118px;padding:11px 7px}.provider-mark{width:40px;height:40px}.provider-mark img{width:24px;height:24px}.provider-link-copy strong{font-size:9px}.provider-link-copy small{font-size:8px}}
 html[data-theme="light"] .provider-mark-text{color:#fff}
+.provider-mark-animekai{background:#19b64a!important;color:#07150b!important;border-radius:8px}
+.animekai-logo-letter{font-family:Impact,'Arial Narrow',sans-serif;font-size:37px;font-weight:900;line-height:.85;letter-spacing:-5px;transform:scaleX(.92) translateX(-2px)}
+@media(max-width:650px){.animekai-logo-letter{font-size:34px}}
+.provider-mark-netflix{background:#080808!important;color:#e50914!important;border-radius:8px}
+.netflix-logo-letter{font-family:Impact,'Arial Narrow',sans-serif;font-size:37px;font-weight:900;line-height:1;background:linear-gradient(90deg,#8b0000 0%,#e50914 45%,#b20710 100%);background-clip:text;-webkit-background-clip:text;color:transparent;transform:scaleX(.85)}
+.provider-mark-loklok{background:linear-gradient(145deg,#8b16ed,#df12c9)!important;color:#fff!important;border-radius:12px}
+.loklok-logo-word{width:100%;display:grid;justify-items:center;gap:3px;line-height:1}
+.loklok-logo-word small{font-size:4px;font-weight:700;letter-spacing:.15px;white-space:nowrap}
+.loklok-logo-word strong{font-size:8px;font-style:italic;font-weight:900;letter-spacing:-.4px}
+.loklok-logo-word i{position:relative;width:19px;height:1px;background:#fff;margin-top:1px}
+.loklok-logo-word i:after{content:'✦';position:absolute;right:-5px;top:-5px;font-size:8px;font-style:normal}
+@media(max-width:650px){.netflix-logo-letter{font-size:34px}.loklok-logo-word small{font-size:3.5px}.loklok-logo-word strong{font-size:7px}}
+.provider-mark-disney_plus{background:#080b1b!important;color:#fff!important;border:1px solid #273a75;border-radius:11px}
+.disney-logo-word{font-family:'Brush Script MT','Segoe Script',cursive;font-size:13px;font-weight:700;font-style:italic;letter-spacing:-1px;white-space:nowrap}
+.disney-logo-word span{font-family:Arial,sans-serif;font-size:16px;font-style:normal;font-weight:400;margin-left:1px}
+.provider-mark-prime_video{background:#101923!important;color:#fff!important;border-radius:9px}
+.prime-logo-word{position:relative;display:grid;justify-items:center;line-height:.85}
+.prime-logo-word strong{font-family:Arial,sans-serif;font-size:12px;font-weight:600;letter-spacing:-.7px}
+.prime-logo-word small{font-family:Arial,sans-serif;font-size:7px;font-weight:500;letter-spacing:.1px;margin-top:3px}
+.prime-logo-word i{width:19px;height:5px;border-bottom:1.5px solid #00a8e1;border-radius:0 0 60% 60%;transform:rotate(-8deg);margin-top:0}
+@media(max-width:650px){.disney-logo-word{font-size:12px}.disney-logo-word span{font-size:14px}.prime-logo-word strong{font-size:11px}.prime-logo-word small{font-size:6px}}
+.provider-mark-hidive{background:#00aeef!important;color:#07111d!important;border-radius:8px}
+.hidive-logo-word{font-family:Arial,sans-serif;font-size:10px;font-weight:900;letter-spacing:-.8px;white-space:nowrap}
+.hidive-logo-word span{color:#fff}
+/* Green replaces the red primary accent; destructive/error states stay red. */
+:root{--accent:#4ade80;--accent2:#22c55e;--red:#ed858d}
+::selection{background:#4ade8050;color:#fff}
+.brand-mark,.admin-brand .brand-mark,html[data-theme="light"] .brand-mark{filter:hue-rotate(208deg) saturate(1.1)}
+.brand-dot{color:#4ade80}
+.primary-btn{background:#4ade80;border-color:#4ade80;color:#102417}
+.primary-btn:hover:not(:disabled){background:#69ed94;border-color:#69ed94;color:#102417}
+.nav-link.active,.admin-nav-link.active{background:#20382a;color:#b5f1c6}
+.nav-link.active svg,.admin-nav-link.active svg{color:#68df8e}
+.nav-child-link.active{background:#20382a;color:#b5f1c6}
+.nav-child-link.active svg{color:#68df8e}
+.progress-fill{background:linear-gradient(90deg,#22c55e,#86efac)}
+.status-watching{background:#20392a;color:#b5f1c6}
+.stat-total{background:linear-gradient(135deg,#1f3025,#1b1920);border-color:#365b40}
+.stat-icon,.admin-stat-icon,.shortcut-icon{background:#263a2b;color:#78e197}
+.stat-icon-0{background:#263a2b;color:#78e197}
+.note-icon,.text-link:hover,.back-link:hover,.recent-footer:hover{color:#78e197}
+.heading-count{background:#22382a;border-color:#456d4f;color:#9fedb4}
+.theme-toggle{color:#78e197}
+.theme-toggle:hover{color:#b5f1c6}
+.detail-next b{color:#9fedb4}
+.genre-option.selected{background:#223a29;border-color:#4f8b5e;color:#b5f1c6}
+.admin-panel-link,.admin-clear-filters,.admin-user-count-card svg,.admin-user-info-grid svg{color:#78e197}
+.admin-role-tag.admin,.role-pill.admin{border-color:#4a7655;background:#253a2c;color:#b5f1c6}
+.admin-icon-action{color:#89e5a2}
+.admin-user-avatar{background:#263a2b;color:#b5f1c6}
+.admin-activity-icon{background:#263a2b;color:#78e197}
+.admin-activity-icon.audit{background:#26342a;color:#86d99b}
+.art-copy h1 em{color:#78e197}
+.art-copy .eyebrow,.auth-box>.eyebrow,.setup-card>a{color:#8ae4a0}
+.art-lines span{background:linear-gradient(#8decaa,#438d56)}
+.auth-art{background:radial-gradient(ellipse at 90% 20%,#304a38 0,transparent 37%),radial-gradient(ellipse at 4% 94%,#252f28 0,transparent 43%),linear-gradient(150deg,#201f24,#141419 66%)}
+.auth-art:after{background:linear-gradient(145deg,transparent 60%,#4ade800e)}
+.profile-avatar-large,.admin-user-hero-avatar{background:linear-gradient(135deg,#293b2e,#25272a);border-color:#48684e;color:#b5f1c6}
+.avatar,.admin-user-avatar{background:#263a2b;color:#b5f1c6}
+.settings-icon{background:#263a2b;color:#78e197}
+.profile-info-item>span svg{color:#78e197}
+.empty-symbol,.admin-profile-error>svg{color:#78e197}
+.profile-dropdown a:hover,.profile-dropdown button:hover{background:#20382a;color:#b5f1c6}
+.profile-dropdown svg{color:#78e197}
+.poster-placeholder,.details-placeholder{background:radial-gradient(circle at 70% 20%,#354c3a,#292b29 62%,#211f21);color:#b5f1c6}
+.recent-cover{background:#263a2b;color:#b5f1c6}
+.admin-rank-row>span,.popular-rank{color:#8ee5a3}
+.season-global-range,.card-season-meta span:last-child,.more-seasons{color:#91e8a5}
+.spinner{border-top-color:#4ade80}
+.provider-refresh:hover:not(:disabled){border-color:#4d8057;color:#9fedb4}
+.provider-link:hover{border-color:#45704c}
+.provider-pricing{color:#a9d8b4}
+.watch-button{border-color:#456d4f;background:#20382a;color:#b5f1c6}
+.watch-button:hover{background:#2b4a35;border-color:#5d9868;color:#e0ffe7}
+.season-edit-btn:hover{background:#20382a;color:#b5f1c6;border-color:#4d8057}
+.season-remove-btn{color:#ed858d}
+.welcome-row h1 em{color:#4ade80}
+.outline-btn:hover{border-color:#4d8057}
+html[data-theme="light"] .brand-dot{color:#16803c}
+html[data-theme="light"] .primary-btn{background:#16803c;border-color:#16803c;color:#fff}
+html[data-theme="light"] .primary-btn:hover:not(:disabled){background:#116b32;border-color:#116b32;color:#fff}
+html[data-theme="light"] .nav-link.active,html[data-theme="light"] .admin-nav-link.active,html[data-theme="light"] .nav-child-link.active{background:#e8f5eb;color:#23643a}
+html[data-theme="light"] .nav-link.active svg,html[data-theme="light"] .admin-nav-link.active svg,html[data-theme="light"] .nav-child-link.active svg{color:#218343}
+html[data-theme="light"] .progress-fill{background:linear-gradient(90deg,#16a34a,#4ade80)}
+html[data-theme="light"] .status-watching{background:#e8f5eb;color:#23643a}
+html[data-theme="light"] .stat-total{background:linear-gradient(135deg,#eaf6ed,#fff);border-color:#cfe8d4}
+html[data-theme="light"] .stat-icon,html[data-theme="light"] .stat-icon-0,html[data-theme="light"] .admin-stat-icon,html[data-theme="light"] .shortcut-icon{background:#e8f5eb;color:#218343}
+html[data-theme="light"] .note-icon,html[data-theme="light"] .text-link:hover,html[data-theme="light"] .back-link:hover,html[data-theme="light"] .recent-footer:hover{color:#18723a}
+html[data-theme="light"] .heading-count{background:#edf8ef;border-color:#cce4d1;color:#276c3c}
+html[data-theme="light"] .theme-toggle{color:#18723a}
+html[data-theme="light"] .theme-toggle:hover{color:#10582c}
+html[data-theme="light"] .detail-next b{color:#246f3c}
+html[data-theme="light"] .genre-option.selected{background:#e7f4e9;border-color:#b8d9bf;color:#276c3c}
+html[data-theme="light"] .admin-panel-link,html[data-theme="light"] .admin-clear-filters,html[data-theme="light"] .admin-user-count-card svg,html[data-theme="light"] .admin-user-info-grid svg{color:#21753e}
+/* Episode values are editable in-place inside the +/- progress control. */
+.episode-number-input{width:43px;min-width:0;height:25px;padding:0 2px;border:1px solid transparent;border-radius:4px;appearance:textfield;-moz-appearance:textfield;background:transparent;color:#f1eef5;text-align:center;font-size:10px;font-weight:700;outline:none}
+.episode-number-input::-webkit-outer-spin-button,.episode-number-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.episode-number-input:focus{border-color:#4ade80;background:#17241b;box-shadow:0 0 0 2px #4ade8030}
+.episode-number-input:disabled{opacity:.55;cursor:wait}
+.auth-art-top .brand-dot,.auth-mobile-brand .brand-dot{margin-left:-9px}
+html[data-theme="light"] .episode-number-input{color:#252d27}
+html[data-theme="light"] .episode-number-input:focus{border-color:#16803c;background:#f0faf2;box-shadow:0 0 0 2px #22c55e2b}
+html[data-theme="light"] .watch-button{border-color:#b8d9bf;background:#e8f5eb;color:#23643a}
+html[data-theme="light"] .watch-button:hover{background:#d9efde;border-color:#94c9a0;color:#184f2d}
+html[data-theme="light"] .auth-switch a{color:#176b37}
+/* Library filter controls: consistent padding/radii and a bottom-opening genre menu. */
+.filter-row .select-filter,.genre-filter-trigger{height:36px;padding:0 11px;border-radius:9px}
+.filter-row .select-filter select{height:100%;padding:0 19px 0 2px;border-radius:6px}
+.genre-dropdown{position:relative;z-index:2}
+.genre-dropdown.is-open{z-index:35}
+.genre-filter-trigger{min-width:125px;display:inline-flex;align-items:center;justify-content:space-between;gap:18px;color:#c4c1cb}
+.genre-filter-menu{position:absolute;top:calc(100% + 7px);left:0;z-index:50;width:max(100%,190px);max-height:min(300px,calc(100vh - 190px));overflow-y:auto;padding:6px;border:1px solid #393640;border-radius:10px;background:#201f25;box-shadow:0 14px 34px #0007;display:grid;gap:2px}
+.genre-filter-menu button{min-height:33px;width:100%;padding:0 10px;border:0;border-radius:6px;background:transparent;color:#c5c1cc;text-align:left;font-size:10px;cursor:pointer}
+.genre-filter-menu button:hover,.genre-filter-menu button.selected{background:#20382a;color:#b5f1c6}
+@media(max-width:650px){.filter-row .select-filter,.genre-filter-trigger{height:34px;padding:0 9px}.genre-filter-trigger{min-width:110px;gap:8px}.genre-filter-menu{max-height:min(260px,calc(100vh - 170px))}}
+html[data-theme="light"] .genre-filter-trigger{background:#fbfafc;border-color:#dedbe3;color:#4b4551}
+html[data-theme="light"] .genre-filter-menu{background:#fff;border-color:#ddd9e2;box-shadow:0 12px 30px #372b451f}
+html[data-theme="light"] .genre-filter-menu button{color:#504a56}
+html[data-theme="light"] .genre-filter-menu button:hover,html[data-theme="light"] .genre-filter-menu button.selected{background:#e8f5eb;color:#23643a}
+.filter-dropdown{position:relative;z-index:2;flex:none}
+.filter-dropdown.is-open{z-index:40}
+.custom-filter-trigger{min-width:128px;display:inline-flex;align-items:center;justify-content:space-between;gap:8px;color:#c4c1cb}
+.filter-dropdown-sort .custom-filter-trigger{min-width:158px}
+.filter-dropdown-default .custom-filter-trigger{min-width:148px}
+.filter-dropdown-sort .custom-filter-trigger{min-width:188px}
+.custom-filter-trigger>svg{flex:none}
+.filter-selected-label{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.filter-prefix{flex:none;color:#89848f;font-size:9px}
+.filter-dropdown-menu{position:absolute;top:calc(100% + 7px);left:0;z-index:50;width:max(100%,195px);max-height:min(300px,calc(100vh - 180px));overflow-y:auto;padding:6px;border:1px solid #393640;border-radius:10px;background:#201f25;box-shadow:0 14px 34px #0007;display:grid;gap:2px}
+.filter-dropdown-sort .filter-dropdown-menu{left:auto;right:0}
+.filter-dropdown-menu button{min-height:34px;width:100%;padding:0 10px;border:0;border-radius:6px;background:transparent;color:#c5c1cc;text-align:left;font-size:10px;cursor:pointer}
+.filter-dropdown-menu button:hover,.filter-dropdown-menu button.selected{background:#20382a;color:#b5f1c6}
+@media(max-width:650px){.custom-filter-trigger{min-width:128px;max-width:150px;height:34px;padding:0 8px}.filter-dropdown-sort .custom-filter-trigger{min-width:166px;max-width:176px}.filter-dropdown-menu{max-height:min(260px,calc(100vh - 150px))}}
+html[data-theme="light"] .custom-filter-trigger{background:#fbfafc;border-color:#dedbe3;color:#4b4551}
+html[data-theme="light"] .filter-prefix{color:#625d68}
+html[data-theme="light"] .filter-dropdown-menu{background:#fff;border-color:#ddd9e2;box-shadow:0 12px 30px #372b451f}
+html[data-theme="light"] .filter-dropdown-menu button{color:#504a56}
+html[data-theme="light"] .filter-dropdown-menu button:hover,html[data-theme="light"] .filter-dropdown-menu button.selected{background:#e8f5eb;color:#23643a}
+html[data-theme="light"] .filter-row .select-filter select option{background:#fff;color:#302d36}
+/* Give the dashboard activity column breathing room on its right edge. */
+.dashboard-grid>.recent-panel{padding-right:14px}
+@media(max-width:900px){.dashboard-grid>.recent-panel{padding-right:12px}}
+@media(max-width:650px){.dashboard-grid>.recent-panel{padding-right:10px}}
+/* Native select popups need explicit light colors on Windows browsers too. */
+html[data-theme="light"] select,html[data-theme="light"] select option{color:#302d36;background-color:#fff;color-scheme:light}
+html[data-theme="light"] .select-filter select option,html[data-theme="light"] .admin-filter-field select option{color:#302d36;background-color:#fff}
+html[data-theme="light"] .profile-dropdown{background:#fff;border-color:#e2dfe7}
+html[data-theme="light"] .profile-dropdown a,html[data-theme="light"] .profile-dropdown button{color:#514b58}
+.profile-dropdown{padding:8px;gap:4px;margin-bottom:3px}
+.profile-dropdown a,.profile-dropdown button{padding:0 11px}
+html[data-theme="light"] .eyebrow,html[data-theme="light"] .section-kicker,html[data-theme="light"] .admin-eyebrow{color:#625d68}
+html[data-theme="light"] .stat-caption,html[data-theme="light"] .chart-count,html[data-theme="light"] .chart-month-label{color:#625d68}
+html[data-theme="light"] .admin-role-tag.admin,html[data-theme="light"] .role-pill.admin{border-color:#b8d9bf;background:#e8f5eb;color:#276c3c}
+html[data-theme="light"] .admin-icon-action{color:#21753e}
+html[data-theme="light"] .admin-user-avatar{background:#e8f5eb;color:#276c3c;border-color:#cde4d2}
+html[data-theme="light"] .admin-activity-icon,html[data-theme="light"] .admin-activity-icon.audit{background:#e8f5eb;color:#21753e}
+html[data-theme="light"] .art-copy h1 em{color:#16803c}
+html[data-theme="light"] .art-copy .eyebrow,html[data-theme="light"] .auth-box>.eyebrow,html[data-theme="light"] .setup-card>a{color:#21753e}
+html[data-theme="light"] .art-lines span{background:linear-gradient(#8bd5a0,#39854e)}
+html[data-theme="light"] .auth-art{background:radial-gradient(ellipse at 90% 20%,#dff1e2 0,transparent 39%),radial-gradient(ellipse at 4% 94%,#e5eee6 0,transparent 44%),linear-gradient(150deg,#f1f8f2,#eef1ee 66%)}
+html[data-theme="light"] .auth-art:after{background:linear-gradient(145deg,transparent 60%,#16803c0c)}
+html[data-theme="light"] .profile-avatar-large,html[data-theme="light"] .admin-user-hero-avatar{background:linear-gradient(135deg,#e7f4e9,#f3faf4);border-color:#c5e1cb;color:#276c3c}
+html[data-theme="light"] .avatar,html[data-theme="light"] .admin-user-avatar{background:#e8f5eb;color:#276c3c}
+html[data-theme="light"] .settings-icon{background:#e8f5eb;color:#21753e}
+html[data-theme="light"] .profile-info-item>span svg{color:#21753e}
+html[data-theme="light"] .empty-symbol,html[data-theme="light"] .admin-profile-error>svg{color:#21753e}
+html[data-theme="light"] .profile-dropdown a:hover,html[data-theme="light"] .profile-dropdown button:hover{background:#e8f5eb;color:#23643a}
+html[data-theme="light"] .profile-dropdown svg{color:#21753e}
+html[data-theme="light"] .poster-placeholder,html[data-theme="light"] .details-placeholder{background:radial-gradient(circle at 70% 20%,#d9eedc,#eff7f0 62%,#e5eee6);color:#276c3c}
+html[data-theme="light"] .recent-cover{background:#e8f5eb;color:#276c3c}
+html[data-theme="light"] .admin-rank-row>span,html[data-theme="light"] .popular-rank{color:#21753e}
+html[data-theme="light"] .season-global-range,html[data-theme="light"] .card-season-meta span:last-child,html[data-theme="light"] .more-seasons{color:#21753e}
+html[data-theme="light"] .spinner{border-color:#cce4d1;border-top-color:#16803c}
+html[data-theme="light"] .provider-refresh:hover:not(:disabled){border-color:#b8d9bf;color:#21753e}
+html[data-theme="light"] .provider-link:hover{border-color:#b8d9bf}
+html[data-theme="light"] .provider-pricing{color:#276c3c}
+html[data-theme="light"] .watch-button{border-color:#b8d9bf;background:#e8f5eb;color:#23643a}
+html[data-theme="light"] .watch-button:hover{background:#d9efde;border-color:#94c9a0;color:#184f2d}
+html[data-theme="light"] .season-edit-btn:hover{background:#e8f5eb;color:#23643a;border-color:#b8d9bf}
+html[data-theme="light"] .welcome-row h1 em{color:#16803c}
+html[data-theme="light"] .outline-btn:hover{border-color:#b8d9bf}
 html[data-theme="light"] .provider-link{background:#fff;border-color:#e3dfe7;color:#39343f}
 html[data-theme="light"] .provider-link:hover{background:#fff7f7;border-color:#e5b9be}
 html[data-theme="light"] .provider-link-copy small,html[data-theme="light"] .provider-footer,html[data-theme="light"] .provider-external-icon{color:#706a77}
@@ -480,3 +661,70 @@ html[data-theme="light"] .admin-role-tag.admin,html[data-theme="light"] .role-pi
 html[data-theme="light"] .spinner{border-color:#f0d3d6;border-top-color:#dc3545}
 html[data-theme="light"] .admin-panel-link,html[data-theme="light"] .admin-clear-filters{color:#b93442}
 html[data-theme="light"] .art-copy .eyebrow,html[data-theme="light"] .auth-box>.eyebrow{color:#a5323e}
+/* Final accent overrides keep all surfaces on the green palette. */
+:root{--accent:#4ade80;--accent2:#22c55e;--red:#ed858d}
+.auth-art{background:radial-gradient(ellipse at 90% 20%,#304a38 0,transparent 37%),radial-gradient(ellipse at 4% 94%,#252f28 0,transparent 43%),linear-gradient(150deg,#201f24,#141419 66%)}
+.auth-art:after{background:linear-gradient(145deg,transparent 60%,#4ade800e)}
+.empty-symbol,.note-icon,.admin-profile-error>svg{color:#78e197}
+.profile-dropdown a:hover,.profile-dropdown button:hover{background:#20382a;color:#b5f1c6}
+.profile-dropdown svg{color:#78e197}
+.stat-total{background:linear-gradient(135deg,#1f3025,#1b1920);border-color:#365b40}
+.stat-icon,.admin-stat-icon,.shortcut-icon{background:#263a2b;color:#78e197}
+.stat-icon-0{background:#263a2b;color:#78e197}
+.genre-option.selected{background:#223a29;border-color:#4f8b5e;color:#b5f1c6}
+.season-edit-btn:hover{background:#20382a;color:#b5f1c6;border-color:#4d8057}
+.season-global-range,.card-season-meta span:last-child,.more-seasons{color:#91e8a5}
+.admin-role-tag.admin,.role-pill.admin{border-color:#4a7655;background:#253a2c;color:#b5f1c6}
+.spinner{border-top-color:#4ade80}
+.admin-panel-link,.admin-clear-filters,.admin-user-count-card svg,.admin-user-info-grid svg{color:#78e197}
+.art-copy h1 em,.art-copy .eyebrow,.auth-box>.eyebrow{color:#8ae4a0}
+html[data-theme="light"] .auth-art{background:radial-gradient(ellipse at 90% 20%,#dff1e2 0,transparent 39%),radial-gradient(ellipse at 4% 94%,#e5eee6 0,transparent 44%),linear-gradient(150deg,#f1f8f2,#eef1ee 66%)}
+html[data-theme="light"] .auth-art:after{background:linear-gradient(145deg,transparent 60%,#16803c0c)}
+html[data-theme="light"] .empty-symbol,html[data-theme="light"] .note-icon,html[data-theme="light"] .admin-profile-error>svg{color:#21753e}
+html[data-theme="light"] .profile-dropdown a:hover,html[data-theme="light"] .profile-dropdown button:hover{background:#e8f5eb;color:#23643a}
+html[data-theme="light"] .profile-dropdown svg{color:#21753e}
+html[data-theme="light"] .stat-total{background:linear-gradient(135deg,#eaf6ed,#fff);border-color:#cfe8d4}
+html[data-theme="light"] .stat-icon,html[data-theme="light"] .stat-icon-0,html[data-theme="light"] .admin-stat-icon,html[data-theme="light"] .shortcut-icon{background:#e8f5eb;color:#218343}
+html[data-theme="light"] .genre-option.selected{background:#e7f4e9;border-color:#b8d9bf;color:#276c3c}
+html[data-theme="light"] .season-edit-btn:hover{background:#e8f5eb;color:#23643a;border-color:#b8d9bf}
+html[data-theme="light"] .season-global-range,html[data-theme="light"] .card-season-meta span:last-child,html[data-theme="light"] .more-seasons{color:#21753e}
+html[data-theme="light"] .admin-role-tag.admin,html[data-theme="light"] .role-pill.admin{border-color:#b8d9bf;background:#e8f5eb;color:#276c3c}
+html[data-theme="light"] .spinner{border-color:#cce4d1;border-top-color:#16803c}
+html[data-theme="light"] .admin-panel-link,html[data-theme="light"] .admin-clear-filters,html[data-theme="light"] .admin-user-count-card svg,html[data-theme="light"] .admin-user-info-grid svg{color:#21753e}
+html[data-theme="light"] .art-copy h1 em,html[data-theme="light"] .art-copy .eyebrow,html[data-theme="light"] .auth-box>.eyebrow{color:#21753e}
+/* Supporting colors add depth without competing with the green primary accent. */
+:root{--accent2:#2dd4bf}
+.stat-icon-1{background:#263449;color:#7db7f2}
+.stat-icon-2{background:#253a35;color:#67d9b0}
+.stat-icon-3{background:#3c3628;color:#f0c36d}
+.stat-icon-4{background:#3b292e;color:#e3919d}
+.admin-stat-icon,.shortcut-icon,.admin-user-count-card svg,.admin-user-info-grid svg,.profile-info-item>span svg{color:#5ed5c2}
+.admin-stat-icon,.shortcut-icon{background:#233b38}
+.admin-activity-icon{background:#233b38;color:#5ed5c2}
+.detail-next,.season-global-range{color:#69cdbd}
+.card-season-meta span:last-child,.more-seasons{color:#84dec3}
+.chart-bar,.daily-activity-added{background:#46c7b3}
+.admin-rank-row>span,.popular-rank{color:#61cdb7}
+.provider-pricing{color:#b2dfb7}
+.settings-icon{background:#233b38;color:#5ed5c2}
+html[data-theme="light"] .stat-icon-1{background:#eaf1f7;color:#537595}
+html[data-theme="light"] .stat-icon-2{background:#e7f5ef;color:#368165}
+html[data-theme="light"] .stat-icon-3{background:#f8f1df;color:#8a6a28}
+html[data-theme="light"] .stat-icon-4{background:#f8e9eb;color:#9b5860}
+html[data-theme="light"] .admin-stat-icon,html[data-theme="light"] .shortcut-icon,html[data-theme="light"] .settings-icon{background:#e6f5f1;color:#277e70}
+html[data-theme="light"] .admin-user-count-card svg,html[data-theme="light"] .admin-user-info-grid svg,html[data-theme="light"] .profile-info-item>span svg{color:#277e70}
+html[data-theme="light"] .admin-activity-icon{background:#e6f5f1;color:#277e70}
+html[data-theme="light"] .detail-next,html[data-theme="light"] .season-global-range{color:#317d71}
+html[data-theme="light"] .card-season-meta span:last-child,html[data-theme="light"] .more-seasons{color:#348267}
+html[data-theme="light"] .chart-bar,html[data-theme="light"] .daily-activity-added{background:#3ba994}
+html[data-theme="light"] .admin-rank-row>span,html[data-theme="light"] .popular-rank{color:#317d71}
+html[data-theme="light"] .provider-pricing{color:#477451}
+/* Login wordmark spacing and stronger contrast for muted light-mode labels. */
+.auth-art-top .brand-dot,.auth-mobile-brand .brand-dot{margin-left:-9px}
+html[data-theme="light"] .watch-button{background:#e8f5eb;border-color:#b8d9bf;color:#23643a}
+html[data-theme="light"] .watch-button:hover{background:#d9efde;border-color:#94c9a0;color:#184f2d}
+html[data-theme="light"] .admin-page-heading p,html[data-theme="light"] .profile-page-heading p,html[data-theme="light"] .welcome-row p,html[data-theme="light"] .page-heading p{color:#625d68}
+html[data-theme="light"] .stat-caption,html[data-theme="light"] .workspace-label,html[data-theme="light"] .section-kicker,html[data-theme="light"] .admin-eyebrow,html[data-theme="light"] .season-number-label{color:#625d68}
+html[data-theme="light"] .field-hint,html[data-theme="light"] .optional,html[data-theme="light"] .profile-info-item>span,html[data-theme="light"] .info-item span,html[data-theme="light"] .muted-copy{color:#625d68}
+html[data-theme="light"] .auth-description,html[data-theme="light"] .auth-switch,html[data-theme="light"] .auth-privacy,html[data-theme="light"] .art-caption{color:#625d68}
+html[data-theme="light"] .auth-switch a{color:#176b37}

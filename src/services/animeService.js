@@ -51,6 +51,25 @@ export function withOptimisticEpisodeChange(anime, seasonId, increment) {
   return { ...anime, ...seriesSummary(updatedSeasons), seasons: updatedSeasons }
 }
 
+export function withOptimisticEpisodeNumber(anime, seasonId, episodeNumber) {
+  const seasons = sortSeasons(anime.seasons || [])
+  const target = seasons.find(season => season.id === seasonId)
+  if (!target) return anime
+  const current = Number(target.current_episode) || 0
+  const today = new Date().toISOString().slice(0, 10)
+  const status = target.total_episodes !== null && target.total_episodes !== undefined && episodeNumber >= target.total_episodes
+    ? 'completed'
+    : episodeNumber > current && target.status !== 'watching' ? 'watching' : target.status === 'completed' ? 'watching' : target.status
+  const updatedSeasons = seasons.map(season => season.id !== target.id ? season : {
+    ...season,
+    current_episode: episodeNumber,
+    status,
+    date_started: season.date_started || (episodeNumber > 0 ? today : null),
+    date_completed: status === 'completed' ? (season.date_completed || today) : null,
+  })
+  return { ...anime, ...seriesSummary(updatedSeasons), seasons: updatedSeasons }
+}
+
 export async function getAnime({ page = 0, search = '', status = '', genre = '', favorites = false, rating = '', sort = 'created_at', direction = 'desc' } = {}) {
   ensureClient()
   let query = supabase.from('anime').select(ANIME_WITH_SEASONS, { count: 'exact' })
@@ -182,6 +201,28 @@ export async function updateEpisodeProgress(anime, increment, seasonId) {
     current_episode: next,
     status,
     date_started: target.date_started || (increment > 0 ? today : null),
+    date_completed: status === 'completed' ? (target.date_completed || today) : null,
+  }).eq('id', target.id)
+  if (error) throw error
+  return getAnimeById(anime.id)
+}
+
+export async function setSeasonEpisodeProgress(anime, seasonId, episodeNumber) {
+  ensureClient()
+  const target = anime.seasons?.find(season => season.id === seasonId)
+  if (!target) throw new Error('Season not found in this series.')
+  if (!Number.isSafeInteger(episodeNumber) || episodeNumber < 0 || (target.total_episodes !== null && target.total_episodes !== undefined && episodeNumber > target.total_episodes)) {
+    throw new Error(`Episode number must be between 0 and ${target.total_episodes ?? 'the available total'}.`)
+  }
+  const current = Number(target.current_episode) || 0
+  const today = new Date().toISOString().slice(0, 10)
+  const status = target.total_episodes !== null && target.total_episodes !== undefined && episodeNumber >= target.total_episodes
+    ? 'completed'
+    : episodeNumber > current && target.status !== 'watching' ? 'watching' : target.status === 'completed' ? 'watching' : target.status
+  const { error } = await supabase.from('anime_seasons').update({
+    current_episode: episodeNumber,
+    status,
+    date_started: target.date_started || (episodeNumber > 0 ? today : null),
     date_completed: status === 'completed' ? (target.date_completed || today) : null,
   }).eq('id', target.id)
   if (error) throw error

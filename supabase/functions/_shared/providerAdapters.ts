@@ -91,6 +91,7 @@ const adapters: Record<string, WatchProviderAdapter> = {
   prime_video: searchFallback,
   youtube: searchFallback,
   animekai: searchFallback,
+  hidive: searchFallback,
   loklok: searchFallback,
 }
 

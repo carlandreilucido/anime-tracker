@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, ArrowUpRight, Edit3, Heart, ListPlus, Minus, Plus, Star, Trash2 } from 'lucide-react'
-import { addAnimeSeason, deleteAnime, getAnimeById, markAnimeCompleted, toggleFavorite, updateAnime, updateAnimeSeason, updateEpisodeProgress } from '../services/animeService'
+import { addAnimeSeason, deleteAnime, getAnimeById, markAnimeCompleted, toggleFavorite, updateAnime, updateAnimeSeason, updateEpisodeProgress, setSeasonEpisodeProgress, withOptimisticEpisodeNumber } from '../services/animeService'
 import { progressPercent, readableError, timeAgo } from '../utils/format'
 import { episodeRangeLabel, getSeasonEpisodeNumbers } from '../utils/seasonEpisodes'
 import StatusBadge from '../components/anime/StatusBadge'
@@ -9,6 +9,7 @@ import ProgressBar from '../components/anime/ProgressBar'
 import AnimeForm from '../components/anime/AnimeForm'
 import SeasonForm from '../components/anime/SeasonForm'
 import WatchProviders from '../components/anime/WatchProviders'
+import EpisodeNumberInput from '../components/anime/EpisodeNumberInput'
 import { useToast } from '../components/ui/Toast'
 import Modal from '../components/ui/Modal'
 
@@ -22,6 +23,7 @@ export default function AnimeDetails({ refresh, onChanged }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
+  const [progressBusy, setProgressBusy] = useState({})
   const [editing, setEditing] = useState(false)
   const [addingSeason, setAddingSeason] = useState(false)
   const [editingSeason, setEditingSeason] = useState(null)
@@ -54,6 +56,22 @@ export default function AnimeDetails({ refresh, onChanged }) {
       setAnime(anime)
       toast(readableError(cause), 'error')
     }
+  }
+
+  const setSeasonEpisode = async (season, episodeNumber) => {
+    const previous = anime
+    setProgressBusy(current => ({ ...current, [season.id]: true }))
+    setAnime(current => withOptimisticEpisodeNumber(current, season.id, episodeNumber))
+    try {
+      const updated = await setSeasonEpisodeProgress(anime, season.id, episodeNumber)
+      setAnime(updated)
+      onChanged()
+      toast(`${seasonName(season)} progress saved.`)
+    } catch (cause) {
+      setAnime(previous)
+      toast(readableError(cause), 'error')
+      throw cause
+    } finally { setProgressBusy(current => ({ ...current, [season.id]: false })) }
   }
 
   const favorite = async () => {
@@ -131,7 +149,7 @@ export default function AnimeDetails({ refresh, onChanged }) {
         const finished = season.total_episodes > 0 && season.current_episode >= season.total_episodes
         const percent = season.total_episodes > 0 ? Math.min(100, Math.round((season.current_episode / season.total_episodes) * 100)) : 0
         const numbering = episodeNumbers.get(season.id)
-        return <article className="season-detail-card" key={season.id}><div className="season-detail-top"><div><span className="season-number-label">SEASON {season.season_number}</span><h3>{seasonName(season)}</h3><span className="season-global-range">{episodeRangeLabel(numbering)}</span></div><div className="season-detail-badges"><StatusBadge status={season.status}/><button className="season-edit-btn" onClick={() => setEditingSeason(season)} aria-label={`Edit ${seasonName(season)}`}><Edit3 size={14}/></button></div></div><div className="season-episode-summary"><strong>Season ep. {season.current_episode || 0} <span>/ {season.total_episodes ?? '?'}</span></strong><span>{numbering?.lastWatchedNumber ? `Overall last watched #${numbering.lastWatchedNumber}` : numbering?.nextEpisodeNumber ? `Overall next #${numbering.nextEpisodeNumber}` : 'Overall episode number unavailable'}</span></div><div className="progress-track season-progress-track"><div className="progress-fill" style={{ width: `${percent}%` }}/></div><div className="season-detail-footer"><span>{percent}% complete{numbering?.nextEpisodeNumber ? ` · Next overall #${numbering.nextEpisodeNumber}` : ''}</span><div className="stepper season-stepper"><button disabled={season.current_episode <= 0} onClick={() => updateSeasonProgress(season, -1)} aria-label={`Decrease ${seasonName(season)} episode`}><Minus size={14}/></button><span>{numbering?.lastWatchedNumber || 0}</span><button disabled={finished} onClick={() => updateSeasonProgress(season, 1)} aria-label={`Increase ${seasonName(season)} to overall episode ${numbering?.nextEpisodeNumber ?? 'number unknown'}`}><Plus size={14}/></button></div></div></article>
+        return <article className="season-detail-card" key={season.id}><div className="season-detail-top"><div><span className="season-number-label">SEASON {season.season_number}</span><h3>{seasonName(season)}</h3><span className="season-global-range">{episodeRangeLabel(numbering)}</span></div><div className="season-detail-badges"><StatusBadge status={season.status}/><button className="season-edit-btn" onClick={() => setEditingSeason(season)} aria-label={`Edit ${seasonName(season)}`}><Edit3 size={14}/></button></div></div><div className="season-episode-summary"><strong>Season ep. {season.current_episode || 0} <span>/ {season.total_episodes ?? '?'}</span></strong><span>{numbering?.lastWatchedNumber ? `Overall last watched #${numbering.lastWatchedNumber}` : numbering?.nextEpisodeNumber ? `Overall next #${numbering.nextEpisodeNumber}` : 'Overall episode number unavailable'}</span></div><div className="progress-track season-progress-track"><div className="progress-fill" style={{ width: `${percent}%` }}/></div><div className="season-detail-footer"><span>{percent}% complete{numbering?.nextEpisodeNumber ? ` · Next overall #${numbering.nextEpisodeNumber}` : ''}</span><div className="stepper season-stepper"><button disabled={progressBusy[season.id] || season.current_episode <= 0} onClick={() => updateSeasonProgress(season, -1)} aria-label={`Decrease ${seasonName(season)} episode`}><Minus size={14}/></button><EpisodeNumberInput value={season.current_episode || 0} totalEpisodes={season.total_episodes} seasonLabel={seasonName(season)} disabled={progressBusy[season.id]} onCommit={episode => setSeasonEpisode(season, episode)} onInvalid={message => toast(message, 'error')}/><button disabled={progressBusy[season.id] || finished} onClick={() => updateSeasonProgress(season, 1)} aria-label={`Increase ${seasonName(season)} to overall episode ${numbering?.nextEpisodeNumber ?? 'number unknown'}`}><Plus size={14}/></button></div></div></article>
       })}</div> : <div className="empty-state"><h3>No seasons added yet</h3><p>Add the first season to start tracking episodes.</p><button className="primary-btn" onClick={() => setAddingSeason(true)}><Plus size={15}/> Add season</button></div>}
     </section>
 
