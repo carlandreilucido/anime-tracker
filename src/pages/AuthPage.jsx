@@ -143,6 +143,7 @@ export default function AuthPage({ register = false, resetPassword = false }) {
         {register && confirmationPending && <div className="auth-confirmation" role="status"><span>{resendMessage}</span><button type="button" onClick={resendConfirmation} disabled={resending || !email}>{resending ? 'Sending…' : 'Resend confirmation email'}</button></div>}
         <p className="auth-switch">{register ? 'Already have an account?' : 'New to Kitsu?'} <Link to={register ? '/login' : '/register'}>{register ? 'Sign in' : 'Create account'}</Link></p>
         <p className="auth-privacy">Your watchlist is private to your account.</p>
+        <p className="auth-legal-links">{register ? 'By creating an account, you agree to the ' : ''}<Link to="/terms">Terms &amp; Conditions</Link><span> · </span><Link to="/privacy">Privacy Policy</Link></p>
       </div>
     </main>
   </div>

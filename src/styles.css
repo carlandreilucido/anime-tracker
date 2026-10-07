@@ -522,6 +522,28 @@ html[data-theme="light"] .episode-number-input:focus{border-color:#16803c;backgr
 html[data-theme="light"] .watch-button{border-color:#b8d9bf;background:#e8f5eb;color:#23643a}
 html[data-theme="light"] .watch-button:hover{background:#d9efde;border-color:#94c9a0;color:#184f2d}
 html[data-theme="light"] .auth-switch a{color:#176b37}
+.legal-page{width:min(calc(100% - 40px),860px);margin:0 auto;padding:34px 0 64px}
+.legal-back-link{margin-bottom:26px}
+.legal-heading{margin-bottom:25px;padding-bottom:19px;border-bottom:1px solid #2b2a32}
+.legal-heading h1{margin:8px 0 7px;color:#f1eef5;font:700 30px Manrope,sans-serif;letter-spacing:-.8px}
+.legal-heading p{margin:0;color:#92909a;font-size:11px}
+.legal-content{display:grid;gap:22px}
+.legal-content section{display:grid;gap:9px}
+.legal-content h2{margin:0;color:#e8e5ed;font:650 16px Manrope,sans-serif}
+.legal-content p{margin:0;color:#aaa6b1;font-size:12px;line-height:1.75}
+.legal-switch{margin-top:27px;padding-top:16px;border-top:1px solid #2b2a32}
+.legal-switch a,.auth-legal-links a,.footer-legal-links a{color:#8ae4a0}
+.legal-switch a:hover,.auth-legal-links a:hover,.footer-legal-links a:hover{text-decoration:underline;text-underline-offset:3px}
+.auth-legal-links{margin:8px 0 0;color:#8e8995;font-size:10px;line-height:1.6}
+.footer-legal-links{display:inline-flex;align-items:center;gap:7px;margin-left:10px;font-size:10px}
+html[data-theme="light"] .legal-heading{border-color:#e2dfe7}
+html[data-theme="light"] .legal-heading h1{color:#302d36}
+html[data-theme="light"] .legal-heading p,html[data-theme="light"] .legal-content p{color:#625d68}
+html[data-theme="light"] .legal-content h2{color:#302d36}
+html[data-theme="light"] .legal-switch{border-color:#e2dfe7}
+html[data-theme="light"] .legal-switch a,html[data-theme="light"] .auth-legal-links a,html[data-theme="light"] .footer-legal-links a{color:#21753e}
+html[data-theme="light"] .auth-legal-links{color:#625d68}
+@media(max-width:650px){.legal-page{width:calc(100% - 32px);padding-top:24px}.legal-back-link{margin-bottom:22px}.legal-heading h1{font-size:25px}.legal-content{gap:19px}.legal-content h2{font-size:15px}.legal-content p{font-size:11px;line-height:1.7}.footer-legal-links{gap:5px;margin-left:4px;font-size:9px}}
 .password-wrap{position:relative;width:100%}
 .password-wrap>input{width:100%;padding-right:44px}
 .password-toggle{position:absolute;top:50%;right:10px;transform:translateY(-50%);width:28px;height:28px;display:grid;place-items:center;padding:0;border:0;border-radius:6px;background:transparent;color:#96919e;cursor:pointer}
