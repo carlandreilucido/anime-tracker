@@ -12,6 +12,9 @@ export default function AuthPage({ register = false }) {
   const [name, setName] = useState('')
   const [show, setShow] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [resending, setResending] = useState(false)
+  const [confirmationPending, setConfirmationPending] = useState(false)
+  const [resendMessage, setResendMessage] = useState('')
   const [error, setError] = useState('')
   const navigate = useNavigate()
   const toast = useToast()
@@ -34,7 +37,8 @@ export default function AuthPage({ register = false }) {
           navigate('/')
           toast('Welcome to your new watchlist!')
         } else {
-          setError('Check your email to confirm your account, then sign in.')
+          setConfirmationPending(true)
+          setResendMessage('Check your email for a confirmation link.')
         }
       } else {
         const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
@@ -45,6 +49,26 @@ export default function AuthPage({ register = false }) {
       setError(cause.message || 'Authentication failed.')
     } finally {
       setBusy(false)
+    }
+  }
+
+  const resendConfirmation = async () => {
+    if (!email) return setResendMessage('Enter your email address first.')
+    setResending(true)
+    setResendMessage('')
+    try {
+      const emailRedirectTo = import.meta.env.PROD ? PRODUCTION_URL : window.location.origin
+      const { error: resendError } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+        options: { emailRedirectTo },
+      })
+      if (resendError) throw resendError
+      setResendMessage('A new confirmation email has been sent.')
+    } catch (cause) {
+      setResendMessage(cause.message || 'Could not resend the confirmation email.')
+    } finally {
+      setResending(false)
     }
   }
 
@@ -72,6 +96,7 @@ export default function AuthPage({ register = false }) {
           {error && <div className="auth-error" role="alert">{error}</div>}
           <button className="primary-btn auth-submit" disabled={busy}>{busy ? 'Please wait…' : register ? 'Create account' : 'Sign in'}</button>
         </form>
+        {register && confirmationPending && <div className="auth-confirmation" role="status"><span>{resendMessage}</span><button type="button" onClick={resendConfirmation} disabled={resending || !email}>{resending ? 'Sending…' : 'Resend confirmation email'}</button></div>}
         <p className="auth-switch">{register ? 'Already have an account?' : 'New to Kitsu?'} <Link to={register ? '/login' : '/register'}>{register ? 'Sign in' : 'Create account'}</Link></p>
         <p className="auth-privacy">Your watchlist is private to your account.</p>
       </div>
