@@ -1,15 +1,18 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Sparkles, Eye, EyeOff } from 'lucide-react'
 import { supabase, hasSupabaseConfig } from '../lib/supabase'
 import { useToast } from '../components/ui/Toast'
 
 const PRODUCTION_URL = 'https://animewatchlisttracker.vercel.app/'
 
-export default function AuthPage({ register = false }) {
+export default function AuthPage({ register = false, resetPassword = false }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [name, setName] = useState('')
+  const [forgotMode, setForgotMode] = useState(false)
+  const [resetSent, setResetSent] = useState(false)
   const [show, setShow] = useState(false)
   const [busy, setBusy] = useState(false)
   const [resending, setResending] = useState(false)
@@ -17,7 +20,9 @@ export default function AuthPage({ register = false }) {
   const [resendMessage, setResendMessage] = useState('')
   const [error, setError] = useState('')
   const navigate = useNavigate()
+  const location = useLocation()
   const toast = useToast()
+  const isResetPassword = resetPassword || location.pathname === '/reset-password'
 
   const submit = async event => {
     event.preventDefault()
@@ -25,7 +30,20 @@ export default function AuthPage({ register = false }) {
     if (!hasSupabaseConfig) return setError('Supabase is not configured yet. Add your project URL and anon key to .env.local.')
     setBusy(true)
     try {
-      if (register) {
+      if (isResetPassword) {
+        if (password.length < 6) throw new Error('Your new password must be at least 6 characters.')
+        if (password !== confirmPassword) throw new Error('The passwords do not match.')
+        const { error: updateError } = await supabase.auth.updateUser({ password })
+        if (updateError) throw updateError
+        toast('Your password has been reset.')
+        navigate('/')
+      } else if (forgotMode) {
+        const baseUrl = import.meta.env.PROD ? PRODUCTION_URL : `${window.location.origin}/`
+        const redirectTo = new URL('reset-password', baseUrl).toString()
+        const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, { redirectTo })
+        if (resetError) throw resetError
+        setResetSent(true)
+      } else if (register) {
         const emailRedirectTo = import.meta.env.PROD ? PRODUCTION_URL : window.location.origin
         const { data, error: authError } = await supabase.auth.signUp({
           email,
@@ -86,16 +104,20 @@ export default function AuthPage({ register = false }) {
     <main className="auth-panel">
       <div className="auth-box">
         <div className="auth-mobile-brand"><span className="brand-mark"><Sparkles size={18}/></span> kitsu<span className="brand-dot">.</span></div>
-        <span className="eyebrow">{register ? 'GET STARTED' : 'WELCOME BACK'}</span>
-        <h2>{register ? 'Make it yours.' : 'Pick up where you left off.'}</h2>
-        <p className="auth-description">{register ? 'Create your account and keep every episode in its place.' : 'Sign in to get back to your watchlist.'}</p>
+        <span className="eyebrow">{isResetPassword ? 'RESET PASSWORD' : forgotMode ? 'ACCOUNT RECOVERY' : register ? 'GET STARTED' : 'WELCOME BACK'}</span>
+        <h2>{isResetPassword ? 'Choose a new password.' : forgotMode ? 'Reset your password.' : register ? 'Make it yours.' : 'Pick up where you left off.'}</h2>
+        <p className="auth-description">{isResetPassword ? 'Enter and confirm your new password below.' : forgotMode ? 'We’ll email you a secure link to reset your password.' : register ? 'Create your account and keep every episode in its place.' : 'Sign in to get back to your watchlist.'}</p>
         <form onSubmit={submit} className="auth-form">
           {register && <label className="field">Your name<input value={name} onChange={event => setName(event.target.value)} placeholder="What should we call you?" autoComplete="name" required/></label>}
-          <label className="field">Email address<input type="email" value={email} onChange={event => setEmail(event.target.value)} placeholder="you@example.com" autoComplete="email" required/></label>
-          <label className="field">Password<div className="password-wrap"><input type={show ? 'text' : 'password'} value={password} onChange={event => setPassword(event.target.value)} placeholder={register ? 'At least 6 characters' : 'Your password'} autoComplete={register ? 'new-password' : 'current-password'} minLength={6} required/><button type="button" className="password-toggle" onClick={() => setShow(value => !value)} aria-label={show ? 'Hide password' : 'Show password'}>{show ? <EyeOff size={16}/> : <Eye size={16}/>}</button></div></label>
+          {!isResetPassword && <label className="field">Email address<input type="email" value={email} onChange={event => setEmail(event.target.value)} placeholder="you@example.com" autoComplete="email" required/></label>}
+          {!forgotMode && <label className="field">{isResetPassword ? 'New password' : 'Password'}<div className="password-wrap"><input type={show ? 'text' : 'password'} value={password} onChange={event => setPassword(event.target.value)} placeholder={isResetPassword || register ? 'At least 6 characters' : 'Your password'} autoComplete={isResetPassword || register ? 'new-password' : 'current-password'} minLength={6} required/><button type="button" className="password-toggle" onClick={() => setShow(value => !value)} aria-label={show ? 'Hide password' : 'Show password'}>{show ? <EyeOff size={16}/> : <Eye size={16}/>}</button></div></label>}
+          {isResetPassword && <label className="field">Confirm new password<div className="password-wrap"><input type={show ? 'text' : 'password'} value={confirmPassword} onChange={event => setConfirmPassword(event.target.value)} placeholder="Re-enter your new password" autoComplete="new-password" minLength={6} required/></div></label>}
           {error && <div className="auth-error" role="alert">{error}</div>}
-          <button className="primary-btn auth-submit" disabled={busy}>{busy ? 'Please wait…' : register ? 'Create account' : 'Sign in'}</button>
+          {!isResetPassword && !forgotMode && !register && <button type="button" className="auth-forgot-link" onClick={() => { setForgotMode(true); setError(''); setResetSent(false) }}>Forgot password?</button>}
+          {resetSent && <p className="auth-confirmation-message" role="status">If an account exists for this email, a password reset link has been sent.</p>}
+          {!resetSent && <button className="primary-btn auth-submit" disabled={busy}>{busy ? 'Please wait…' : isResetPassword ? 'Save new password' : forgotMode ? 'Send reset email' : register ? 'Create account' : 'Sign in'}</button>}
         </form>
+        {(forgotMode || isResetPassword) && <button type="button" className="auth-back-link" onClick={() => isResetPassword ? navigate('/login') : setForgotMode(false)}>Back to sign in</button>}
         {register && confirmationPending && <div className="auth-confirmation" role="status"><span>{resendMessage}</span><button type="button" onClick={resendConfirmation} disabled={resending || !email}>{resending ? 'Sending…' : 'Resend confirmation email'}</button></div>}
         <p className="auth-switch">{register ? 'Already have an account?' : 'New to Kitsu?'} <Link to={register ? '/login' : '/register'}>{register ? 'Sign in' : 'Create account'}</Link></p>
         <p className="auth-privacy">Your watchlist is private to your account.</p>

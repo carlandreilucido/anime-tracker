@@ -55,6 +55,7 @@ Run the migrations in order, either with the Supabase SQL Editor or Supabase CLI
 | `202610070005_watch_providers.sql` | Adds provider search configuration, cached per-anime links, user preferences, optional anime metadata identifiers, and RLS. |
 | `202610070006_provider_pricing.sql` | Adds each provider's general access model (`free`, `subscription`, `mixed`, or `unknown`) and a generated `is_free` value when it is definitive. |
 | `202610070007_hidive_and_animekaitv.sql` | Adds HIDIVE and corrects the AnimeKai TV hostname/search URL. |
+| `202610070008_animekai_loklok_pricing.sql` | Marks AnimeKai TV as free and LokLok as free + paid. |
 
 If earlier migrations have already been applied to the project, apply only the remaining migration(s). Do not rerun or skip migrations without checking their effects first.
 
@@ -116,7 +117,7 @@ Admin routes are `/admin`, `/admin/users`, `/admin/users/:userId`, `/admin/anime
 
 ## External watch providers
 
-`public.streaming_providers` is the enabled provider directory. The UI renders this directory dynamically; the seeded providers are Bilibili, Crunchyroll, Netflix, Disney+, Prime Video, YouTube, AnimeKai TV, LokLok, and HIDIVE. The directory includes general pricing labels: Free, Subscription, Free + paid, or Pricing unknown. `is_free` is nullable when a service has mixed or unverified pricing. These labels describe providers generally, not whether a specific title is free in a user's region. `public.watch_providers` caches a per-series provider URL/type for 24 hours, with a user region code for future regional integrations. `public.user_preferences` stores the preferred provider and optional two-letter country code.
+`public.streaming_providers` is the enabled provider directory. The UI renders this directory dynamically; the seeded providers are Bilibili, Crunchyroll, Netflix, Disney+, Prime Video, YouTube, AnimeKai TV, LokLok, and HIDIVE. The directory includes general pricing labels: Free, Subscription, Free + paid, or Pricing unknown. AnimeKai TV is classified as Free and LokLok as Free + paid. `is_free` is nullable when a service has mixed or unverified pricing. These labels describe providers generally, not whether a specific title is free in a user's region. `public.watch_providers` caches a per-series provider URL/type for 24 hours, with a user region code for future regional integrations. `public.user_preferences` stores the preferred provider and optional two-letter country code.
 
 Provider lookup runs in the `find-watch-providers` Supabase Edge Function. It validates the caller's JWT, fetches the anime through the caller's RLS-scoped client, then uses the service-role key only inside the Edge Function to save generated links. The frontend never receives that key. The function is configured with JWT verification in `supabase/config.toml`. Deploy it with `supabase functions deploy find-watch-providers` after linking the Supabase CLI to your project. Supabase provides its standard `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` to Edge Functions; if you configure secrets manually, set them only in Supabase Edge Function secrets, never in Vite/Vercel `VITE_` variables.
 
@@ -180,5 +181,5 @@ Vercel builds with `npm run build` and serves `dist`. `vercel.json` rewrites dir
 - **Admin pages deny access:** verify the profile row has role `admin`, re-authenticate to refresh profile state, and apply the admin migration.
 - **Admin RPC missing:** apply `202610070003_admin_system.sql` after the profile and anime tables exist, then refresh the Supabase API schema cache if needed.
 - **Avatar upload denied:** confirm the avatar migration ran, the authenticated session is valid, file type/size is allowed, and the object path uses the current user's UID folder.
-- **Watch Options unavailable:** apply the provider migrations `202610070005_watch_providers.sql` through `202610070007_hidive_and_animekaitv.sql`, deploy `find-watch-providers`, and confirm Supabase Edge Function JWT verification is enabled.
+- **Watch Options unavailable:** apply the provider migrations `202610070005_watch_providers.sql` through `202610070008_animekai_loklok_pricing.sql`, deploy `find-watch-providers`, and confirm Supabase Edge Function JWT verification is enabled.
 - **Route refresh gives 404 on Vercel:** confirm the root `vercel.json` rewrite is deployed.
