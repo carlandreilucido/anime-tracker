@@ -6,6 +6,18 @@ import { useToast } from '../components/ui/Toast'
 
 const PRODUCTION_URL = 'https://animewatchlisttracker.vercel.app/'
 
+function normalizedEmail(value) {
+  const email = value.trim().toLowerCase()
+  if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    throw new Error('Enter a valid email address.')
+  }
+  return email
+}
+
+function sanitizedName(value) {
+  return value.normalize('NFKC').replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, 80)
+}
+
 export default function AuthPage({ register = false, resetPassword = false }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -28,8 +40,15 @@ export default function AuthPage({ register = false, resetPassword = false }) {
     event.preventDefault()
     setError('')
     if (!hasSupabaseConfig) return setError('Supabase is not configured yet. Add your project URL and anon key to .env.local.')
+    const isSignIn = !register && !forgotMode && !isResetPassword
     setBusy(true)
     try {
+      const cleanEmail = isResetPassword ? null : normalizedEmail(email)
+      const cleanName = register ? sanitizedName(name) : null
+      if (register && !cleanName) throw new Error('Enter your name to create an account.')
+      if (cleanEmail) setEmail(cleanEmail)
+      if (register) setName(cleanName)
+
       if (isResetPassword) {
         if (password.length < 6) throw new Error('Your new password must be at least 6 characters.')
         if (password !== confirmPassword) throw new Error('The passwords do not match.')
@@ -40,15 +59,15 @@ export default function AuthPage({ register = false, resetPassword = false }) {
       } else if (forgotMode) {
         const baseUrl = import.meta.env.PROD ? PRODUCTION_URL : `${window.location.origin}/`
         const redirectTo = new URL('reset-password', baseUrl).toString()
-        const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, { redirectTo })
+        const { error: resetError } = await supabase.auth.resetPasswordForEmail(cleanEmail, { redirectTo })
         if (resetError) throw resetError
         setResetSent(true)
       } else if (register) {
         const emailRedirectTo = import.meta.env.PROD ? PRODUCTION_URL : window.location.origin
         const { data, error: authError } = await supabase.auth.signUp({
-          email,
+          email: cleanEmail,
           password,
-          options: { data: { name }, emailRedirectTo },
+          options: { data: { name: cleanName }, emailRedirectTo },
         })
         if (authError) throw authError
         if (data.session) {
@@ -59,12 +78,15 @@ export default function AuthPage({ register = false, resetPassword = false }) {
           setResendMessage('Check your email for a confirmation link.')
         }
       } else {
-        const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
+        const { error: authError } = await supabase.auth.signInWithPassword({ email: cleanEmail, password })
         if (authError) throw authError
         navigate('/')
       }
     } catch (cause) {
-      setError(cause.message || 'Authentication failed.')
+      const invalidCredentials = cause.code === 'invalid_credentials' || /invalid login credentials/i.test(cause.message || '')
+      setError(isSignIn && invalidCredentials
+        ? "We couldn't sign you in. If you haven't registered yet, please register first. Otherwise, check your email and password."
+        : cause.message || 'Authentication failed.')
     } finally {
       setBusy(false)
     }
@@ -78,7 +100,7 @@ export default function AuthPage({ register = false, resetPassword = false }) {
       const emailRedirectTo = import.meta.env.PROD ? PRODUCTION_URL : window.location.origin
       const { error: resendError } = await supabase.auth.resend({
         type: 'signup',
-        email,
+        email: normalizedEmail(email),
         options: { emailRedirectTo },
       })
       if (resendError) throw resendError
@@ -108,8 +130,8 @@ export default function AuthPage({ register = false, resetPassword = false }) {
         <h2>{isResetPassword ? 'Choose a new password.' : forgotMode ? 'Reset your password.' : register ? 'Make it yours.' : 'Pick up where you left off.'}</h2>
         <p className="auth-description">{isResetPassword ? 'Enter and confirm your new password below.' : forgotMode ? 'We’ll email you a secure link to reset your password.' : register ? 'Create your account and keep every episode in its place.' : 'Sign in to get back to your watchlist.'}</p>
         <form onSubmit={submit} className="auth-form">
-          {register && <label className="field">Your name<input value={name} onChange={event => setName(event.target.value)} placeholder="What should we call you?" autoComplete="name" required/></label>}
-          {!isResetPassword && <label className="field">Email address<input type="email" value={email} onChange={event => setEmail(event.target.value)} placeholder="you@example.com" autoComplete="email" required/></label>}
+          {register && <label className="field">Your name<input value={name} onChange={event => setName(event.target.value)} placeholder="What should we call you?" autoComplete="name" maxLength={80} required/></label>}
+          {!isResetPassword && <label className="field">Email address<input type="email" name="email" value={email} onChange={event => setEmail(event.target.value)} placeholder="you@example.com" autoComplete="email" maxLength={254} required/></label>}
           {!forgotMode && <label className="field">{isResetPassword ? 'New password' : 'Password'}<div className="password-wrap"><input type={show ? 'text' : 'password'} value={password} onChange={event => setPassword(event.target.value)} placeholder={isResetPassword || register ? 'At least 6 characters' : 'Your password'} autoComplete={isResetPassword || register ? 'new-password' : 'current-password'} minLength={6} required/><button type="button" className="password-toggle" onClick={() => setShow(value => !value)} aria-label={show ? 'Hide password' : 'Show password'}>{show ? <EyeOff size={16}/> : <Eye size={16}/>}</button></div></label>}
           {isResetPassword && <label className="field">Confirm new password<div className="password-wrap"><input type={show ? 'text' : 'password'} value={confirmPassword} onChange={event => setConfirmPassword(event.target.value)} placeholder="Re-enter your new password" autoComplete="new-password" minLength={6} required/></div></label>}
           {error && <div className="auth-error" role="alert">{error}</div>}
