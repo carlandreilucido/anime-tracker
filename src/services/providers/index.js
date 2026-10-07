@@ -1,5 +1,10 @@
 import { supabase } from '../../lib/supabase'
 
+const pricingOverrides = {
+  animekai: { access_model: 'free', is_free: true, pricing_note: 'Free to watch; catalog and availability may vary by region.' },
+  loklok: { access_model: 'mixed', is_free: null, pricing_note: 'Free and paid titles or plans may vary by region.' },
+}
+
 function requireClient() {
   if (!supabase) throw new Error('Supabase is not configured.')
   return supabase
@@ -11,7 +16,10 @@ export async function getEnabledProviders() {
     .eq('is_enabled', true)
     .order('priority', { ascending: true })
   if (error) throw error
-  return data || []
+  return (data || []).map(provider => ({
+    ...provider,
+    ...pricingOverrides[provider.provider_key],
+  }))
 }
 
 export async function getAnimeWatchProviders(animeId) {

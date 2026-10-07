@@ -134,10 +134,12 @@ export default function AnimeDetails({ refresh, onChanged }) {
     <div className="details-layout">
       <div className="details-poster">{anime.poster_url ? <img src={anime.poster_url} alt={`${anime.title} poster`}/> : <div className="poster-placeholder details-placeholder">{anime.title[0]}</div>}</div>
       <div className="details-content">
-        <div className="details-eyebrow"><span className="eyebrow">YOUR WATCHLIST</span><button className={`favorite-action ${anime.is_favorite ? 'active' : ''}`} onClick={favorite} aria-label="Toggle favorite"><Heart size={19} fill={anime.is_favorite ? 'currentColor' : 'none'}/></button></div>
-        <h1>{anime.title}</h1>{anime.alternative_title && <p className="detail-alt">{anime.alternative_title}</p>}
-        <div className="details-badges"><StatusBadge status={anime.status}/>{anime.rating ? <span className="detail-rating"><Star size={14} fill="currentColor"/>{anime.rating}<span>/10</span></span> : <span className="not-rated">Not rated</span>}</div>
-        {anime.genres?.length > 0 && <div className="detail-genres">{anime.genres.map(genre => <span key={genre}>{genre}</span>)}</div>}
+        <div className="details-identity">
+          <div className="details-eyebrow"><span className="eyebrow">YOUR WATCHLIST</span><button className={`favorite-action ${anime.is_favorite ? 'active' : ''}`} onClick={favorite} aria-label="Toggle favorite"><Heart size={19} fill={anime.is_favorite ? 'currentColor' : 'none'}/></button></div>
+          <h1>{anime.title}</h1>{anime.alternative_title && <p className="detail-alt">{anime.alternative_title}</p>}
+          <div className="details-badges"><StatusBadge status={anime.status}/>{anime.rating ? <span className="detail-rating"><Star size={14} fill="currentColor"/>{anime.rating}<span>/10</span></span> : <span className="not-rated">Not rated</span>}</div>
+          {anime.genres?.length > 0 && <div className="detail-genres">{anime.genres.map(genre => <span key={genre}>{genre}</span>)}</div>}
+        </div>
         <div className="detail-progress"><div className="detail-progress-heading"><span>Series progress · {seasons.length} {seasons.length === 1 ? 'season' : 'seasons'}</span><strong>{anime.current_episode || 0}<span> / {anime.total_episodes ?? '?'} total episodes</span></strong></div><ProgressBar anime={anime}/><div className="detail-next">{seasons.filter(season => season.status === 'completed').length} of {seasons.length} seasons completed</div></div>
         <div className="details-actions"><button className="outline-btn" onClick={() => setAddingSeason(true)}><ListPlus size={15}/> Add season</button><button className="outline-btn" onClick={() => setEditing(true)}><Edit3 size={15}/> Edit series</button>{anime.status !== 'completed' && <button className="outline-btn" onClick={completeSeries}><span>✓</span> Mark completed</button>}<button className="delete-btn" onClick={() => setConfirmDelete(true)}><Trash2 size={15}/> Delete</button></div>
       </div>

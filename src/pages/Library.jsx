@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Search, SlidersHorizontal, LoaderCircle, Sparkles, X } from 'lucide-react'
+import { Search, SlidersHorizontal, LoaderCircle, Clapperboard as Sparkles, X } from 'lucide-react'
 import { GENRES, STATUS_LABELS } from '../constants'
 import { getAnime, setSeasonEpisodeProgress, toggleFavorite, updateEpisodeProgress, withOptimisticEpisodeChange, withOptimisticEpisodeNumber } from '../services/animeService'
 import AnimeCard from '../components/anime/AnimeCard'

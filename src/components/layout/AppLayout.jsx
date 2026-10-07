@@ -1,6 +1,6 @@
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
-import { LayoutDashboard, Library, Play, Bookmark, Check, Heart, LogOut, Menu, X, Sparkles, ChevronDown, UserRound, Settings, Shield } from 'lucide-react'
+import { LayoutDashboard, Library, Play, Bookmark, Check, Heart, LogOut, Menu, X, Clapperboard as Sparkles, ChevronDown, UserRound, Settings, Shield } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useProfile } from '../../contexts/ProfileContext'
 import ThemeToggle from '../ui/ThemeToggle'

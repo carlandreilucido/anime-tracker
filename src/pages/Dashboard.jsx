@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ArrowUpRight, Play, Bookmark, Check, Pause, X, Clock3, Sparkles, ChevronRight, Heart } from 'lucide-react'
+import { ArrowUpRight, Play, Bookmark, Check, Pause, X, Clock3, Clapperboard as Sparkles, ChevronRight, Heart } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { getAnime, getRecentlyWatched, getStats, setSeasonEpisodeProgress, toggleFavorite, updateEpisodeProgress, withOptimisticEpisodeChange, withOptimisticEpisodeNumber } from '../services/animeService'
 import AnimeCard from '../components/anime/AnimeCard'

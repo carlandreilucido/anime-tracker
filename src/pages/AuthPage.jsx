@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Sparkles, Eye, EyeOff } from 'lucide-react'
+import { Clapperboard as Sparkles, Eye, EyeOff } from 'lucide-react'
 import { supabase, hasSupabaseConfig } from '../lib/supabase'
 import { useToast } from '../components/ui/Toast'
 

@@ -427,7 +427,7 @@ html[data-theme="light"] .provider-mark-text{color:#fff}
 .loklok-logo-word small{font-size:4px;font-weight:700;letter-spacing:.15px;white-space:nowrap}
 .loklok-logo-word strong{font-size:8px;font-style:italic;font-weight:900;letter-spacing:-.4px}
 .loklok-logo-word i{position:relative;width:19px;height:1px;background:#fff;margin-top:1px}
-.loklok-logo-word i:after{content:'✦';position:absolute;right:-5px;top:-5px;font-size:8px;font-style:normal}
+.loklok-logo-word i:after{content:'';position:absolute;right:-4px;top:-2px;width:4px;height:4px;border-radius:50%;background:#fff}
 @media(max-width:650px){.netflix-logo-letter{font-size:34px}.loklok-logo-word small{font-size:3.5px}.loklok-logo-word strong{font-size:7px}}
 .provider-mark-disney_plus{background:#080b1b!important;color:#fff!important;border:1px solid #273a75;border-radius:11px}
 .disney-logo-word{font-family:'Brush Script MT','Segoe Script',cursive;font-size:13px;font-weight:700;font-style:italic;letter-spacing:-1px;white-space:nowrap}
@@ -745,3 +745,44 @@ html[data-theme="light"] .stat-caption,html[data-theme="light"] .workspace-label
 html[data-theme="light"] .field-hint,html[data-theme="light"] .optional,html[data-theme="light"] .profile-info-item>span,html[data-theme="light"] .info-item span,html[data-theme="light"] .muted-copy{color:#625d68}
 html[data-theme="light"] .auth-description,html[data-theme="light"] .auth-switch,html[data-theme="light"] .auth-privacy,html[data-theme="light"] .art-caption{color:#625d68}
 html[data-theme="light"] .auth-switch a{color:#176b37}
+/* Anime details: stack progress and controls below the poster/identity row on phones. */
+@media(max-width:650px){
+  .details-page{padding-top:20px;min-width:0}
+  .details-page>.back-link{margin-bottom:18px}
+  .details-page .details-layout{display:grid;grid-template-columns:100px minmax(0,1fr);column-gap:14px;row-gap:0;align-items:start;min-width:0}
+  .details-page .details-poster{grid-column:1;grid-row:1;width:100%;height:auto;aspect-ratio:2/3;overflow:hidden;border-radius:11px;align-self:start}
+  .details-page .details-poster img{display:block;width:100%;height:100%;object-fit:cover}
+  .details-page .details-content{display:contents}
+  .details-page .details-identity{grid-column:2;min-width:0;display:grid;align-content:start;gap:7px}
+  .details-page .details-eyebrow{display:flex;align-items:center;justify-content:space-between;gap:5px;min-width:0}
+  .details-page .details-eyebrow .eyebrow{font-size:8px;letter-spacing:1px;white-space:nowrap}
+  .details-page .favorite-action{width:27px;height:27px;flex:none}
+  .details-page .details-identity h1{min-width:0;margin:0;font-size:20px;line-height:1.15;letter-spacing:-.5px;overflow-wrap:break-word}
+  .details-page .detail-alt{margin:0;font-size:10px;line-height:1.35}
+  .details-page .details-badges,.details-page .detail-genres{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-width:0;margin:0}
+  .details-page .detail-genres span{font-size:9px;padding:4px 7px}
+  .details-page .detail-progress,.details-page .details-actions{grid-column:1/-1;width:100%;min-width:0}
+  .details-page .detail-progress{margin-top:18px;padding:14px;border-radius:11px}
+  .details-page .detail-progress-heading{align-items:flex-start;gap:6px;line-height:1.35}
+  .details-page .detail-progress-heading>span{font-size:10px}
+  .details-page .detail-progress-heading strong{font-size:14px;text-align:right}
+  .details-page .detail-progress-heading strong span{display:block;font-size:9px}
+  .details-page .detail-progress .progress-wrap{width:100%;margin-top:10px}
+  .details-page .detail-progress .progress-track{width:100%}
+  .details-page .detail-progress .progress-meta{display:flex;justify-content:space-between;gap:8px;margin-top:7px;font-size:10px}
+  .details-page .detail-next{font-size:10px;line-height:1.4}
+  .details-page .details-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+  .details-page .details-actions>button{width:100%;min-width:0;min-height:42px;justify-content:center;gap:6px;padding:8px 7px;font-size:11px;line-height:1.2;white-space:normal}
+  .details-page .watch-options-panel{width:100%;margin-top:22px}
+  .details-page .provider-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .details-page .provider-link{min-width:0;min-height:118px;padding:11px 7px}
+  .details-page .provider-link-copy{min-width:0}
+  .details-page .provider-link-copy strong,.details-page .provider-link-copy small{max-width:100%;overflow-wrap:anywhere}
+  .details-page .season-details-section{margin-top:22px}
+}
+@media(max-width:339px){
+  .details-page .details-layout{grid-template-columns:92px minmax(0,1fr);column-gap:12px}
+  .details-page .provider-list{grid-template-columns:1fr}
+}
+.empty-symbol{font-size:0}
+.empty-symbol:before{content:'▶';font-size:18px}

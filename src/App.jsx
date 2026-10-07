@@ -8,7 +8,7 @@ import AnimeForm from './components/anime/AnimeForm'
 import { ToastProvider, useToast } from './components/ui/Toast'
 import { createAnime } from './services/animeService'
 import AuthPage from './pages/AuthPage'
-import { ArrowUpRight, Sparkles } from 'lucide-react'
+import { ArrowUpRight, Clapperboard as Sparkles } from 'lucide-react'
 import AdminLayout from './components/admin/AdminLayout'
 import { findAnimeWatchProviders } from './services/providers'
 const Dashboard=lazy(()=>import('./pages/Dashboard'))
