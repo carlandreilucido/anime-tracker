@@ -174,11 +174,13 @@ VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-publishable-or-anon-key
 ```
 
-Vercel builds with `npm run build` and serves `dist`. `vercel.json` rewrites direct client-side routes to `/`, so refreshes on `/admin`, `/profile`, and similar paths work. Add the deployed domain to Supabase Auth's site URL and allowed redirect URLs. No server-only or service-role key is required in Vercel's frontend environment.
+Vercel builds with `npm run build` and serves `dist`. Vite embeds `VITE_*` values at build time, so changing them in Vercel requires a new deployment. `vercel.json` rewrites direct client-side routes to `/`, so refreshes on `/admin`, `/profile`, and similar paths work. Add the deployed domain to Supabase Auth's site URL and allowed redirect URLs. No server-only or service-role key is required in Vercel's frontend environment.
 
 ## Troubleshooting
 
 - **Setup screen instead of app:** confirm Vercel/local values use the exact `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` names, then restart/redeploy.
+- **HTTP 401 `JWT expired`:** the shared browser client retries one confirmed expired database/API request after a coalesced session refresh. If refresh credentials are invalid, sign in again. Check Supabase Auth logs if it persists after reauthentication.
+- **HTTP 401 `No API key found in request`:** all browser Supabase calls use the singleton client, which now attaches the configured public key to Supabase-origin requests. Verify both Vercel variables exist in the affected Production/Preview environment and redeploy; never use a service-role key in Vite.
 - **Profile missing:** apply the profile migration; inspect Supabase Auth logs and the `on_auth_user_created_profile` trigger.
 - **Admin pages deny access:** verify the profile row has role `admin`, re-authenticate to refresh profile state, and apply the admin migration.
 - **Admin RPC missing:** apply `202610070003_admin_system.sql` after the profile and anime tables exist, then refresh the Supabase API schema cache if needed.

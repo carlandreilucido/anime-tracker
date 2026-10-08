@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Clapperboard as Sparkles, Eye, EyeOff } from 'lucide-react'
 import { supabase, hasSupabaseConfig } from '../lib/supabase'
 import { useToast } from '../components/ui/Toast'
 import { checkEmailAccountExists } from '../services/authService'
+import { useAuth } from '../contexts/AuthContext'
 
 const PRODUCTION_URL = 'https://animewatchlisttracker.vercel.app/'
 
@@ -32,10 +33,17 @@ export default function AuthPage({ register = false, resetPassword = false }) {
   const [confirmationPending, setConfirmationPending] = useState(false)
   const [resendMessage, setResendMessage] = useState('')
   const [error, setError] = useState('')
+  const { authNotice, clearAuthNotice } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const toast = useToast()
   const isResetPassword = resetPassword || location.pathname === '/reset-password'
+
+  useEffect(() => {
+    if (!authNotice) return
+    setError(authNotice)
+    clearAuthNotice()
+  }, [authNotice, clearAuthNotice])
 
   const submit = async event => {
     event.preventDefault()

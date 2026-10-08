@@ -101,7 +101,7 @@ export default function ProfilePage() {
   }
 
   if (loading && !profile) return <div className="page profile-page"><div className="profile-loading"><LoaderCircle className="spin" size={20}/> Loading your profile…</div></div>
-  if (!profile) return <div className="page profile-page"><div className="profile-error"><Shield size={24}/><h1>Profile unavailable</h1><p>{error?.message || 'We could not load your profile.'}</p><button className="outline-btn" onClick={refreshProfile}><RefreshCw size={15}/> Try again</button></div></div>
+  if (!profile) return <div className="page profile-page"><div className="profile-error"><Shield size={24}/><h1>Profile unavailable</h1><p>{error ? readableError(error) : 'We could not load your profile.'}</p><button className="outline-btn" onClick={refreshProfile}><RefreshCw size={15}/> Try again</button></div></div>
 
   const displayAvatar = preview || profile.avatar_url
   const memberSince = profile.created_at ? new Date(profile.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : '—'

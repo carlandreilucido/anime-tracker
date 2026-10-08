@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 
-const updated = 'October 7, 2026'
+const updated = 'October 9, 2026'
 
 const termsSections = [
   {
@@ -51,19 +51,21 @@ const privacySections = [
       'When you create an account, the service processes your email address and authentication data. Passwords are handled by Supabase Authentication; Kitsu does not store your password as plain text.',
       'If a sign-in attempt fails because credentials are invalid, the app checks whether the submitted email exists in its profile directory so it can tell you whether to register or reset your password. A person submitting an email can learn whether that address is registered; the lookup returns no profile details and is subject to request throttling.',
       'Your profile may include a name, username, and avatar. Your library can include anime titles and metadata, season and episode progress, status, favorites, ratings, dates, and personal notes. Settings may include your preferred streaming provider and country code.',
+      'If you use the AI Anime Assistant, your conversation messages and assistant replies are saved in your account so you can reopen or delete conversations. The assistant does not include your personal notes in its library context.',
     ],
   },
   {
     title: 'How information is used',
     paragraphs: [
       'Information is used to authenticate you, display and maintain your profile and watchlist, save progress and preferences, provide provider search links, and keep the service secure and functioning.',
+      'When you send a message to the AI Anime Assistant, the message, a limited recent conversation context, and a compact summary of your library may be sent to Google Gemini to generate a response. Simple library questions are answered from your Supabase records without an AI request. Google processes submitted content under its Gemini API terms and privacy documentation.',
       'The app stores your signed-in session and appearance preference in your browser so you can stay signed in and retain your theme choice.',
     ],
   },
   {
     title: 'Storage and service providers',
     paragraphs: [
-      'Account, profile, and watchlist data are stored in the Supabase project used by this deployment. Supabase provides authentication, database, file storage, and server functions. Vercel hosts the website. These providers process information as needed to provide their services and under their own privacy terms.',
+      'Account, profile, watchlist data, and AI assistant conversations are stored in the Supabase project used by this deployment. Supabase provides authentication, database, file storage, and server functions. Vercel hosts the website. Gemini requests are processed by Google when you use the assistant. These providers process information as needed to provide their services and under their own privacy terms.',
       'Profile avatars are stored in a public image bucket and can be viewed by anyone who has the image URL. Uploading an avatar is optional. Only the account owner is allowed to upload, replace, or delete files in their own avatar folder.',
     ],
   },
@@ -71,6 +73,7 @@ const privacySections = [
     title: 'Who can see your information',
     paragraphs: [
       'Watchlist entries and personal notes are restricted to the account that owns them by database access policies. Administrators can access account directory information and aggregate service statistics for administration; the admin dashboard is designed not to expose users’ private anime titles, notes, ratings, or episode histories.',
+      'Saved AI conversations are restricted to the account that owns them. When you choose to use the AI assistant, the message and limited library context are also transmitted to Google Gemini for response generation.',
       'The app does not send an anime title to a streaming provider merely by displaying watch options. If you click a provider search link, the title is included in that provider’s search URL and is then subject to the provider’s privacy policy.',
     ],
   },
