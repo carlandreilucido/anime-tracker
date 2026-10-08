@@ -49,6 +49,7 @@ const privacySections = [
     title: 'Information stored',
     paragraphs: [
       'When you create an account, the service processes your email address and authentication data. Passwords are handled by Supabase Authentication; Kitsu does not store your password as plain text.',
+      'If a sign-in attempt fails because credentials are invalid, the app checks whether the submitted email exists in its profile directory so it can tell you whether to register or reset your password. A person submitting an email can learn whether that address is registered; the lookup returns no profile details and is subject to request throttling.',
       'Your profile may include a name, username, and avatar. Your library can include anime titles and metadata, season and episode progress, status, favorites, ratings, dates, and personal notes. Settings may include your preferred streaming provider and country code.',
     ],
   },

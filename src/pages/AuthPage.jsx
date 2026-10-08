@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Clapperboard as Sparkles, Eye, EyeOff } from 'lucide-react'
 import { supabase, hasSupabaseConfig } from '../lib/supabase'
 import { useToast } from '../components/ui/Toast'
+import { checkEmailAccountExists } from '../services/authService'
 
 const PRODUCTION_URL = 'https://animewatchlisttracker.vercel.app/'
 
@@ -83,10 +84,29 @@ export default function AuthPage({ register = false, resetPassword = false }) {
         navigate('/')
       }
     } catch (cause) {
-      const invalidCredentials = cause.code === 'invalid_credentials' || /invalid login credentials/i.test(cause.message || '')
-      setError(isSignIn && invalidCredentials
-        ? "We couldn't sign you in. If you haven't registered yet, please register first. Otherwise, check your email and password."
-        : cause.message || 'Authentication failed.')
+      const errorCode = String(cause.code || '').toLowerCase()
+      const errorMessage = String(cause.message || '')
+      const accountMissing = ['user_not_found', 'email_not_found', 'account_not_found'].includes(errorCode)
+        || /user not found|email not found|no account found/i.test(errorMessage)
+      const emailNotConfirmed = errorCode === 'email_not_confirmed' || /email not confirmed/i.test(errorMessage)
+      const invalidCredentials = errorCode === 'invalid_credentials' || /invalid login credentials/i.test(errorMessage)
+
+      if (isSignIn && accountMissing) {
+        setError('No account is registered with this email yet. Please create an account first.')
+      } else if (isSignIn && emailNotConfirmed) {
+        setError('Please confirm your email address before signing in. You can resend the confirmation email from the registration page.')
+      } else if (isSignIn && invalidCredentials) {
+        try {
+          const accountExists = await checkEmailAccountExists(email)
+          setError(accountExists
+            ? 'The email is registered, but the password is incorrect. Check your password or use “Forgot password?” to reset it.'
+            : 'No account is registered with this email yet. Please create an account first.')
+        } catch {
+          setError('Email or password is incorrect. If you have not registered, create an account first; otherwise, use “Forgot password?” to reset your password.')
+        }
+      } else {
+        setError(errorMessage || 'Authentication failed.')
+      }
     } finally {
       setBusy(false)
     }
