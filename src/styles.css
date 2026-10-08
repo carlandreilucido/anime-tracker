@@ -534,7 +534,9 @@ html[data-theme="light"] .auth-switch a{color:#176b37}
 .legal-switch{margin-top:27px;padding-top:16px;border-top:1px solid #2b2a32}
 .legal-switch a,.auth-legal-links a,.footer-legal-links a{color:#8ae4a0}
 .legal-switch a:hover,.auth-legal-links a:hover,.footer-legal-links a:hover{text-decoration:underline;text-underline-offset:3px}
-.auth-legal-links{margin:8px 0 0;color:#8e8995;font-size:10px;line-height:1.6}
+.auth-legal-links{display:grid;justify-items:center;gap:5px;width:100%;margin:8px 0 0;color:#8e8995;font-size:10px;line-height:1.6;text-align:center}
+.auth-legal-row{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:0 7px;width:100%}
+.auth-legal-ack{display:block;width:100%;text-align:center}
 .footer-legal-links{display:inline-flex;align-items:center;gap:7px;margin-left:10px;font-size:10px}
 html[data-theme="light"] .legal-heading{border-color:#e2dfe7}
 html[data-theme="light"] .legal-heading h1{color:#302d36}
@@ -808,3 +810,25 @@ html[data-theme="light"] .auth-switch a{color:#176b37}
 }
 .empty-symbol{font-size:0}
 .empty-symbol:before{content:'▶';font-size:18px}
+/* Keep legal links and page content on consistent desktop/mobile alignments. */
+.site-footer{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:7px 10px;text-align:center}
+.footer-legal-links{flex:0 0 100%;justify-content:center;margin:0}
+.legal-page{display:block;box-sizing:border-box}
+.legal-page>.legal-back-link{display:inline-flex;align-items:center;justify-content:flex-start}
+.legal-heading,.legal-content,.legal-switch{width:100%;text-align:left}
+.legal-content section{justify-items:start}
+/* Use a fixed grid for the sort trigger so its label never hits the chevron. */
+.filter-dropdown-sort .custom-filter-trigger{display:grid;width:188px;min-width:188px;grid-template-columns:max-content minmax(0,1fr) 14px;align-items:center;justify-content:initial;gap:8px}
+.filter-dropdown-sort .filter-selected-label{text-align:left}
+/* Keep the rating star inside the select's left padding, away from its value text. */
+.rating-input{position:relative;display:block;width:100%;min-width:0}
+.rating-input>svg{position:absolute;z-index:1;left:11px;top:50%;display:block;width:16px;height:16px;transform:translateY(-50%);margin:0;pointer-events:none}
+.rating-input select{display:block;width:100%;min-width:0;padding-left:34px}
+/* Align the browse arrow to the trailing edge of the full-width overview action. */
+.recent-panel .recent-footer{display:flex;align-items:center;justify-content:flex-start;gap:8px;width:100%;max-width:none;text-align:left}
+.recent-panel .recent-footer:after{content:'→';margin-left:auto;font-size:16px;line-height:1}
+@media(max-width:650px){
+  .filter-dropdown-sort .custom-filter-trigger{width:176px;min-width:176px;max-width:176px}
+  .site-footer{gap:7px 8px}
+  .footer-legal-links{flex:0 0 100%;justify-content:center}
+}
