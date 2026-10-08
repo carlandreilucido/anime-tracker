@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { GENRES, STATUSES, STATUS_LABELS } from '../../constants'
 import { Minus, Plus, Star } from 'lucide-react'
+import AnimeSearchForm from './AnimeSearchForm'
 
 const blank = { title: '', alternative_title: '', poster_url: '', genres: [], rating: '', notes: '' }
 const newSeason = number => ({ season_number: number, season_title: `Season ${number}`, total_episodes: '', current_episode: 0, status: 'plan_to_watch', date_started: '' })
@@ -10,6 +11,7 @@ export default function AnimeForm({ initial, onSubmit, saving }) {
   const [seasons, setSeasons] = useState(initial?.id ? [] : [newSeason(1)])
   const [custom, setCustom] = useState('')
   const [error, setError] = useState('')
+  const [mode, setMode] = useState('search')
   const isEditing = Boolean(initial?.id)
   const set = (key, value) => setForm(current => ({ ...current, [key]: value }))
   const setSeason = (index, key, value) => setSeasons(current => current.map((season, seasonIndex) => seasonIndex === index ? { ...season, [key]: value } : season))
@@ -62,7 +64,7 @@ export default function AnimeForm({ initial, onSubmit, saving }) {
     }
   }
 
-  return <form className="anime-form" onSubmit={submit}>
+  const manualForm = <form className="anime-form" onSubmit={submit}>
     <div className="form-grid">
       <label className="field full">Anime title *<input required autoFocus value={form.title} onChange={event => set('title', event.target.value)} placeholder="e.g. Frieren: Beyond Journey’s End"/></label>
       <label className="field full">Alternative title<input value={form.alternative_title || ''} onChange={event => set('alternative_title', event.target.value)} placeholder="Optional"/></label>
@@ -84,4 +86,14 @@ export default function AnimeForm({ initial, onSubmit, saving }) {
     {error && <p className="form-error" role="alert">{error}</p>}
     <div className="form-actions"><button type="submit" className="primary-btn" disabled={saving}>{saving ? 'Saving…' : isEditing ? 'Save changes' : 'Add series to my list'}</button></div>
   </form>
+
+  if (isEditing) return manualForm
+
+  return <div className="anime-add-flow">
+    <div className="anime-add-tabs" role="tablist" aria-label="How to add anime">
+      <button type="button" role="tab" aria-selected={mode === 'search'} className={mode === 'search' ? 'active' : ''} onClick={() => setMode('search')}>Search Anime</button>
+      <button type="button" role="tab" aria-selected={mode === 'manual'} className={mode === 'manual' ? 'active' : ''} onClick={() => setMode('manual')}>Add Manually</button>
+    </div>
+    {mode === 'search' ? <AnimeSearchForm onSubmit={onSubmit} saving={saving}/> : manualForm}
+  </div>
 }

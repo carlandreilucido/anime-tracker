@@ -116,28 +116,49 @@ export async function createAnime(values) {
   const seasons = sortSeasons(values.seasons || [])
   if (!seasons.length) throw new Error('Add at least one season before saving this anime.')
   const { seasons: _seasons, ...series } = values
-  const { data: created, error } = await supabase.from('anime').insert(series).select('id').single()
-  if (error) {
-    if (error.code === '23505') throw new Error('This anime is already in your library. Open it and add the season there.')
-    throw error
-  }
-  const seasonRows = seasons.map(season => ({
-    anime_id: created.id,
-    season_number: Number(season.season_number),
-    season_title: season.season_title?.trim() || `Season ${season.season_number}`,
+  const seasonRows = seasons.map((season, index) => ({
+    season_number: Number(season.season_number) || index + 1,
+    season_title: season.season_title?.trim() || `Season ${index + 1}`,
     total_episodes: season.total_episodes === '' ? null : season.total_episodes,
     current_episode: Number(season.current_episode) || 0,
     status: season.status || 'plan_to_watch',
     date_started: season.date_started || null,
     date_completed: season.date_completed || null,
+    media_type: season.media_type || null,
+    external_provider: season.external_provider || null,
+    external_id: season.external_id || null,
+    external_show_id: season.external_show_id || null,
+    external_url: season.external_url || null,
   }))
-  const { error: seasonError } = await supabase.from('anime_seasons').insert(seasonRows)
-  if (seasonError) {
-    await supabase.from('anime').delete().eq('id', created.id)
-    if (seasonError.code === '23505') throw new Error('Season numbers must be unique for this anime.')
-    throw seasonError
+  const { data: createdId, error } = await supabase.rpc('create_anime_with_seasons', {
+    p_anime: series,
+    p_seasons: seasonRows,
+  })
+  if (error) {
+    if (!series.external_provider && ['PGRST202', '42883'].includes(error.code)) {
+      // Keep manual entry usable during a staged rollout before the migration is applied.
+      const { data: created, error: insertError } = await supabase.from('anime').insert(series).select('id').single()
+      if (insertError) {
+        if (insertError.code === '23505') throw new Error('This anime is already in your library. Open it and add the season there.')
+        throw insertError
+      }
+      const legacySeasonRows = seasonRows.map(({ season_number, season_title, total_episodes, current_episode, status, date_started, date_completed }) => ({
+        anime_id: created.id, season_number, season_title, total_episodes, current_episode,
+        status, date_started, date_completed,
+      }))
+      const { error: seasonError } = await supabase.from('anime_seasons').insert(legacySeasonRows)
+      if (seasonError) {
+        await supabase.from('anime').delete().eq('id', created.id)
+        if (seasonError.code === '23505') throw new Error('Season numbers must be unique for this anime.')
+        throw seasonError
+      }
+      return getAnimeById(created.id)
+    }
+    if (error.code === '23505') throw new Error('This anime or one of its TVmaze installments is already in your library. Open the existing entry to manage its seasons.')
+    throw error
   }
-  return getAnimeById(created.id)
+  if (!createdId) throw new Error('Anime save did not return a library entry.')
+  return getAnimeById(createdId)
 }
 
 export async function addAnimeSeason(animeId, season) {
@@ -151,6 +172,11 @@ export async function addAnimeSeason(animeId, season) {
     status: season.status || 'plan_to_watch',
     date_started: season.date_started || null,
     date_completed: season.date_completed || null,
+    media_type: season.media_type || null,
+    external_provider: season.external_provider || null,
+    external_id: season.external_id || null,
+    external_show_id: season.external_show_id || null,
+    external_url: season.external_url || null,
   })
   if (error) {
     if (error.code === '23505') throw new Error('That season number already exists for this anime.')
@@ -169,6 +195,11 @@ export async function updateAnimeSeason(animeId, seasonId, season) {
     status: season.status,
     date_started: season.date_started || null,
     date_completed: season.date_completed || null,
+    media_type: season.media_type || null,
+    external_provider: season.external_provider || null,
+    external_id: season.external_id || null,
+    external_show_id: season.external_show_id || null,
+    external_url: season.external_url || null,
   }).eq('id', seasonId).eq('anime_id', animeId)
   if (error) {
     if (error.code === '23505') throw new Error('That season number already exists for this anime.')
