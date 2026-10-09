@@ -34,7 +34,7 @@ function toPlainText(html = '') {
   return new DOMParser().parseFromString(html, 'text/html').body.textContent?.replace(/\s+/g, ' ').trim() || ''
 }
 
-export default function AnimeAssistant() {
+export default function AnimeAssistant({ openRequest = 0 }) {
   const { user } = useAuth()
   const toast = useToast()
   const [open, setOpen] = useState(false)
@@ -59,6 +59,7 @@ export default function AnimeAssistant() {
   const inputRef = useRef(null)
   const requestInFlight = useRef(false)
   const scrollAnchor = useRef(null)
+  const handledOpenRequest = useRef(0)
 
   const loadConversationList = useCallback(async (offset = 0) => {
     const result = await listChatConversations(offset)
@@ -84,7 +85,7 @@ export default function AnimeAssistant() {
     finally { setLoadingHistory(false) }
   }, [])
 
-  const openAssistant = async () => {
+  const openAssistant = useCallback(async () => {
     setOpen(true)
     if (!hydrated) {
       setLoadingHistory(true)
@@ -96,7 +97,33 @@ export default function AnimeAssistant() {
       finally { setLoadingHistory(false) }
     }
     window.setTimeout(() => inputRef.current?.focus(), 80)
-  }
+  }, [hydrated, loadConversationList, openConversation])
+
+  useEffect(() => {
+    if (openRequest <= handledOpenRequest.current) return
+    handledOpenRequest.current = openRequest
+    openAssistant()
+  }, [openRequest, openAssistant])
+
+  useEffect(() => {
+    if (!open || window.matchMedia('(min-width: 768px)').matches) return undefined
+    const viewport = window.visualViewport
+    const syncVisualViewport = () => {
+      document.documentElement.style.setProperty('--assistant-viewport-height', `${viewport?.height || window.innerHeight}px`)
+      document.documentElement.style.setProperty('--assistant-viewport-top', `${viewport?.offsetTop || 0}px`)
+    }
+    syncVisualViewport()
+    viewport?.addEventListener('resize', syncVisualViewport)
+    viewport?.addEventListener('scroll', syncVisualViewport)
+    window.addEventListener('resize', syncVisualViewport)
+    return () => {
+      viewport?.removeEventListener('resize', syncVisualViewport)
+      viewport?.removeEventListener('scroll', syncVisualViewport)
+      window.removeEventListener('resize', syncVisualViewport)
+      document.documentElement.style.removeProperty('--assistant-viewport-height')
+      document.documentElement.style.removeProperty('--assistant-viewport-top')
+    }
+  }, [open])
 
   useEffect(() => {
     if (!open) return undefined
