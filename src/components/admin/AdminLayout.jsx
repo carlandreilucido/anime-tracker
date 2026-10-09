@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useProfile } from '../../contexts/ProfileContext'
 import ThemeToggle from '../ui/ThemeToggle'
+import KitsuLogo from '../ui/KitsuLogo'
 
 const adminLinks = [
   { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -33,7 +34,7 @@ export default function AdminLayout() {
   return <div className="admin-shell">
     {mobileOpen&&<button className="admin-drawer-scrim" aria-label="Close admin menu" onClick={()=>setMobileOpen(false)}/>}
     <aside className={`admin-sidebar ${mobileOpen?'open':''}`}>
-      <div className="admin-brand"><span className="brand-mark"><Shield size={17}/></span><span>kitsu <b>admin</b></span><button className="admin-mobile-close" aria-label="Close navigation" onClick={()=>setMobileOpen(false)}><X size={18}/></button></div>
+      <div className="admin-brand"><KitsuLogo admin/><button className="admin-mobile-close" aria-label="Close navigation" onClick={()=>setMobileOpen(false)}><X size={18}/></button></div>
       <div className="admin-side-label">ADMINISTRATION</div>
       <nav className="admin-nav">{adminLinks.map(({to,label,icon:Icon,end})=><NavLink key={to} to={to} end={end} className={({isActive})=>`admin-nav-link ${isActive?'active':''}`}><Icon size={17}/><span>{label}</span></NavLink>)}</nav>
       <div className="admin-sidebar-bottom"><NavLink className="admin-back-link" to="/"><ArrowLeft size={16}/> Back to website</NavLink><div className="admin-profile"><span className="avatar">{profile.avatar_url?<img src={profile.avatar_url} alt=""/>:name?.[0]?.toUpperCase()}</span><span className="admin-profile-copy"><strong>{name}</strong><span>Administrator</span></span><button className="icon-btn" onClick={logout} aria-label="Log out"><LogOut size={16}/></button></div></div>

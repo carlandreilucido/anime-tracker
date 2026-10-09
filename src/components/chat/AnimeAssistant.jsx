@@ -8,6 +8,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { useToast } from '../ui/Toast'
 import Modal from '../ui/Modal'
 import AnimeForm from '../anime/AnimeForm'
+import KitsuLogo from '../ui/KitsuLogo'
 import {
   createChatConversation, deleteChatConversation, getChatMessages,
   listChatConversations, sendChatMessage,
@@ -289,11 +290,11 @@ export default function AnimeAssistant({ openRequest = 0 }) {
   if (!user) return null
 
   return <>
-    {!open && <button className="assistant-launcher" onClick={openAssistant} aria-label="Open Kitsu AI assistant"><Sparkles size={19}/><span>Kitsu AI</span></button>}
+    {!open && <button className="assistant-launcher" onClick={openAssistant} aria-label="Open Kitsu AI assistant"><KitsuLogo iconOnly className="assistant-launcher-logo"/><span>Kitsu AI</span></button>}
     {open && <div className="assistant-backdrop" onMouseDown={event => { if (event.target === event.currentTarget) setOpen(false) }}>
       <section className="assistant-window" role="dialog" aria-modal="true" aria-label="Kitsu anime assistant">
         <header className="assistant-header">
-          <div className="assistant-brand-mark"><Sparkles size={17}/></div>
+          <div className="assistant-brand-mark"><KitsuLogo iconOnly/></div>
           <div className="assistant-heading-copy"><strong>Kitsu assistant</strong><span>Anime discovery, grounded in your library</span></div>
           <button className="assistant-icon-button" onClick={createConversation} aria-label="New conversation" title="New conversation"><Plus size={18}/></button>
           <button className={`assistant-icon-button ${showHistory ? 'selected' : ''}`} onClick={() => { setShowHistory(value => !value); loadConversationList().catch(() => {}) }} aria-label="Conversation history" title="Conversation history"><Clock3 size={17}/></button>

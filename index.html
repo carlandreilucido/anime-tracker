@@ -1,5 +1,28 @@
 <!doctype html>
 <html lang="en">
-  <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" /><meta name="theme-color" content="#101014" /><meta name="description" content="A beautiful personal anime watchlist and progress tracker." /><title>Kitsu — Anime Tracker</title></head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0B0D14" />
+    <meta name="description" content="A beautiful personal anime watchlist and progress tracker." />
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="apple-touch-icon" href="/logo.png" />
+    <script>
+      (() => {
+        let theme = 'dark'
+        let saved = null
+        try {
+          saved = localStorage.getItem('kitsu-theme')
+        } catch { /* Use the system theme if storage is unavailable. */ }
+        theme = saved === 'light' || saved === 'dark'
+          ? saved
+          : (window.matchMedia?.('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
+        document.documentElement.dataset.theme = theme
+        document.documentElement.style.colorScheme = theme
+        document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'light' ? '#F8FAFC' : '#0B0D14')
+      })()
+    </script>
+    <title>Kitsu — Anime Tracker</title>
+  </head>
   <body><div id="root"></div><script type="module" src="/src/main.jsx"></script></body>
 </html>

@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Clapperboard as Sparkles, Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
 import { supabase, hasSupabaseConfig } from '../lib/supabase'
 import { useToast } from '../components/ui/Toast'
 import { checkEmailAccountExists } from '../services/authService'
 import { useAuth } from '../contexts/AuthContext'
+import KitsuLogo from '../components/ui/KitsuLogo'
 
 const PRODUCTION_URL = 'https://animewatchlisttracker.vercel.app/'
 
@@ -142,7 +143,7 @@ export default function AuthPage({ register = false, resetPassword = false }) {
 
   return <div className="auth-shell">
     <div className="auth-art">
-      <div className="auth-art-top"><span className="brand-mark"><Sparkles size={18}/></span> kitsu<span className="brand-dot">.</span></div>
+      <div className="auth-art-top"><KitsuLogo/></div>
       <div className="art-copy">
         <span className="eyebrow">YOUR PERSONAL WATCHLIST</span>
         <h1>Keep your<br/>story <em>going.</em></h1>
@@ -153,7 +154,8 @@ export default function AuthPage({ register = false, resetPassword = false }) {
     </div>
     <main className="auth-panel">
       <div className="auth-box">
-        <div className="auth-mobile-brand"><span className="brand-mark"><Sparkles size={18}/></span> kitsu<span className="brand-dot">.</span></div>
+        <div className="auth-mobile-brand"><KitsuLogo/></div>
+        <div className="auth-mobile-intro"><h1>Keep your story <em>going.</em></h1><p>Every show, every episode, right where you left it.</p></div>
         <span className="eyebrow">{isResetPassword ? 'RESET PASSWORD' : forgotMode ? 'ACCOUNT RECOVERY' : register ? 'GET STARTED' : 'WELCOME BACK'}</span>
         <h2>{isResetPassword ? 'Choose a new password.' : forgotMode ? 'Reset your password.' : register ? 'Make it yours.' : 'Pick up where you left off.'}</h2>
         <p className="auth-description">{isResetPassword ? 'Enter and confirm your new password below.' : forgotMode ? 'We’ll email you a secure link to reset your password.' : register ? 'Create your account and keep every episode in its place.' : 'Sign in to get back to your watchlist.'}</p>

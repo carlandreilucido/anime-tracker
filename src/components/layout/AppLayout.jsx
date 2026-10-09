@@ -4,6 +4,7 @@ import { LayoutDashboard, Library, Play, Bookmark, Check, Heart, LogOut, Menu, X
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { useProfile } from '../../contexts/ProfileContext'
 import ThemeToggle from '../ui/ThemeToggle'
+import KitsuLogo from '../ui/KitsuLogo'
 const AnimeAssistant = lazy(() => import('../chat/AnimeAssistant'))
 
 const links = [
@@ -68,7 +69,7 @@ export default function AppLayout() {
 
   return <div className={`app-shell ${mobileMenuOpen ? 'mobile-account-open' : ''}`}>
     <aside className={`sidebar ${open ? 'sidebar-open' : ''}`}>
-      <div className="brand"><span className="brand-mark"><Sparkles size={19}/></span><span>kitsu<span className="brand-dot">.</span></span><button className="mobile-close" onClick={() => setOpen(false)} aria-label="Close menu"><X size={19}/></button></div>
+      <div className="brand"><KitsuLogo/><button className="mobile-close" onClick={() => setOpen(false)} aria-label="Close menu"><X size={19}/></button></div>
       <div className="workspace-label">YOUR SPACE</div>
       <nav className="side-nav">
         {links.slice(0, 1).map(({ to, key, label, icon: Icon }) => <NavLink key={key} to={to} end onClick={() => setOpen(false)} className={`nav-link ${activeLink === key ? 'active' : ''}`} aria-current={activeLink === key ? 'page' : undefined}><Icon size={18}/><span>{label}</span></NavLink>)}

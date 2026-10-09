@@ -1,21 +1,60 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useRef, useState } from 'react'
 
 const ThemeContext = createContext(null)
 const THEME_STORAGE_KEY = 'kitsu-theme'
 
+function getSavedTheme() {
+  try {
+    const saved = localStorage.getItem(THEME_STORAGE_KEY)
+    return saved === 'light' || saved === 'dark' ? saved : null
+  } catch { return null }
+}
+
+function systemTheme() {
+  return window.matchMedia?.('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+}
+
 function getInitialTheme() {
-  try { return localStorage.getItem(THEME_STORAGE_KEY) === 'light' ? 'light' : 'dark' }
-  catch { return 'dark' }
+  return getSavedTheme() || systemTheme()
 }
 
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(getInitialTheme)
+  const hasUserPreference = useRef(Boolean(getSavedTheme()))
+
   useEffect(() => {
     document.documentElement.dataset.theme = theme
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'light' ? '#f5f4f7' : '#101014')
-    try { localStorage.setItem(THEME_STORAGE_KEY, theme) } catch { /* Storage may be disabled; keep the in-memory preference. */ }
+    document.documentElement.style.colorScheme = theme
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'light' ? '#F8FAFC' : '#0B0D14')
   }, [theme])
-  const toggleTheme = () => setTheme(current => current === 'dark' ? 'light' : 'dark')
+
+  useEffect(() => {
+    const media = window.matchMedia?.('(prefers-color-scheme: light)')
+    const updateFromSystem = event => {
+      if (!hasUserPreference.current) setTheme(event.matches ? 'light' : 'dark')
+    }
+    const handleStorage = event => {
+      if (event.key !== THEME_STORAGE_KEY) return
+      hasUserPreference.current = event.newValue === 'light' || event.newValue === 'dark'
+      setTheme(hasUserPreference.current ? event.newValue : systemTheme())
+    }
+    if (media?.addEventListener) media.addEventListener('change', updateFromSystem)
+    else media?.addListener?.(updateFromSystem)
+    window.addEventListener('storage', handleStorage)
+    return () => {
+      if (media?.removeEventListener) media.removeEventListener('change', updateFromSystem)
+      else media?.removeListener?.(updateFromSystem)
+      window.removeEventListener('storage', handleStorage)
+    }
+  }, [])
+
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark'
+    hasUserPreference.current = true
+    setTheme(next)
+    try { localStorage.setItem(THEME_STORAGE_KEY, next) } catch { /* Keep the choice in memory if storage is disabled. */ }
+  }
+
   return <ThemeContext.Provider value={{ theme, toggleTheme }}>{children}</ThemeContext.Provider>
 }
 
