@@ -289,7 +289,7 @@ export default function AnimeAssistant({ openRequest = 0 }) {
   if (!user) return null
 
   return <>
-    {!open && <button className="assistant-launcher" onClick={openAssistant} aria-label="Open Kitsu anime assistant"><Sparkles size={19}/><span>Anime AI</span></button>}
+    {!open && <button className="assistant-launcher" onClick={openAssistant} aria-label="Open Kitsu AI assistant"><Sparkles size={19}/><span>Kitsu AI</span></button>}
     {open && <div className="assistant-backdrop" onMouseDown={event => { if (event.target === event.currentTarget) setOpen(false) }}>
       <section className="assistant-window" role="dialog" aria-modal="true" aria-label="Kitsu anime assistant">
         <header className="assistant-header">
