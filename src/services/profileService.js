@@ -2,7 +2,7 @@ import { supabase } from '../lib/supabase'
 
 export const AVATAR_MAX_BYTES = 5 * 1024 * 1024
 export const AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/webp']
-const PROFILE_FIELDS = ['username', 'full_name', 'avatar_url']
+const PROFILE_FIELDS = ['username', 'full_name', 'avatar_url', 'is_library_public']
 
 function requireClient() {
   if (!supabase) throw new Error('Supabase is not configured.')
@@ -12,7 +12,7 @@ function requireClient() {
 export async function getProfile(userId) {
   const client = requireClient()
   const { data, error } = await client.from('profiles')
-    .select('id,email,username,full_name,avatar_url,role,created_at,updated_at')
+    .select('id,email,username,full_name,avatar_url,role,is_library_public,created_at,updated_at')
     .eq('id', userId)
     .maybeSingle()
   if (error) throw error
@@ -23,7 +23,7 @@ export async function updateProfile(userId, changes) {
   const client = requireClient()
   const values = Object.fromEntries(Object.entries(changes).filter(([key]) => PROFILE_FIELDS.includes(key)))
   const { data, error } = await client.from('profiles').update(values).eq('id', userId)
-    .select('id,email,username,full_name,avatar_url,role,created_at,updated_at').single()
+    .select('id,email,username,full_name,avatar_url,role,is_library_public,created_at,updated_at').single()
   if (error) throw error
   return data
 }

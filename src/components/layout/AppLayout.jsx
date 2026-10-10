@@ -6,6 +6,7 @@ import { useProfile } from '../../contexts/ProfileContext'
 import ThemeToggle from '../ui/ThemeToggle'
 import KitsuLogo from '../ui/KitsuLogo'
 const AnimeAssistant = lazy(() => import('../chat/AnimeAssistant'))
+const UserSearch = lazy(() => import('./UserSearch'))
 
 const links = [
   { to: '/', key: 'overview', label: 'Overview', icon: LayoutDashboard },
@@ -45,7 +46,7 @@ export default function AppLayout() {
   const navigate = useNavigate()
   const location = useLocation()
   const activeLink = getActiveLink(location.pathname, location.search)
-  const mobileActiveLink = mobileMenuOpen ? null : location.pathname.startsWith('/anime/') ? 'library' : activeLink
+  const mobileActiveLink = mobileMenuOpen ? null : (location.pathname.startsWith('/anime/') || location.pathname.startsWith('/users/')) ? 'library' : activeLink
   const profileActive = ['/profile', '/settings'].includes(location.pathname)
   const logout = async () => { setProfileMenuOpen(false); setMobileMenuOpen(false); await signOut(); navigate('/login') }
   const openAssistant = () => setAssistantOpenRequest(request => request + 1)
@@ -79,7 +80,7 @@ export default function AppLayout() {
       </nav>
       <div className="sidebar-bottom"><div className="sidebar-note"><Sparkles className="note-icon" size={16}/><p>Every episode is a little closer to the ending.</p></div><div className="profile-menu" ref={profileMenuRef}><button className="user-profile profile-menu-trigger" aria-haspopup="menu" aria-expanded={profileMenuOpen} onClick={()=>setProfileMenuOpen(value=>!value)}><span className="avatar">{profile?.avatar_url?<img src={profile.avatar_url} alt=""/>:displayName[0]?.toUpperCase()}</span><span className="user-info"><strong>{displayName}</strong><span>{profile?.username?`@${profile.username}`:'Personal account'}</span></span><ChevronDown className="profile-menu-chevron" size={15}/></button>{profileMenuOpen&&<div className="profile-dropdown" role="menu"><NavLink role="menuitem" to="/profile"><UserRound size={15}/> Profile</NavLink><NavLink role="menuitem" to="/settings"><Settings size={15}/> Settings</NavLink>{profile?.role==='admin'&&<NavLink role="menuitem" to="/admin"><Shield size={15}/> Admin dashboard</NavLink>}<button role="menuitem" onClick={logout}><LogOut size={15}/> Log out</button></div>}</div></div>
     </aside>
-        <div className="main-column"><header className="topbar"><button className="menu-toggle icon-btn" onClick={() => setOpen(true)} aria-label="Open menu"><Menu size={20}/></button><div className="topbar-crumb">Your anime, <span>your pace.</span></div><ThemeToggle/></header>{open && <button className="mobile-scrim" onClick={() => setOpen(false)} aria-label="Close menu"/>}<main className="main-content"><Outlet/></main><footer className="site-footer">Made for the stories that stay with you <Sparkles size={11}/><span className="footer-legal-links"><NavLink to="/terms">Terms &amp; Conditions</NavLink><span>·</span><NavLink to="/privacy">Privacy Policy</NavLink></span></footer></div>
+        <div className="main-column"><header className="topbar"><button className="menu-toggle icon-btn" onClick={() => setOpen(true)} aria-label="Open menu"><Menu size={20}/></button><div className="topbar-crumb">Your anime, <span>your pace.</span></div><Suspense fallback={null}><UserSearch/></Suspense><ThemeToggle/></header>{open && <button className="mobile-scrim" onClick={() => setOpen(false)} aria-label="Close menu"/>}<main className="main-content"><Outlet/></main><footer className="site-footer">Made for the stories that stay with you <Sparkles size={11}/><span className="footer-legal-links"><NavLink to="/terms">Terms &amp; Conditions</NavLink><span>·</span><NavLink to="/privacy">Privacy Policy</NavLink></span></footer></div>
     <nav className="mobile-bottom-nav" aria-label="Primary navigation">
       <Link to="/" className={`mobile-bottom-nav-item ${mobileActiveLink === 'overview' ? 'active' : ''}`} aria-current={mobileActiveLink === 'overview' ? 'page' : undefined}>
         <House size={20}/><span>Home</span>

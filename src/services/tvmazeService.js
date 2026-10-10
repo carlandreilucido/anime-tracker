@@ -76,6 +76,11 @@ export async function searchTvmazeShows(query, { signal, bypassCache = false } =
   return Array.isArray(data) ? data.map(item => item.show).filter(Boolean) : []
 }
 
+export async function getTvmazeShowById(showId, { signal, bypassCache = false } = {}) {
+  if (!showId) return null
+  return getJson(`/shows/${encodeURIComponent(showId)}`, { signal, bypassCache })
+}
+
 export async function getTvmazeShowAliases(showId, { signal } = {}) {
   const aliases = await getJson(`/shows/${encodeURIComponent(showId)}/akas`, { signal })
   return Array.isArray(aliases) ? aliases : []

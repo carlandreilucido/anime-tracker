@@ -6,7 +6,7 @@ import AnimeSearchForm from './AnimeSearchForm'
 const blank = { title: '', alternative_title: '', poster_url: '', genres: [], rating: '', notes: '' }
 const newSeason = number => ({ season_number: number, season_title: `Season ${number}`, total_episodes: '', current_episode: 0, status: 'plan_to_watch', date_started: '' })
 
-export default function AnimeForm({ initial, initialMode = 'search', onSubmit, saving }) {
+export default function AnimeForm({ initial, initialMode = 'search', onSubmit, saving, initialSearchAnime = null, onCancel = null, submitLabel = 'Add to Library', searchOnly = false }) {
   const [form, setForm] = useState({ ...blank, ...initial, genres: initial?.genres || [] })
   const [seasons, setSeasons] = useState(initial?.id ? [] : initial?.seasons?.length ? initial.seasons : [newSeason(1)])
   const [custom, setCustom] = useState('')
@@ -101,10 +101,10 @@ export default function AnimeForm({ initial, initialMode = 'search', onSubmit, s
   if (isEditing) return manualForm
 
   return <div className="anime-add-flow">
-    <div className="anime-add-tabs" role="tablist" aria-label="How to add anime">
+    {!searchOnly && <div className="anime-add-tabs" role="tablist" aria-label="How to add anime">
       <button type="button" role="tab" aria-selected={mode === 'search'} className={mode === 'search' ? 'active' : ''} onClick={() => setMode('search')}>Search Anime</button>
       <button type="button" role="tab" aria-selected={mode === 'manual'} className={mode === 'manual' ? 'active' : ''} onClick={() => setMode('manual')}>Add Manually</button>
-    </div>
-    {mode === 'search' ? <AnimeSearchForm onSubmit={onSubmit} saving={saving}/> : manualForm}
+    </div>}
+    {mode === 'search' ? <AnimeSearchForm onSubmit={onSubmit} saving={saving} initialAnime={initialSearchAnime} onCancel={onCancel} submitLabel={submitLabel}/> : manualForm}
   </div>
 }
