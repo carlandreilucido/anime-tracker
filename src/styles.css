@@ -415,6 +415,14 @@ html[data-theme="light"] .avatar,html[data-theme="light"] .admin-user-avatar{bac
 html[data-theme="light"] .settings-icon{background:#fce9eb;color:#b33442}
 html[data-theme="light"] .profile-info-item>span svg{color:#b33442}
 html[data-theme="light"] .auth-box>.eyebrow,html[data-theme="light"] .setup-card>a{color:#a5323e}
+html[data-theme="light"] .auth-submit{background:#6D28D9;border-color:#6D28D9;color:#fff}
+html[data-theme="light"] .auth-submit:hover:not(:disabled){background:#5B21B6;border-color:#5B21B6}
+html[data-theme="light"] .auth-box>.eyebrow{color:#6D28D9}
+html[data-theme="light"] .auth-box .auth-switch a,html[data-theme="light"] .auth-box .auth-back-link,html[data-theme="light"] .auth-box .auth-forgot-link{color:#6D28D9}
+html[data-theme="light"] .auth-box .auth-switch a:hover,html[data-theme="light"] .auth-box .auth-back-link:hover,html[data-theme="light"] .auth-box .auth-forgot-link:hover{color:#5B21B6}
+html[data-theme="light"] .auth-art .art-copy h1 em{color:#6D28D9}
+html[data-theme="light"] .auth-art .art-copy .eyebrow{color:#6D28D9}
+html[data-theme="light"] .auth-art .art-lines span{background:linear-gradient(#A78BFA,#6D28D9)}
 html[data-theme="light"] .poster-placeholder,html[data-theme="light"] .details-placeholder{background:radial-gradient(circle at 70% 20%,#f3dadd,#fbf0f1 62%,#f1e5e7);color:#a4323f}
 html[data-theme="light"] .recent-cover{background:#fbe8ea;color:#a4323f}
 html[data-theme="light"] .empty-symbol{color:#b93442}
@@ -422,6 +430,7 @@ html[data-theme="light"] .admin-page-btn:hover:not(:disabled){background:#fce9eb
 html[data-theme="light"] .setup-card pre{color:#9d303c}
 html[data-theme="light"] .season-edit-card legend{color:#a5323e}
 html[data-theme="light"] .admin-stat-icon{background:#fbe8ea;color:#bd303e}
+
 .poster-placeholder,.details-placeholder{background:radial-gradient(circle at 70% 20%,#54363b,#292126 62%,#211d21);color:#ffc1c5}
 .recent-cover{background:#3b252b;color:#ffc1c5}
 .empty-symbol{color:#fb858d}
@@ -1055,24 +1064,26 @@ html[data-theme="light"] .card-media-type{border-color:#d7c5e7;color:#76538f}
 .assistant-launcher{position:fixed;right:24px;bottom:calc(24px + env(safe-area-inset-bottom));z-index:60;display:flex;align-items:center;gap:9px;height:48px;padding:0 17px;border:1px solid #ddc5ff;border-radius:25px;background:linear-gradient(135deg,#d8bcff,#aa7bea);box-shadow:0 9px 30px #0007;color:#21172c;font-size:12px;font-weight:750;cursor:pointer;transition:transform .18s,box-shadow .18s}
 .assistant-launcher:hover{transform:translateY(-2px);box-shadow:0 13px 35px #0009}
 .assistant-backdrop{position:fixed;inset:0;z-index:80;display:flex;align-items:flex-end;justify-content:flex-end;padding:18px;background:#07060a40;animation:assistant-fade-in .16s ease-out}
-.assistant-window{position:relative;display:grid;grid-template-rows:auto minmax(0,1fr) auto auto;width:min(440px,calc(100vw - 36px));height:min(690px,calc(100dvh - 36px));min-height:360px;overflow:hidden;border:1px solid #39343f;border-radius:17px;background:#151419;box-shadow:0 24px 80px #000a;color:#f1eef5;animation:assistant-rise-in .2s ease-out}
-.assistant-header{display:flex;align-items:center;gap:9px;min-width:0;padding:12px 13px;border-bottom:1px solid #302d36;background:#19181e}
-.assistant-brand-mark{width:34px;height:34px;flex:none;display:grid;place-items:center;border-radius:11px;background:linear-gradient(140deg,#dfc2ff,#a978ea);color:#21172c}
+.assistant-window{position:relative;display:grid;grid-template-rows:auto minmax(0,1fr) auto auto;width:min(460px,calc(100vw - 36px));height:min(700px,calc(100dvh - 36px));min-height:min(360px,calc(100dvh - 36px));overflow:hidden;border:1px solid #39343f;border-radius:16px;background:#151419;box-shadow:0 18px 48px #0005;color:#f1eef5;animation:assistant-rise-in .2s ease-out}
+.assistant-header{display:flex;align-items:center;gap:8px;min-width:0;padding:11px 12px;border-bottom:1px solid #302d36;background:#19181e}
+.assistant-brand-mark{width:34px;height:34px;flex:none;display:grid;place-items:center;border-radius:10px;background:#27242d;color:#d1b7ee}
 .assistant-heading-copy{display:grid;gap:3px;min-width:0;flex:1}
 .assistant-heading-copy strong{color:#f4effa;font:700 12px Manrope,sans-serif}
 .assistant-heading-copy span{overflow:hidden;color:#aaa5b1;font-size:9px;text-overflow:ellipsis;white-space:nowrap}
 .assistant-icon-button{width:31px;height:31px;flex:none;display:grid;place-items:center;border:1px solid transparent;border-radius:8px;background:transparent;color:#b7b1c0;cursor:pointer}
 .assistant-icon-button:hover,.assistant-icon-button.selected{border-color:#484151;background:#29252f;color:#e0caff}
-.assistant-messages{min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:17px 14px 13px;scrollbar-color:#4e4856 transparent;scrollbar-width:thin}
+.assistant-messages{min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:15px 16px 12px;scrollbar-color:#514b59 transparent;scrollbar-width:thin}
+.assistant-messages::-webkit-scrollbar{width:5px}
+.assistant-messages::-webkit-scrollbar-thumb{border-radius:8px;background:#514b59}
+.assistant-messages::-webkit-scrollbar-track{background:transparent}
 .assistant-load-older{display:flex;align-items:center;justify-content:center;gap:5px;margin:0 auto 13px;padding:6px 9px;border:1px solid #3a3540;border-radius:7px;background:#1d1b22;color:#bfb7c8;font-size:8px;cursor:pointer}
 .assistant-load-older:hover{border-color:#6b587e;color:#e2d2f2}
-.assistant-welcome{max-width:340px;margin:17px auto 9px;text-align:center}
-.assistant-welcome-icon{width:42px;height:42px;margin:0 auto 11px;display:grid;place-items:center;border:1px solid #4c3b5c;border-radius:14px;background:#292130;color:#d8baff}
-.assistant-welcome h2{margin:0 0 6px;color:#f0eaf8;font:700 17px Manrope,sans-serif}
-.assistant-welcome>p{margin:0 0 16px;color:#aaa5b0;font-size:10px;line-height:1.5}
-.assistant-suggestions{display:grid;gap:7px}
-.assistant-suggestions button{width:100%;padding:9px 11px;border:1px solid #36323c;border-radius:9px;background:#1b1a20;color:#d0cbd6;text-align:left;font-size:10px;line-height:1.4;cursor:pointer;transition:background .15s,border-color .15s}
-.assistant-suggestions button:hover{border-color:#68577b;background:#292330;color:#f0e4ff}
+.assistant-welcome{width:min(100%,390px);margin:10px auto 8px;text-align:center}
+.assistant-welcome h2{margin:0 0 8px;color:#f0eaf8;font:700 20px Manrope,sans-serif;letter-spacing:-.35px}
+.assistant-welcome>p{max-width:350px;margin:0 auto 17px;color:#aaa5b0;font-size:12px;line-height:1.55}
+.assistant-suggestions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.assistant-suggestions button{width:100%;min-height:52px;padding:10px 12px;border:1px solid #36323c;border-radius:10px;background:#1b1a20;color:#d0cbd6;text-align:left;font-size:11px;line-height:1.4;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.assistant-suggestions button:hover{border-color:#51465f;background:#24212a;color:#f0e4ff}
 .assistant-data-note{display:flex;align-items:center;gap:6px;padding:7px 13px;color:#8e8995;font-size:8px;line-height:1.4}
 .assistant-message{display:flex;align-items:flex-start;gap:8px;margin:0 0 15px;min-width:0;animation:assistant-message-in .16s ease-out}
 .assistant-message.user{flex-direction:row-reverse}
@@ -1107,11 +1118,11 @@ html[data-theme="light"] .card-media-type{border-color:#d7c5e7;color:#76538f}
 .assistant-loading{display:flex;align-items:center;justify-content:center;gap:8px;height:100%;color:#aaa5b0;font-size:10px}
 .assistant-error{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:6px 0;padding:9px 10px;border:1px solid #6d424a;border-radius:8px;background:#301d23;color:#f2bbc2;font-size:9px;line-height:1.4}
 .assistant-error button{flex:none;padding:5px 8px;border:1px solid #80525b;border-radius:6px;background:#46262d;color:#ffe7e9;font-size:9px;cursor:pointer}
-.assistant-input-row{position:relative;display:flex;align-items:flex-end;gap:7px;margin:6px 12px 0;padding:8px 8px 8px 11px;border:1px solid #3c3842;border-radius:13px;background:#201f25}
-.assistant-input-row:focus-within{border-color:#7f66a0;box-shadow:0 0 0 2px #ad8cda1c}
-.assistant-input-row textarea{width:0;min-width:0;min-height:34px;max-height:120px;flex:1;resize:vertical;padding:7px 0 10px;border:0;outline:0;background:transparent;color:#f1edf5;font-size:11px;line-height:1.5}
+.assistant-input-row{position:relative;display:flex;align-items:flex-end;gap:8px;margin:6px 12px 0;padding:7px 8px 7px 13px;border:1px solid #3c3842;border-radius:16px;background:#201f25;transition:border-color .15s}
+.assistant-input-row textarea{width:0;min-width:0;min-height:36px;max-height:120px;flex:1;resize:none;overflow-y:hidden;padding:8px 0 14px;border:0;outline:0;background:transparent;color:#f1edf5;font-size:13px;line-height:1.45}
+html[data-theme] .assistant-window .assistant-input-row textarea:focus,html[data-theme] .assistant-window .assistant-input-row textarea:focus-visible{border:0!important;border-color:transparent!important;outline:0!important;outline-color:transparent!important;outline-offset:0!important;box-shadow:none!important;-webkit-appearance:none;appearance:none}
 .assistant-input-row textarea::placeholder{color:#8d8894}
-.assistant-input-row>button{width:34px;height:34px;flex:none;display:grid;place-items:center;border:0;border-radius:9px;background:#bf9bea;color:#241a30;cursor:pointer}
+.assistant-input-row>button{width:36px;height:36px;flex:none;display:grid;place-items:center;border:0;border-radius:10px;background:#bf9bea;color:#241a30;cursor:pointer}
 .assistant-input-row>button:disabled{opacity:.4}
 .assistant-char-count{position:absolute;right:51px;bottom:3px;color:#77717e;font-size:7px}
 .assistant-footer{padding:7px 12px 10px;color:#77727d;font-size:8px;text-align:center}
@@ -1158,7 +1169,13 @@ html[data-theme="light"] .assistant-load-conversations{border-color:#e1dce6;back
   .assistant-messages{padding:13px 10px}
   .assistant-welcome{margin-top:10px}
   .assistant-input-row{margin:5px 8px 0;padding-left:9px}
-  .assistant-input-row textarea{max-height:90px;font-size:16px}
+  .assistant-input-row textarea{max-height:104px;font-size:16px}
+  .assistant-suggestions{grid-template-columns:1fr;gap:7px}
+  .assistant-suggestions button{min-height:44px}
+  .assistant-welcome{margin:6px auto}
+  .assistant-welcome>p{margin-bottom:13px}
+  .assistant-messages{scrollbar-width:none}
+  .assistant-messages::-webkit-scrollbar{display:none}
   .assistant-history-panel{top:57px;bottom:103px;padding:10px}
   .assistant-add-modal-content{max-height:calc(100dvh - 95px);padding:2px 3px 10px}
 }
@@ -1482,15 +1499,14 @@ html[data-theme] .watch-button,html[data-theme] .anime-card .season-breakdown-bu
 html[data-theme] .watch-button:hover,html[data-theme] .anime-card .season-breakdown-button:hover,html[data-theme] .anime-card .card-watch-row .watch-button:hover{border-color:var(--primary);background:var(--primary-button);color:var(--primary-foreground)}
 html[data-theme] .assistant-launcher{border-color:var(--primary-button);background:var(--primary-button);color:var(--primary-foreground);box-shadow:0 6px 18px rgba(3,5,11,.22)}
 html[data-theme] .assistant-launcher:hover{background:var(--primary-hover)}
-html[data-theme] .assistant-brand-mark{background:var(--primary-button);color:var(--primary-foreground)}
-html[data-theme] .assistant-icon-button:hover,html[data-theme] .assistant-icon-button.selected,html[data-theme] .assistant-welcome-icon{border-color:var(--primary-border);background:var(--primary-surface);color:var(--primary)}
+html[data-theme] .assistant-brand-mark{background:var(--surface-hover);color:var(--primary)}
+html[data-theme] .assistant-icon-button:hover,html[data-theme] .assistant-icon-button.selected{border-color:var(--primary-border);background:var(--primary-surface);color:var(--primary)}
 html[data-theme] .assistant-suggestions button:hover{border-color:var(--primary-border);background:var(--primary-surface);color:var(--primary)}
 html[data-theme] .assistant-recommendation-copy>strong,html[data-theme] .assistant-bubble strong,html[data-theme] .assistant-bubble h1,html[data-theme] .assistant-bubble h2,html[data-theme] .assistant-bubble h3{color:var(--foreground)}
 html[data-theme] .assistant-card-actions button,html[data-theme] .assistant-new-chat{border-color:var(--primary-border);background:var(--primary-surface);color:var(--primary)}
 html[data-theme] .assistant-typing>span{background:var(--primary)}
 html[data-theme] .assistant-message.user .assistant-bubble{border-color:var(--primary-border);background:var(--primary-surface);color:var(--foreground)}
 html[data-theme] .assistant-input-row{border-color:var(--border);background:var(--surface)}
-html[data-theme] .assistant-input-row:focus-within{border-color:var(--primary);box-shadow:0 0 0 3px var(--focus-shadow)}
 html[data-theme] .field input:focus,html[data-theme] .field select:focus,html[data-theme] .field textarea:focus,html[data-theme] .search-field:focus-within,html[data-theme] .select-filter:focus-within,html[data-theme] .filter-dropdown.is-open .select-filter{border-color:var(--primary);box-shadow:0 0 0 3px var(--focus-shadow)}
 html[data-theme] .assistant-error,html[data-theme] .inline-error,html[data-theme] .admin-error,html[data-theme] .auth-error,.form-error,.profile-form-error{border-color:#ef4444;background:#451a23;color:#fecaca}
 html[data-theme="light"] .assistant-error,html[data-theme="light"] .inline-error,html[data-theme="light"] .admin-error,html[data-theme="light"] .auth-error,html[data-theme="light"] .form-error,html[data-theme="light"] .profile-form-error{border-color:#fca5a5;background:#fef2f2;color:#991b1b}
@@ -1511,7 +1527,8 @@ html[data-theme] .nav-link:hover,html[data-theme] .admin-nav-link:hover,html[dat
 html[data-theme] .nav-link.active,html[data-theme] .nav-child-link.active,html[data-theme] .admin-nav-link.active,html[data-theme] .mobile-bottom-nav-item.active{background:var(--primary-surface);color:var(--primary)}
 html[data-theme] .nav-link.active svg,html[data-theme] .nav-child-link.active svg,html[data-theme] .admin-nav-link.active svg,html[data-theme] .mobile-bottom-nav-item.active svg{color:var(--primary)}
 html[data-theme] .brand-dot,html[data-theme] .theme-toggle,html[data-theme] .text-link,html[data-theme] .back-link,html[data-theme] .recent-footer,html[data-theme] .admin-panel-link,html[data-theme] .admin-back-link,html[data-theme] .assistant-bubble a,html[data-theme] .assistant-bubble code,html[data-theme] .assistant-card-actions a,html[data-theme] .assistant-card-actions button{color:var(--primary)}
-html[data-theme] .brand-mark,html[data-theme] .assistant-brand-mark{background:var(--primary-button);color:var(--primary-foreground);box-shadow:none}
+html[data-theme] .brand-mark{background:var(--primary-button);color:var(--primary-foreground);box-shadow:none}
+html[data-theme] .assistant-brand-mark{background:var(--surface-hover);color:var(--primary);box-shadow:none}
 html[data-theme] .primary-btn,html[data-theme] .admin-role-button,html[data-theme] .assistant-input-row>button,html[data-theme] .season-breakdown-details{border-color:var(--primary-button);background:var(--primary-button);color:var(--primary-foreground)}
 html[data-theme] .primary-btn:hover:not(:disabled),html[data-theme] .admin-role-button:hover:not(:disabled),html[data-theme] .assistant-input-row>button:hover:not(:disabled),html[data-theme] .season-breakdown-details:hover{border-color:var(--primary-hover);background:var(--primary-hover);color:var(--primary-foreground)}
 html[data-theme] .outline-btn,html[data-theme] .subtle-btn,html[data-theme] .admin-page-btn{border-color:var(--border);background:var(--surface);color:var(--foreground)}
@@ -1519,7 +1536,7 @@ html[data-theme] .outline-btn:hover,html[data-theme] .subtle-btn:hover,html[data
 html[data-theme] .search-field,html[data-theme] .select-filter,html[data-theme] .admin-search,html[data-theme] .admin-filter-field input,html[data-theme] .admin-filter-field select,html[data-theme] .field input,html[data-theme] .field select,html[data-theme] .field textarea,html[data-theme] .custom-genre input,html[data-theme] .stepper{border-color:var(--border);background:var(--input-surface);color:var(--foreground)}
 html[data-theme] .search-field input,html[data-theme] .admin-search input,html[data-theme] .field input,html[data-theme] .field select,html[data-theme] .field textarea,html[data-theme] .custom-genre input{color:var(--foreground)}
 html[data-theme] .search-field input::placeholder,html[data-theme] .admin-search input::placeholder,html[data-theme] .field input::placeholder,html[data-theme] .field textarea::placeholder,html[data-theme] .custom-genre input::placeholder{color:var(--secondary-foreground)}
-html[data-theme] .search-field:focus-within,html[data-theme] .select-filter:focus-within,html[data-theme] .filter-dropdown.is-open .select-filter,html[data-theme] .admin-search:focus-within,html[data-theme] .field input:focus,html[data-theme] .field select:focus,html[data-theme] .field textarea:focus,html[data-theme] .custom-genre input:focus,html[data-theme] .assistant-input-row:focus-within{border-color:var(--primary);box-shadow:0 0 0 3px var(--focus-shadow)}
+html[data-theme] .search-field:focus-within,html[data-theme] .select-filter:focus-within,html[data-theme] .filter-dropdown.is-open .select-filter,html[data-theme] .admin-search:focus-within,html[data-theme] .field input:focus,html[data-theme] .field select:focus,html[data-theme] .field textarea:focus,html[data-theme] .custom-genre input:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--focus-shadow)}
 html[data-theme] :focus-visible{outline:2px solid var(--focus-ring)!important;outline-offset:2px!important;box-shadow:0 0 0 3px var(--focus-shadow)}
 html[data-theme] .genre-option.selected,html[data-theme] .filter-dropdown-menu button.selected{border-color:var(--primary-border);background:var(--primary-surface);color:var(--primary)}
 html[data-theme] .progress-fill,html[data-theme] .anime-card .card-overall-progress-track>span,html[data-theme] .season-breakdown-track>span{background:var(--primary-button)}
@@ -1535,7 +1552,7 @@ html[data-theme] .anime-card .season-breakdown-button,html[data-theme] .anime-ca
 html[data-theme] .anime-card .season-breakdown-button:hover,html[data-theme] .anime-card .card-watch-row .watch-button:hover,html[data-theme] .watch-button:hover{border-color:var(--primary);background:var(--primary-button);color:var(--primary-foreground)}
 html[data-theme] .assistant-launcher{border-color:var(--primary-button);background:var(--primary-button);color:var(--primary-foreground);box-shadow:0 6px 18px rgba(3,5,11,.22)}
 html[data-theme] .assistant-launcher:hover{background:var(--primary-hover)}
-html[data-theme] .assistant-icon-button:hover,html[data-theme] .assistant-icon-button.selected,html[data-theme] .assistant-welcome-icon{border-color:var(--primary-border);background:var(--primary-surface);color:var(--primary)}
+html[data-theme] .assistant-icon-button:hover,html[data-theme] .assistant-icon-button.selected{border-color:var(--primary-border);background:var(--primary-surface);color:var(--primary)}
 html[data-theme] .assistant-suggestions button:hover{border-color:var(--primary-border);background:var(--primary-surface);color:var(--primary)}
 html[data-theme] .assistant-bubble strong,html[data-theme] .assistant-bubble h1,html[data-theme] .assistant-bubble h2,html[data-theme] .assistant-bubble h3,html[data-theme] .assistant-recommendation-copy>strong{color:var(--foreground)}
 html[data-theme] .assistant-card-actions button,html[data-theme] .assistant-new-chat{border-color:var(--primary-border);background:var(--primary-surface);color:var(--primary)}
@@ -1607,7 +1624,6 @@ html[data-theme="light"] .assistant-new-chat{border-color:var(--primary-border);
 html[data-theme="light"] .assistant-new-chat:hover{background:var(--primary-button);color:var(--primary-foreground)}
 html[data-theme="light"] .assistant-welcome h2,html[data-theme="light"] .assistant-heading-copy strong,html[data-theme="light"] .assistant-history-heading,html[data-theme="light"] .assistant-recommendation-copy>strong{color:var(--foreground)}
 html[data-theme="light"] .assistant-welcome>p,html[data-theme="light"] .assistant-heading-copy span,html[data-theme="light"] .assistant-footer,html[data-theme="light"] .assistant-data-note{color:var(--secondary-foreground)}
-html[data-theme="light"] .assistant-welcome-icon{border-color:var(--primary-border);background:var(--primary-surface);color:var(--primary)}
 
 /* Shared Kitsu mark: the source artwork carries its violet tile and is never hue-shifted. */
 .kitsu-logo{display:inline-flex;min-width:0;align-items:center;gap:10px;color:var(--foreground);text-decoration:none}
@@ -1750,7 +1766,7 @@ html body{background:var(--background);color:var(--foreground);color-scheme:inhe
 .search-field,.select-filter,.filter-dropdown-menu,.admin-search,.admin-filter-field input,.admin-filter-field select,.field input,.field select,.field textarea,.custom-genre input,.stepper{border-color:var(--border);background:var(--input-surface);color:var(--foreground)}
 .search-field input,.admin-search input,.field input,.field select,.field textarea,.custom-genre input{color:var(--foreground)}
 .search-field input::placeholder,.admin-search input::placeholder,.field input::placeholder,.field textarea::placeholder,.custom-genre input::placeholder{color:var(--secondary-foreground)}
-.search-field:focus-within,.select-filter:focus-within,.filter-dropdown.is-open .select-filter,.admin-search:focus-within,.field input:focus,.field select:focus,.field textarea:focus,.custom-genre input:focus,.assistant-input-row:focus-within{border-color:var(--primary);box-shadow:0 0 0 3px var(--focus-shadow)}
+.search-field:focus-within,.select-filter:focus-within,.filter-dropdown.is-open .select-filter,.admin-search:focus-within,.field input:focus,.field select:focus,.field textarea:focus,.custom-genre input:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--focus-shadow)}
 .filter-dropdown-menu button{color:var(--foreground)}
 .filter-dropdown-menu button:hover,.filter-dropdown-menu button.selected,.genre-option.selected{border-color:var(--primary-border);background:var(--primary-surface);color:var(--primary)}
 .admin-users-table th{background:var(--surface-hover);border-color:var(--border);color:var(--secondary-foreground)}
@@ -1758,11 +1774,11 @@ html body{background:var(--background);color:var(--foreground);color-scheme:inhe
 .admin-users-table tbody tr:hover{background:var(--surface-hover)}
 
 /* Brand accents: violet for interaction, green only for success/completion. */
-.brand-mark,.assistant-brand-mark{background:linear-gradient(140deg,var(--primary),var(--primary-button));color:var(--primary-foreground);box-shadow:none}
+.brand-mark{background:linear-gradient(140deg,var(--primary),var(--primary-button));color:var(--primary-foreground);box-shadow:none}
+.assistant-brand-mark{background:var(--surface-hover);color:var(--primary);box-shadow:none}
 .assistant-launcher{border-color:var(--primary-button);background:var(--primary-button);color:var(--primary-foreground);box-shadow:0 6px 18px rgba(3,5,11,.22)}
 .assistant-launcher:hover{background:var(--primary-hover);box-shadow:0 8px 22px rgba(3,5,11,.28)}
 .assistant-icon-button:hover,.assistant-icon-button.selected{border-color:var(--primary-border);background:var(--primary-surface);color:var(--primary)}
-.assistant-welcome-icon{border-color:var(--primary-border);background:var(--primary-surface);color:var(--primary)}
 .assistant-suggestions button:hover{border-color:var(--primary-border);background:var(--primary-surface);color:var(--primary)}
 .assistant-message-avatar{border-color:var(--primary-border);color:var(--primary)}
 .assistant-bubble a,.assistant-bubble code,.assistant-recommendation-copy>span,.assistant-card-actions a,.assistant-card-actions button{color:var(--primary)}
@@ -1770,7 +1786,6 @@ html body{background:var(--background);color:var(--foreground);color-scheme:inhe
 .assistant-card-actions button:hover,.assistant-new-chat:hover{background:var(--primary-hover);color:var(--primary-foreground)}
 .assistant-typing>span{background:var(--primary)}
 .assistant-input-row{border-color:var(--border);background:var(--surface)}
-.assistant-input-row:focus-within{border-color:var(--primary);box-shadow:0 0 0 3px var(--focus-shadow)}
 .assistant-input-row>button{background:var(--primary-button);color:var(--primary-foreground)}
 .assistant-history-row.active .assistant-history-item{border-color:var(--primary-border);background:var(--primary-surface);color:var(--primary)}
 .assistant-load-older:hover{border-color:var(--primary-border);color:var(--primary)}
@@ -1904,4 +1919,21 @@ html[data-theme] .mobile-account-menu svg,html[data-theme] .profile-dropdown svg
 
 @media (min-width:701px){
   .auth-art .art-copy{transform:translateY(-32vh)}
+}
+
+@media(max-width:767px){
+  .modal-backdrop:has(.anime-add-flow),.season-breakdown-backdrop{position:fixed;z-index:100;top:var(--modal-viewport-top,0px);right:0;bottom:auto;left:0;width:100%;height:var(--modal-viewport-height,100dvh);align-items:center;justify-content:center;padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));overflow:hidden}
+  .modal-backdrop:has(.anime-add-flow)>.modal,.season-breakdown-backdrop>.season-breakdown-modal{display:flex;width:min(100%,560px);min-width:0;min-height:0;max-height:calc(var(--modal-viewport-height,100dvh) - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 24px);flex-direction:column;overflow:hidden;margin:0;border-radius:14px}
+  .modal-backdrop:has(.anime-add-flow)>.modal>.modal-head,.season-breakdown-modal>.modal-head{position:relative;z-index:1;flex:none}
+  .season-breakdown-content{min-height:0;flex:1;overflow-y:auto;overscroll-behavior:contain;padding-bottom:max(16px,env(safe-area-inset-bottom))}
+  .season-breakdown-modal{max-height:calc(var(--modal-viewport-height,100dvh) - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 24px);padding-bottom:0;border-radius:14px}
+  .anime-add-flow{display:flex;min-height:0;max-height:none;flex:1;flex-direction:column;overflow:hidden;padding:9px 12px max(12px,env(safe-area-inset-bottom))}
+  .anime-add-tabs{flex:none;margin-bottom:10px}
+  .anime-form{display:flex;min-height:0;flex:1;flex-direction:column;overflow:hidden}
+  .anime-form-content{min-height:0;flex:1;overflow-y:auto;overscroll-behavior:contain;padding:2px 3px 12px}
+  .anime-form>.form-actions{position:relative;z-index:1;flex:none;margin:0;padding:10px 3px max(4px,env(safe-area-inset-bottom));border-top:1px solid var(--border);background:var(--surface)}
+  .anime-form>.form-actions .primary-btn{width:100%;min-height:42px}
+  .anime-search-flow{min-height:0;flex:1;overflow-y:auto;overscroll-behavior:contain;padding:2px 3px 12px}
+  .anime-search-flow form{min-height:100%;align-content:start}
+  .anime-search-submit-row{position:sticky;z-index:1;bottom:-12px;margin:0 -3px;padding:10px 3px max(6px,env(safe-area-inset-bottom));background:var(--surface)}
 }

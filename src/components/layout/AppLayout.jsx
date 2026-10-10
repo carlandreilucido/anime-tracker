@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { LayoutDashboard, Library, Play, Bookmark, Check, Heart, LogOut, Menu, X, Clapperboard as Sparkles, ChevronDown, UserRound, Settings, Shield, House } from 'lucide-react'
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
@@ -45,8 +45,7 @@ export default function AppLayout() {
   const navigate = useNavigate()
   const location = useLocation()
   const activeLink = getActiveLink(location.pathname, location.search)
-  const libraryActive = ['library', 'plan', 'completed', 'favorites'].includes(activeLink)
-    || location.pathname.startsWith('/anime/')
+  const mobileActiveLink = mobileMenuOpen ? null : location.pathname.startsWith('/anime/') ? 'library' : activeLink
   const profileActive = ['/profile', '/settings'].includes(location.pathname)
   const logout = async () => { setProfileMenuOpen(false); setMobileMenuOpen(false); await signOut(); navigate('/login') }
   const openAssistant = () => setAssistantOpenRequest(request => request + 1)
@@ -82,17 +81,17 @@ export default function AppLayout() {
     </aside>
         <div className="main-column"><header className="topbar"><button className="menu-toggle icon-btn" onClick={() => setOpen(true)} aria-label="Open menu"><Menu size={20}/></button><div className="topbar-crumb">Your anime, <span>your pace.</span></div><ThemeToggle/></header>{open && <button className="mobile-scrim" onClick={() => setOpen(false)} aria-label="Close menu"/>}<main className="main-content"><Outlet/></main><footer className="site-footer">Made for the stories that stay with you <Sparkles size={11}/><span className="footer-legal-links"><NavLink to="/terms">Terms &amp; Conditions</NavLink><span>·</span><NavLink to="/privacy">Privacy Policy</NavLink></span></footer></div>
     <nav className="mobile-bottom-nav" aria-label="Primary navigation">
-      <NavLink to="/" end className={`mobile-bottom-nav-item ${activeLink === 'overview' ? 'active' : ''}`} aria-current={activeLink === 'overview' ? 'page' : undefined}>
+      <Link to="/" className={`mobile-bottom-nav-item ${mobileActiveLink === 'overview' ? 'active' : ''}`} aria-current={mobileActiveLink === 'overview' ? 'page' : undefined}>
         <House size={20}/><span>Home</span>
-      </NavLink>
-      <NavLink to="/library" className={`mobile-bottom-nav-item ${libraryActive && activeLink !== 'watching' ? 'active' : ''}`} aria-current={libraryActive && activeLink !== 'watching' ? 'page' : undefined}>
+      </Link>
+      <Link to="/library" className={`mobile-bottom-nav-item ${mobileActiveLink === 'library' ? 'active' : ''}`} aria-current={mobileActiveLink === 'library' ? 'page' : undefined}>
         <Library size={20}/><span>Library</span>
-      </NavLink>
-      <NavLink to="/library?status=watching" className={`mobile-bottom-nav-item ${activeLink === 'watching' ? 'active' : ''}`} aria-current={activeLink === 'watching' ? 'page' : undefined}>
+      </Link>
+      <Link to="/library?status=watching" className={`mobile-bottom-nav-item ${mobileActiveLink === 'watching' ? 'active' : ''}`} aria-current={mobileActiveLink === 'watching' ? 'page' : undefined}>
         <Play size={20}/><span>Watching</span>
-      </NavLink>
+      </Link>
       <div className="mobile-nav-menu" ref={mobileMenuRef}>
-        <button type="button" className={`mobile-bottom-nav-item ${profileActive ? 'active' : ''}`} onClick={() => setMobileMenuOpen(value => !value)} aria-label={mobileMenuOpen ? 'Close account menu' : 'Open account menu'} aria-haspopup="menu" aria-expanded={mobileMenuOpen}>
+        <button type="button" className={`mobile-bottom-nav-item ${mobileMenuOpen || (profileActive && !mobileActiveLink) ? 'active' : ''}`} onClick={() => setMobileMenuOpen(value => !value)} aria-label={mobileMenuOpen ? 'Close account menu' : 'Open account menu'} aria-haspopup="menu" aria-expanded={mobileMenuOpen}>
           <Menu size={20}/><span>Menu</span>
         </button>
         {mobileMenuOpen && <div className="mobile-account-menu" role="menu" aria-label="Account menu">

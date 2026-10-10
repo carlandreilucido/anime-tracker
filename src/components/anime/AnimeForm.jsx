@@ -74,6 +74,7 @@ export default function AnimeForm({ initial, initialMode = 'search', onSubmit, s
   }
 
   const manualForm = <form className="anime-form" onSubmit={submit}>
+    <div className="anime-form-content">
     <div className="form-grid">
       <label className="field full">Anime title *<input required autoFocus value={form.title} onChange={event => set('title', event.target.value)} placeholder="e.g. Frieren: Beyond Journey’s End"/></label>
       <label className="field full">Alternative title<input value={form.alternative_title || ''} onChange={event => set('alternative_title', event.target.value)} placeholder="Optional"/></label>
@@ -93,6 +94,7 @@ export default function AnimeForm({ initial, initialMode = 'search', onSubmit, s
     <fieldset className="genre-picker"><legend>Genres</legend><div className="genre-options">{GENRES.map(genre => <button type="button" key={genre} onClick={() => toggleGenre(genre)} className={`genre-option ${form.genres.includes(genre) ? 'selected' : ''}`}>{genre}</button>)}</div><div className="custom-genre"><input value={custom} onChange={event => setCustom(event.target.value)} onKeyDown={event => { if (event.key === 'Enter') { event.preventDefault(); if (custom.trim()) { toggleGenre(custom.trim()); setCustom('') } } }} placeholder="Add a custom genre"/><button type="button" className="small-btn" onClick={() => { if (custom.trim() && !form.genres.includes(custom.trim())) set('genres', [...form.genres, custom.trim()]); setCustom('') }}>Add</button></div></fieldset>
     <label className="field notes-field">Personal notes<textarea rows="3" value={form.notes || ''} onChange={event => set('notes', event.target.value)} placeholder="Your thoughts, reminders, or where to pick back up…"/></label>
     {error && <p className="form-error" role="alert">{error}</p>}
+    </div>
     <div className="form-actions"><button type="submit" className="primary-btn" disabled={saving}>{saving ? 'Saving…' : isEditing ? 'Save changes' : 'Add series to my list'}</button></div>
   </form>
 

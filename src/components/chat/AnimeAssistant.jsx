@@ -127,6 +127,15 @@ export default function AnimeAssistant({ openRequest = 0 }) {
   }, [open])
 
   useEffect(() => {
+    const textarea = inputRef.current
+    if (!textarea) return
+    textarea.style.height = 'auto'
+    const maxHeight = Number.parseFloat(window.getComputedStyle(textarea).maxHeight) || 120
+    textarea.style.height = `${Math.min(textarea.scrollHeight, maxHeight)}px`
+    textarea.style.overflowY = textarea.scrollHeight > maxHeight ? 'auto' : 'hidden'
+  }, [input, open])
+
+  useEffect(() => {
     if (!open) return undefined
     const container = scrollRef.current
     if (container && scrollAnchor.current) {
@@ -311,9 +320,8 @@ export default function AnimeAssistant({ openRequest = 0 }) {
         <div className="assistant-messages" ref={scrollRef} aria-live="polite">
           {messages.length > 0 && hasOlderMessages && <button className="assistant-load-older" onClick={loadOlderMessages} disabled={loadingOlder}>{loadingOlder ? <LoaderCircle className="assistant-spin" size={13}/> : <Clock3 size={13}/>} Load older messages</button>}
           {loadingHistory ? <div className="assistant-loading"><LoaderCircle className="assistant-spin" size={18}/> Loading your chat…</div> : messages.length === 0 ? <div className="assistant-welcome">
-            <span className="assistant-welcome-icon"><Sparkles size={20}/></span>
             <h2>What are you in the mood for?</h2>
-            <p>Ask about anime, recommendations, or your own watchlist.</p>
+            <p>Discover your next favorite anime, explore recommendations, or ask about your watchlist.</p>
             <div className="assistant-suggestions">{SUGGESTIONS.map(suggestion => <button key={suggestion} onClick={() => performSend(suggestion)}>{suggestion}</button>)}</div>
           </div> : messages.map(message => <article className={`assistant-message ${message.role}`} key={message.id}>
             <div className="assistant-message-avatar">{message.role === 'assistant' ? <Sparkles size={14}/> : <span>{user.email?.[0]?.toUpperCase() || 'Y'}</span>}</div>
@@ -345,8 +353,8 @@ export default function AnimeAssistant({ openRequest = 0 }) {
         </div>
 
         {messages.length === 0 && !loadingHistory && <div className="assistant-data-note"><BookOpen size={13}/> Library questions use only your private Kitsu data. Catalog matches are credited to TVmaze.</div>}
-        <form className="assistant-input-row" onSubmit={submit}>
-          <textarea ref={inputRef} value={input} onChange={event => setInput(event.target.value.slice(0, 1800))} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); submit(event) } }} placeholder="Ask about anime or your library…" maxLength={1800} rows={1} aria-label="Message the anime assistant" disabled={sending}/>
+        <form className="assistant-input-row rounded-2xl transition-colors focus-within:!border-primary" onSubmit={submit}>
+          <textarea className="w-full resize-none border-0 bg-transparent" ref={inputRef} value={input} onChange={event => setInput(event.target.value.slice(0, 1800))} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); submit(event) } }} placeholder="Ask about anime or your library…" maxLength={1800} rows={1} aria-label="Message the anime assistant" disabled={sending}/>
           <span className="assistant-char-count">{input.length}/1800</span>
           <button type="submit" disabled={!input.trim() || sending} aria-label="Send message"><Send size={17}/></button>
         </form>
