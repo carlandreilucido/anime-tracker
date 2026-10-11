@@ -70,10 +70,10 @@ function publicCandidates(anime) {
   }))
 }
 
-export default function AnimeSearchForm({ onSubmit, saving, initialAnime = null, onCancel = null, submitLabel = 'Add to Library' }) {
+export default function AnimeSearchForm({ onSubmit, saving, initialAnime = null, initialQuery = '', initialFallback = null, onCancel = null, submitLabel = 'Add to Library' }) {
   const closeModal = useModalClose()
   const cancel = onCancel || closeModal
-  const [query, setQuery] = useState('')
+  const [query, setQuery] = useState(initialQuery)
   const [results, setResults] = useState([])
   const [searching, setSearching] = useState(false)
   const [searchError, setSearchError] = useState('')
@@ -310,7 +310,7 @@ export default function AnimeSearchForm({ onSubmit, saving, initialAnime = null,
         {results.slice(0, visibleResults).map(show => <article className="anime-search-result" key={show.id}>
           {show.image?.medium ? <img src={show.image.medium} alt="" loading="lazy"/> : <div className="anime-search-poster-placeholder">No poster</div>}
           <div className="anime-search-result-copy"><strong>{show.name}</strong><span>{[show.premiered?.slice(0, 4), show.language, show.type, show.genres?.includes('Anime') ? 'Anime' : null].filter(Boolean).join(' · ') || 'Anime metadata'}</span><small>Episode count available after selection</small></div>
-          <button type="button" className="outline-btn" disabled={loadingShows[String(show.id)]} onClick={() => loadShow(show)}>{loadingShows[String(show.id)] ? <LoaderCircle className="loading-spin" size={15}/> : <Search size={14}/>} Select</button>
+          <button type="button" className="outline-btn" disabled={loadingShows[String(show.id)]} onClick={() => loadShow(show, false, false, initialFallback)}>{loadingShows[String(show.id)] ? <LoaderCircle className="loading-spin" size={15}/> : <Search size={14}/>} Select</button>
         </article>)}
         {results.length > visibleResults && <button type="button" className="outline-btn anime-search-more" onClick={() => setVisibleResults(count => count + 8)}>Show more results</button>}
       </div>}

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import {
-  ArrowUpRight, BookOpen, Clock3, LoaderCircle, Plus,
+  ArrowUpRight, BookOpen, Clock3, ImageOff, LoaderCircle, Plus,
   Send, Trash2, X,
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
@@ -14,8 +14,10 @@ import {
   listChatConversations, sendChatMessage,
 } from '../../services/chatService'
 import { createAnime } from '../../services/animeService'
+import { animeMatchKeys, getMyAnimeMatchKeys } from '../../services/socialService'
 import { findAnimeWatchProviders } from '../../services/providers'
-import { getTvmazeInstallments, getTvmazeShowAliases } from '../../services/tvmazeService'
+import { getTvmazeInstallments, getTvmazeShowAliases, getTvmazeShowById, searchTvmazeShows } from '../../services/tvmazeService'
+import { findExactAnimeMatch, normalizeAnimeTitle } from '../../services/recommendationResolver'
 
 const WELCOME_MESSAGE = "Hey there! 👋 I'm Kitsu, your personal anime companion! 💜\n\nI can help you discover anime, find hidden gems, recommend shows based on your library, and keep track of your anime journey.\n\nNot sure what to watch next? Just ask me!"
 const SUGGESTIONS = [
@@ -27,10 +29,6 @@ const SUGGESTIONS = [
 
 function welcomeMessage(conversationId) {
   return { id: `welcome:${conversationId}`, role: 'assistant', content: WELCOME_MESSAGE, metadata: { recommendations: [] }, created_at: new Date().toISOString() }
-}
-
-function normalizeTitle(value = '') {
-  return value.normalize('NFKC').toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim()
 }
 
 function toPlainText(html = '') {
@@ -58,10 +56,13 @@ export default function AnimeAssistant({ openRequest = 0 }) {
   const [adding, setAdding] = useState(null)
   const [addSaving, setAddSaving] = useState(false)
   const [addError, setAddError] = useState('')
+  const [resolvingRecommendation, setResolvingRecommendation] = useState(null)
+  const [inLibraryRecommendations, setInLibraryRecommendations] = useState(() => new Set())
   const [hydrated, setHydrated] = useState(false)
   const scrollRef = useRef(null)
   const inputRef = useRef(null)
   const requestInFlight = useRef(false)
+  const resolvingRef = useRef(new Set())
   const scrollAnchor = useRef(null)
   const handledOpenRequest = useRef(0)
 
@@ -72,6 +73,35 @@ export default function AnimeAssistant({ openRequest = 0 }) {
   const markIntroSeen = useCallback(id => {
     try { window.localStorage.setItem(introStorageKey(id), 'seen') } catch { /* The intro remains available for this session. */ }
   }, [introStorageKey])
+
+  useEffect(() => {
+    const recommendations = messages.filter(message => message.role === 'assistant').flatMap(message =>
+      (message.metadata?.recommendations || []).map((item, index) => ({
+        id: `${message.id}:${index}:${normalizeAnimeTitle(item?.title || '')}`,
+        item,
+      })).filter(({ item }) => item?.title))
+    if (!recommendations.length) {
+      setInLibraryRecommendations(new Set())
+      return undefined
+    }
+    let active = true
+    getMyAnimeMatchKeys(recommendations.map(({ item }) => ({
+      title: item.title,
+      external_provider: item.tvmaze?.id ? 'tvmaze' : null,
+      external_id: item.tvmaze?.id || null,
+    }))).then(keys => {
+      if (active) setInLibraryRecommendations(new Set(recommendations
+        .filter(({ item }) => animeMatchKeys({
+          title: item.title,
+          external_provider: item.tvmaze?.id ? 'tvmaze' : null,
+          external_id: item.tvmaze?.id || null,
+        }).some(key => keys.has(key)))
+        .map(({ id }) => id)))
+    }).catch(() => {
+      if (active) setInLibraryRecommendations(new Set())
+    })
+    return () => { active = false }
+  }, [messages, user?.id])
 
   const loadConversationList = useCallback(async (offset = 0) => {
     const result = await listChatConversations(offset)
@@ -256,49 +286,138 @@ export default function AnimeAssistant({ openRequest = 0 }) {
     performSend(input)
   }
 
-  const addRecommendation = async show => {
+  const addRecommendation = async (recommendation, recommendationId) => {
+    if (resolvingRef.current.has(recommendationId)) return
+    resolvingRef.current.add(recommendationId)
+    setResolvingRecommendation(recommendationId)
     setAddError('')
-    setAddSaving(true)
+    const recommendedTitle = recommendation.title?.trim() || ''
+    const providerData = recommendation.tvmaze || {}
+    const identityFor = (title, showId = providerData.id) => ({
+      title,
+      external_provider: showId ? 'tvmaze' : null,
+      external_id: showId || null,
+    })
+    const findAlreadySaved = async (show, aliases = []) => {
+      const titles = [recommendedTitle, show?.name, ...aliases.map(alias => alias?.name)]
+        .filter(Boolean)
+      if (!titles.length && !show?.id) return false
+      const candidates = titles.map(title => identityFor(title, show?.id || providerData.id))
+      if (show?.id) candidates.push(identityFor(show.name || recommendedTitle, show.id))
+      const found = await getMyAnimeMatchKeys(candidates).catch(() => new Set())
+      if (!candidates.some(candidate => animeMatchKeys(candidate).some(key => found.has(key)))) return false
+      setInLibraryRecommendations(current => new Set([...current, recommendationId]))
+      return true
+    }
+    const fallbackValues = (show = null, aliases = []) => ({
+      title: show?.name || providerData.name || recommendedTitle,
+      alternative_title: aliases.find(alias => alias?.name && normalizeAnimeTitle(alias.name) !== normalizeAnimeTitle(show?.name || recommendedTitle))?.name
+        || (normalizeAnimeTitle(recommendedTitle) !== normalizeAnimeTitle(show?.name || providerData.name || recommendedTitle) ? recommendedTitle : ''),
+      poster_url: show?.image?.original || show?.image?.medium || providerData.image_original || providerData.image || '',
+      genres: show?.genres?.length ? show.genres : providerData.genres || [],
+      rating: '',
+      notes: '',
+      synopsis: toPlainText(show?.summary || providerData.synopsis || ''),
+      release_date: show?.premiered || providerData.premiered || '',
+      community_rating: show?.rating?.average ?? providerData.community_rating ?? '',
+      external_provider: show?.id || providerData.id ? 'tvmaze' : null,
+      external_id: show?.id || providerData.id || null,
+      external_url: show?.url || providerData.url || (show?.id || providerData.id ? `https://www.tvmaze.com/shows/${show?.id || providerData.id}` : null),
+      metadata_updated_at: new Date().toISOString(),
+    })
+
     try {
-      const [installments, aliases] = await Promise.all([
-        getTvmazeInstallments(show),
-        getTvmazeShowAliases(show.id).catch(() => []),
-      ])
-      const alternative = aliases.find(alias => alias.name && normalizeTitle(alias.name) !== normalizeTitle(show.name))?.name || ''
+      let show = null
+      let aliases = []
+      if (providerData.id) {
+        show = await getTvmazeShowById(providerData.id).catch(() => null)
+        if (!show) show = {
+          id: providerData.id,
+          name: providerData.name || recommendedTitle,
+          premiered: providerData.premiered || null,
+          image: providerData.image_original || providerData.image
+            ? { original: providerData.image_original || providerData.image, medium: providerData.image || providerData.image_original }
+            : null,
+          genres: providerData.genres || [],
+          summary: providerData.synopsis || '',
+          rating: { average: providerData.community_rating ?? null },
+          url: providerData.url || `https://www.tvmaze.com/shows/${providerData.id}`,
+        }
+        aliases = await getTvmazeShowAliases(show.id).catch(() => [])
+      } else {
+        const matches = await searchTvmazeShows(recommendedTitle).catch(() => [])
+        show = findExactAnimeMatch(recommendedTitle, matches)
+        if (!show && matches.length) {
+          const aliasResults = await Promise.all(matches.slice(0, 6).map(async candidate => [
+            candidate.id,
+            await getTvmazeShowAliases(candidate.id).catch(() => []),
+          ]))
+          const aliasesById = new Map(aliasResults)
+          show = findExactAnimeMatch(recommendedTitle, matches, aliasesById)
+          if (show) aliases = aliasesById.get(show.id) || []
+        } else if (show) aliases = await getTvmazeShowAliases(show.id).catch(() => [])
+      }
+
+      if (await findAlreadySaved(show, aliases)) {
+        return
+      }
+
+      const fallback = fallbackValues(show, aliases)
+      if (show) {
+        const installments = await getTvmazeInstallments(show).catch(() => [])
+        if (installments.length) {
+          setAdding({
+            recommendationId,
+            ...fallback,
+            seasons: installments.map((season, index) => ({
+              season_number: index + 1,
+              season_title: season.season_title,
+              total_episodes: season.total_episodes ?? '',
+              current_episode: 0,
+              status: 'plan_to_watch',
+              date_started: '',
+              media_type: season.media_type || 'tv',
+              external_provider: season.season_id ? 'tvmaze' : null,
+              external_id: season.season_id || null,
+              external_show_id: season.show_id || show.id,
+              external_url: season.external_url || null,
+            })),
+            initialMode: 'manual',
+          })
+        } else {
+          setAdding({
+            recommendationId,
+            ...fallback,
+            seasons: [{ season_number: 1, season_title: `Season 1`, total_episodes: '', current_episode: 0, status: 'plan_to_watch', date_started: '', media_type: 'tv', external_show_id: show.id }],
+            initialMode: 'manual',
+          })
+        }
+      } else {
+        setAdding({
+          recommendationId,
+          ...fallback,
+          seasons: [{ season_number: 1, season_title: 'Season 1', total_episodes: '', current_episode: 0, status: 'plan_to_watch', date_started: '' }],
+          initialMode: 'search',
+          searchQuery: recommendedTitle,
+          searchFallback: fallback,
+        })
+      }
+      setOpen(false)
+    } catch {
+      const fallback = fallbackValues()
       setAdding({
-        title: show.name || '',
-        alternative_title: alternative,
-        poster_url: show.image_original || show.image || '',
-        genres: Array.isArray(show.genres) ? show.genres : [],
-        rating: '',
-        notes: '',
-        synopsis: toPlainText(show.summary),
-        release_date: show.premiered || null,
-        community_rating: show.rating?.average ?? null,
-        external_provider: 'tvmaze',
-        external_id: show.id,
-        external_url: show.url || `https://www.tvmaze.com/shows/${show.id}`,
-        metadata_updated_at: new Date().toISOString(),
-        seasons: installments.map((season, index) => ({
-          season_number: index + 1,
-          season_title: season.season_title,
-          total_episodes: season.total_episodes,
-          current_episode: 0,
-          status: 'plan_to_watch',
-          date_started: '',
-          media_type: season.media_type || 'tv',
-          external_provider: season.season_id ? 'tvmaze' : null,
-          external_id: season.season_id || null,
-          external_show_id: season.show_id || show.id,
-          external_url: season.external_url || null,
-        })),
+        recommendationId,
+        ...fallback,
+        seasons: [{ season_number: 1, season_title: 'Season 1', total_episodes: '', current_episode: 0, status: 'plan_to_watch', date_started: '' }],
+        initialMode: 'search',
+        searchQuery: recommendedTitle,
+        searchFallback: fallback,
       })
       setOpen(false)
-    } catch (cause) {
-      const message = cause.message || 'Could not load seasons for this recommendation. You can still add it manually.'
-      setAddError(message)
-      toast(message, 'error')
-    } finally { setAddSaving(false) }
+    } finally {
+      resolvingRef.current.delete(recommendationId)
+      setResolvingRecommendation(null)
+    }
   }
 
   const saveRecommendation = async values => {
@@ -306,11 +425,22 @@ export default function AnimeAssistant({ openRequest = 0 }) {
     setAddError('')
     try {
       const added = await createAnime(values)
+      if (adding?.recommendationId) {
+        setInLibraryRecommendations(current => new Set([...current, adding.recommendationId]))
+      }
       setAdding(null)
       toast('Anime added to your library.')
       window.dispatchEvent(new Event('kitsu:library-refresh'))
       findAnimeWatchProviders(added.id).catch(() => {})
     } catch (cause) {
+      if (cause.code === '23505' || /already in your library|already exists/i.test(cause.message || '')) {
+        if (adding?.recommendationId) {
+          setInLibraryRecommendations(current => new Set([...current, adding.recommendationId]))
+        }
+        setAdding(null)
+        toast('This anime is already in your library.')
+        return
+      }
       const message = cause.code === '23505' ? 'This anime is already in your library.' : cause.message || 'Could not add this anime.'
       setAddError(message)
       throw new Error(message)
@@ -348,18 +478,22 @@ export default function AnimeAssistant({ openRequest = 0 }) {
               {message.id.startsWith('welcome:') && messages.length === 1 && <div className="assistant-suggestions">{SUGGESTIONS.map(suggestion => <button type="button" key={suggestion} onClick={() => performSend(suggestion)}>{suggestion}</button>)}</div>}
               {message.role === 'assistant' && (message.metadata?.recommendations || []).map((card, index) => {
                 const show = card.tvmaze || {}
+                const recommendationId = `${message.id}:${index}:${normalizeAnimeTitle(card.title || '')}`
+                const inLibrary = inLibraryRecommendations.has(recommendationId)
+                const resolving = resolvingRecommendation === recommendationId
                 const genres = show.genres || card.genres || []
                 const episodeCount = Number.isInteger(show.episode_count) ? show.episode_count : card.episode_count
                 const synopsis = toPlainText(show.synopsis || '')
                 return <article className="assistant-recommendation-card" key={`${message.id}-${show.id || card.title}-${index}`}>
-                  {show.image && <img src={show.image} alt="" loading="lazy"/>}
+                  {show.image ? <img src={show.image} alt="" loading="lazy" onError={event => { event.currentTarget.hidden = true; event.currentTarget.nextElementSibling?.removeAttribute('hidden') }}/> : null}
+                  <div className="assistant-recommendation-poster-placeholder" hidden={Boolean(show.image)} aria-hidden="true"><ImageOff size={19}/><span>Poster unavailable</span></div>
                   <div className="assistant-recommendation-copy"><strong>{show.name || card.title}</strong>
-                    <span>{[show.premiered?.slice(0, 4), ...(genres.length ? genres.slice(0, 3) : ['Genres unavailable'])].filter(Boolean).join(' · ')}</span>
+                    <span>{[show.premiered?.slice(0, 4) || 'Year unavailable', ...(genres.length ? genres.slice(0, 3) : ['Genres unavailable'])].filter(Boolean).join(' · ')}</span>
                     {card.reason && <p>{card.reason}</p>}
                     {synopsis && <small>{synopsis.slice(0, 220)}{synopsis.length > 220 ? '…' : ''}</small>}
-                    <div className="assistant-card-actions"><span>{Number.isInteger(episodeCount) ? `${episodeCount} episodes` : 'Episode total unknown'}</span>
+                    <div className="assistant-card-actions"><span>{Number.isInteger(episodeCount) ? `${episodeCount} episodes` : 'Episode count unavailable'}</span>
                       {show.url && <a href={show.url} target="_blank" rel="noreferrer">TVmaze <ArrowUpRight size={12}/></a>}
-                      {show.id && <button disabled={addSaving} onClick={() => addRecommendation(show)}>{addSaving ? <LoaderCircle className="assistant-spin" size={13}/> : <Plus size={13}/>} Add to Library</button>}
+                      <button disabled={inLibrary || resolving || addSaving} onClick={() => addRecommendation(card, recommendationId)}>{inLibrary ? 'In Library' : resolving ? <><LoaderCircle className="assistant-spin" size={13}/> Finding anime…</> : <><Plus size={13}/> Add to Library</>}</button>
                     </div>
                   </div>
                 </article>
@@ -381,7 +515,7 @@ export default function AnimeAssistant({ openRequest = 0 }) {
     </div>}
 
     {adding && <Modal title={`Add ${adding.title} to your library`} wide onClose={() => { if (!addSaving) { setAdding(null); setAddError('') } }}>
-      <div className="assistant-add-modal-content"><p className="assistant-add-note">Review the TVmaze details and season progress before saving. Personal ratings and watch status remain yours to set.</p>{addError && <p className="form-error" role="alert">{addError}</p>}<AnimeForm key={adding.external_id} initial={adding} initialMode="manual" onSubmit={saveRecommendation} saving={addSaving}/></div>
+      <div className="assistant-add-modal-content"><p className="assistant-add-note">Review the anime details and installments before saving. You can choose a matching anime or add it manually.</p>{addError && <p className="form-error" role="alert">{addError}</p>}<AnimeForm key={adding.recommendationId || adding.external_id || adding.title} initial={adding} initialMode={adding.initialMode || 'manual'} initialSearchQuery={adding.searchQuery || ''} initialSearchFallback={adding.searchFallback || adding} onSubmit={saveRecommendation} saving={addSaving}/></div>
     </Modal>}
   </>
 }
