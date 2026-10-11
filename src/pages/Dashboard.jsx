@@ -43,6 +43,11 @@ export default function Dashboard({ refresh, onAdd }) {
     return () => window.removeEventListener('kitsu:library-refresh', handleLibraryRefresh)
   }, [refresh])
 
+  const refreshSummarySilently = () => {
+    getStats().then(setStats).catch(() => {})
+    getRecentlyWatched().then(setRecent).catch(() => {})
+  }
+
   const changeProgress = async (anime, step, seasonId) => {
     const previous = anime
     const optimistic = withOptimisticEpisodeChange(anime, seasonId, step)
@@ -50,9 +55,10 @@ export default function Dashboard({ refresh, onAdd }) {
     setWatching(items => items.map(item => item.id === anime.id ? optimistic : item))
     try {
       const updated = await updateEpisodeProgress(anime, step, seasonId)
-      setWatching(items => items.map(item => item.id === anime.id ? updated : item))
-      toast(updated.status === 'completed' ? 'All seasons completed!' : 'Season progress updated.')
-      load()
+      setWatching(items => updated.status === 'watching'
+        ? items.map(item => item.id === anime.id ? updated : item)
+        : items.filter(item => item.id !== anime.id))
+      refreshSummarySilently()
     } catch (cause) {
       setWatching(items => items.map(item => item.id === anime.id ? previous : item))
       toast(readableError(cause), 'error')
@@ -66,8 +72,7 @@ export default function Dashboard({ refresh, onAdd }) {
     try {
       const updated = await setSeasonEpisodeProgress(anime, seasonId, episodeNumber)
       setWatching(items => items.map(item => item.id === anime.id ? updated : item))
-      toast('Episode progress updated.')
-      load()
+      refreshSummarySilently()
     } catch (cause) {
       setWatching(items => items.map(item => item.id === anime.id ? previous : item))
       toast(readableError(cause), 'error')

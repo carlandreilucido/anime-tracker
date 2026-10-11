@@ -293,6 +293,7 @@ export default function AnimeAssistant({ openRequest = 0 }) {
           external_url: season.external_url || null,
         })),
       })
+      setOpen(false)
     } catch (cause) {
       const message = cause.message || 'Could not load seasons for this recommendation. You can still add it manually.'
       setAddError(message)

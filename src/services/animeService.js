@@ -38,7 +38,8 @@ export function withOptimisticEpisodeChange(anime, seasonId, increment) {
   const target = seasons.find(season => season.id === seasonId) || seasons.find(season => season.status === 'watching') || seasons[0]
   if (!target) return anime
   const current = Number(target.current_episode) || 0
-  const next = Math.max(0, Math.min(target.total_episodes || Infinity, current + increment))
+  const maxEpisodes = target.total_episodes === null || target.total_episodes === undefined ? Infinity : Number(target.total_episodes)
+  const next = Math.max(0, Math.min(maxEpisodes, current + increment))
   const today = new Date().toISOString().slice(0, 10)
   const nextStatus = target.total_episodes > 0 && next >= target.total_episodes ? 'completed' : (increment > 0 || target.status === 'completed') ? 'watching' : target.status
   const updatedSeasons = seasons.map(season => season.id !== target.id ? season : {
@@ -225,7 +226,8 @@ export async function updateEpisodeProgress(anime, increment, seasonId) {
   ensureClient()
   const target = anime.seasons?.find(season => season.id === seasonId) || anime.seasons?.find(season => season.status === 'watching') || anime.seasons?.[0]
   if (!target) throw new Error('This anime does not have a season yet.')
-  const next = Math.max(0, Math.min(target.total_episodes || Infinity, (target.current_episode || 0) + increment))
+  const maxEpisodes = target.total_episodes === null || target.total_episodes === undefined ? Infinity : Number(target.total_episodes)
+  const next = Math.max(0, Math.min(maxEpisodes, (target.current_episode || 0) + increment))
   const today = new Date().toISOString().slice(0, 10)
   const status = target.total_episodes > 0 && next >= target.total_episodes ? 'completed' : (increment > 0 || target.status === 'completed') ? 'watching' : target.status
   const { error } = await supabase.from('anime_seasons').update({

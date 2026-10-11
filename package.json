@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "test": "node --test src/lib/supabaseFetch.test.js src/lib/network.test.js src/services/userSearch.test.js supabase/functions/anime-assistant/geminiFallback.test.mjs",
+    "test": "node --test src/lib/supabaseFetch.test.js src/lib/network.test.js src/services/userSearch.test.js src/utils/serialQueue.test.js supabase/functions/anime-assistant/geminiFallback.test.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

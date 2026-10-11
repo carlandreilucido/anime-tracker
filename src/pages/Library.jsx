@@ -66,9 +66,10 @@ export default function Library({ refresh, onAdd }) {
     setItems(current => current.map(item => item.id === anime.id ? optimistic : item))
     try {
       const updated = await updateEpisodeProgress(anime, step, seasonId)
-      setItems(current => current.map(item => item.id === anime.id ? updated : item))
-      toast(updated.status === 'completed' ? 'All seasons completed!' : 'Season progress updated.')
-      if (updated.status !== anime.status) load({ reset: true, pageNumber: 0 })
+      if (filter.status && updated.status !== filter.status) {
+        setItems(current => current.filter(item => item.id !== anime.id))
+        setCount(current => Math.max(0, current - 1))
+      } else setItems(current => current.map(item => item.id === anime.id ? updated : item))
     } catch (cause) {
       setItems(current => current.map(item => item.id === anime.id ? anime : item))
       toast(readableError(cause), 'error')
@@ -80,9 +81,10 @@ export default function Library({ refresh, onAdd }) {
     setItems(current => current.map(item => item.id === anime.id ? withOptimisticEpisodeNumber(item, seasonId, episodeNumber) : item))
     try {
       const updated = await setSeasonEpisodeProgress(anime, seasonId, episodeNumber)
-      setItems(current => current.map(item => item.id === anime.id ? updated : item))
-      toast('Episode progress updated.')
-      if (updated.status !== anime.status) load({ reset: true, pageNumber: 0 })
+      if (filter.status && updated.status !== filter.status) {
+        setItems(current => current.filter(item => item.id !== anime.id))
+        setCount(current => Math.max(0, current - 1))
+      } else setItems(current => current.map(item => item.id === anime.id ? updated : item))
     } catch (cause) {
       setItems(current => current.map(item => item.id === anime.id ? anime : item))
       toast(readableError(cause), 'error')

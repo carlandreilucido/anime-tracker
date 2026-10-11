@@ -28,7 +28,7 @@ export default function AnimeCard({ anime, onOpen, onProgress, onSetEpisode, onI
   const episodeNumbers = getSeasonEpisodeNumbers(seasons)
   const activeSeason = activeSeasonOf(seasons)
   const seasonFinished = activeSeason?.status === 'completed'
-  const hasNextEpisode = activeSeason && !(activeSeason.total_episodes > 0 && activeSeason.current_episode >= activeSeason.total_episodes)
+  const hasNextEpisode = activeSeason && !(activeSeason.total_episodes !== null && activeSeason.total_episodes !== undefined && activeSeason.current_episode >= activeSeason.total_episodes)
   const percentage = readOnly ? null : progressPercent(anime)
   const watchedEpisodes = Number(anime.current_episode) || 0
   const totalEpisodes = anime.total_episodes ?? '?'
