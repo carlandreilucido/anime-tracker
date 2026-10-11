@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Eye, EyeOff } from 'lucide-react'
 import { supabase, hasSupabaseConfig } from '../lib/supabase'
 import { useToast } from '../components/ui/Toast'
-import { checkEmailAccountExists } from '../services/authService'
 import { useAuth } from '../contexts/AuthContext'
 import KitsuLogo from '../components/ui/KitsuLogo'
+import { authErrorMessage, classifyNetworkError } from '../lib/network'
 
 const PRODUCTION_URL = 'https://animewatchlisttracker.vercel.app/'
 
@@ -34,6 +34,8 @@ export default function AuthPage({ register = false, resetPassword = false }) {
   const [confirmationPending, setConfirmationPending] = useState(false)
   const [resendMessage, setResendMessage] = useState('')
   const [error, setError] = useState('')
+  const [retryAvailable, setRetryAvailable] = useState(false)
+  const submitLock = useRef(false)
   const { authNotice, clearAuthNotice } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
@@ -48,8 +50,11 @@ export default function AuthPage({ register = false, resetPassword = false }) {
 
   const submit = async event => {
     event.preventDefault()
+    if (submitLock.current || busy) return
     setError('')
+    setRetryAvailable(false)
     if (!hasSupabaseConfig) return setError('Supabase is not configured yet. Add your project URL and anon key to .env.local.')
+    submitLock.current = true
     const isSignIn = !register && !forgotMode && !isResetPassword
     setBusy(true)
     try {
@@ -93,6 +98,12 @@ export default function AuthPage({ register = false, resetPassword = false }) {
         navigate('/')
       }
     } catch (cause) {
+      const networkKind = classifyNetworkError(cause)
+      if (networkKind === 'offline' || networkKind === 'interrupted' || networkKind === 'timeout' || networkKind === 'server') {
+        setError(authErrorMessage(cause))
+        setRetryAvailable(true)
+        return
+      }
       const errorCode = String(cause.code || '').toLowerCase()
       const errorMessage = String(cause.message || '')
       const accountMissing = ['user_not_found', 'email_not_found', 'account_not_found'].includes(errorCode)
@@ -105,18 +116,12 @@ export default function AuthPage({ register = false, resetPassword = false }) {
       } else if (isSignIn && emailNotConfirmed) {
         setError('Please confirm your email address before signing in. You can resend the confirmation email from the registration page.')
       } else if (isSignIn && invalidCredentials) {
-        try {
-          const accountExists = await checkEmailAccountExists(email)
-          setError(accountExists
-            ? 'The email is registered, but the password is incorrect. Check your password or use “Forgot password?” to reset it.'
-            : 'No account is registered with this email yet. Please create an account first.')
-        } catch {
-          setError('Email or password is incorrect. If you have not registered, create an account first; otherwise, use “Forgot password?” to reset your password.')
-        }
+        setError('Invalid email or password. Please try again.')
       } else {
-        setError(errorMessage || 'Authentication failed.')
+        setError(isSignIn ? authErrorMessage(cause) : authErrorMessage(cause))
       }
     } finally {
+      submitLock.current = false
       setBusy(false)
     }
   }
@@ -164,7 +169,7 @@ export default function AuthPage({ register = false, resetPassword = false }) {
           {!isResetPassword && <label className="field">Email address<input type="email" name="email" value={email} onChange={event => setEmail(event.target.value)} placeholder="you@example.com" autoComplete="email" maxLength={254} required/></label>}
           {!forgotMode && <label className="field">{isResetPassword ? 'New password' : 'Password'}<div className="password-wrap"><input type={show ? 'text' : 'password'} value={password} onChange={event => setPassword(event.target.value)} placeholder={isResetPassword || register ? 'At least 6 characters' : 'Your password'} autoComplete={isResetPassword || register ? 'new-password' : 'current-password'} minLength={6} required/><button type="button" className="password-toggle" onClick={() => setShow(value => !value)} aria-label={show ? 'Hide password' : 'Show password'}>{show ? <EyeOff size={16}/> : <Eye size={16}/>}</button></div></label>}
           {isResetPassword && <label className="field">Confirm new password<div className="password-wrap"><input type={show ? 'text' : 'password'} value={confirmPassword} onChange={event => setConfirmPassword(event.target.value)} placeholder="Re-enter your new password" autoComplete="new-password" minLength={6} required/></div></label>}
-          {error && <div className="auth-error" role="alert">{error}</div>}
+          {error && <div className="auth-error" role="alert">{error}{retryAvailable && <button type="button" className="auth-retry" onClick={() => { setRetryAvailable(false); document.querySelector('.auth-form')?.requestSubmit() }} disabled={busy || (typeof navigator !== 'undefined' && !navigator.onLine)}>Retry</button>}</div>}
           {!isResetPassword && !forgotMode && !register && <button type="button" className="auth-forgot-link" onClick={() => { setForgotMode(true); setError(''); setResetSent(false) }}>Forgot password?</button>}
           {resetSent && <p className="auth-confirmation-message" role="status">If an account exists for this email, a password reset link has been sent.</p>}
           {!resetSent && <button className="primary-btn auth-submit" disabled={busy}>{busy ? 'Please wait…' : isResetPassword ? 'Save new password' : forgotMode ? 'Send reset email' : register ? 'Create account' : 'Sign in'}</button>}

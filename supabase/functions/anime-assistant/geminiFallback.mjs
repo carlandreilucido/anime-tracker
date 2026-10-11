@@ -120,7 +120,7 @@ export function buildGeminiRequestBody(systemInstruction, contents) {
     contents,
     generationConfig: {
       temperature: 0.65,
-      maxOutputTokens: 900,
+      maxOutputTokens: 1800,
       responseMimeType: 'application/json',
       responseSchema: {
         type: 'OBJECT',
@@ -150,6 +150,21 @@ function parseGeneratedResponse(payload) {
   const text = candidate?.content?.parts?.map(part => part?.text || '').join('') || ''
   if (!text) throw Object.assign(new Error('Empty Gemini response'), { kind: 'invalid_response' })
   return parseAssistantText(text)
+}
+
+function mergeContinuation(first, next) {
+  const left = String(first || '').trim()
+  const right = String(next || '').trim()
+  if (!left) return right
+  if (!right || left.endsWith(right)) return left
+  if (right.startsWith(left)) return right
+  const max = Math.min(left.length, right.length, 1200)
+  for (let size = max; size > 20; size -= 1) {
+    if (left.slice(-size).toLocaleLowerCase() === right.slice(0, size).toLocaleLowerCase()) {
+      return `${left}${right.slice(size)}`
+    }
+  }
+  return `${left}\n\n${right}`
 }
 
 export async function generateWithFallback({
@@ -185,7 +200,45 @@ export async function generateWithFallback({
           headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey }, body },
       )
       if (response.ok) {
-        const parsed = parseGeneratedResponse(await response.json())
+        const payload = await response.json()
+        const candidate = payload?.candidates?.[0]
+        if (candidate?.finishReason === 'MAX_TOKENS') {
+          const partialText = candidate?.content?.parts?.map(part => part?.text || '').join('') || ''
+          const partial = parseAssistantText(partialText)
+          const continuationContents = [...contents,
+            { role: 'model', parts: [{ text: partialText }] },
+            { role: 'user', parts: [{ text: 'Continue the same answer from where it stopped. Do not repeat completed text. Return the complete final answer in the required JSON shape, preserving any recommendation titles and reasons already provided.' }] },
+          ]
+          const continuationController = new AbortController()
+          const continuationTimeout = setTimeout(() => continuationController.abort(), Math.min(perAttemptTimeoutMs, Math.max(1, deadline - Date.now())))
+          try {
+            const continuationResponse = await fetchImpl(
+              `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
+              { method: 'POST', signal: continuationController.signal,
+                headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+                body: JSON.stringify(buildGeminiRequestBody(systemInstruction, continuationContents)) },
+            )
+            if (!continuationResponse.ok) {
+              const continuationError = await continuationResponse.json().catch(() => null)
+              const failure = classifyGeminiFailure(continuationResponse.status, continuationError, continuationResponse.headers)
+              try { await onFailure(model, failure) } catch { /* Keep the original generated text available to retry. */ }
+              throw Object.assign(new Error('The response continuation failed'), { kind: 'continuation_failed' })
+            }
+            const continued = await continuationResponse.json()
+            if (continued?.candidates?.[0]?.finishReason === 'MAX_TOKENS') {
+              throw Object.assign(new Error('The response continuation was truncated'), { kind: 'continuation_failed' })
+            }
+            const parsed = parseGeneratedResponse(continued)
+            if (parsed.blocked) return { blocked: true }
+            try { await onSuccess(model) } catch { /* Generation already succeeded. */ }
+            return {
+              message: mergeContinuation(partial.message, parsed.message),
+              recommendations: [...(partial.recommendations || []), ...(parsed.recommendations || [])].filter((item, index, all) => all.findIndex(candidate => candidate.title.toLowerCase() === item.title.toLowerCase()) === index).slice(0, 3),
+              model,
+            }
+          } finally { clearTimeout(continuationTimeout) }
+        }
+        const parsed = parseGeneratedResponse(payload)
         if (parsed.blocked) return { blocked: true }
         try { await onSuccess(model) } catch { /* Health persistence must not repeat a successful generation. */ }
         return { ...parsed, model }

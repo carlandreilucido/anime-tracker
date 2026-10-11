@@ -9,6 +9,7 @@ import { useToast } from '../ui/Toast'
 import Modal from '../ui/Modal'
 import AnimeForm from '../anime/AnimeForm'
 import KitsuLogo from '../ui/KitsuLogo'
+import KitsuMascot from './KitsuMascot'
 import {
   createChatConversation, deleteChatConversation, getChatMessages,
   listChatConversations, sendChatMessage,
@@ -299,7 +300,7 @@ export default function AnimeAssistant({ openRequest = 0 }) {
   if (!user) return null
 
   return <>
-    {!open && <button className="assistant-launcher" onClick={openAssistant} aria-label="Open Kitsu AI assistant"><KitsuLogo iconOnly className="assistant-launcher-logo"/><span>Kitsu AI</span></button>}
+    {!open && <KitsuMascot className="assistant-launcher" onClick={openAssistant}/>}
     {open && <div className="assistant-backdrop" onMouseDown={event => { if (event.target === event.currentTarget) setOpen(false) }}>
       <section className="assistant-window" role="dialog" aria-modal="true" aria-label="Kitsu anime assistant">
         <header className="assistant-header">

@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase'
 import { normalizeAssistantMessage } from '../../supabase/functions/anime-assistant/chatResponse.mjs'
+import { classifyNetworkError, INTERRUPTED_MESSAGE, OFFLINE_MESSAGE, SERVER_MESSAGE, TIMEOUT_MESSAGE } from '../lib/network'
 
 function client() {
   if (!supabase) throw new Error('Connect Supabase before opening the anime assistant.')
@@ -8,6 +9,11 @@ function client() {
 
 function readableChatError(error) {
   const status = error?.context?.status
+  const kind = classifyNetworkError({ ...error, status })
+  if (kind === 'offline') return "You're offline. Reconnect to continue chatting with Kitsu Assistant."
+  if (kind === 'interrupted') return INTERRUPTED_MESSAGE
+  if (kind === 'timeout') return TIMEOUT_MESSAGE
+  if (status >= 500 || status === 429) return 'Kitsu Assistant is temporarily unavailable. Please try again in a moment.'
   if (status === 401) return 'Your session expired. Please sign in again.'
   if (status === 429) return 'You’ve reached the assistant’s message limit. Please wait a minute and try again.'
   if (status === 404) return 'This conversation is no longer available.'
@@ -57,9 +63,20 @@ export async function getChatMessages(conversationId, limit = 50, before = null)
 }
 
 export async function sendChatMessage(conversationId, message, requestId = crypto.randomUUID()) {
-  const { data, error } = await client().functions.invoke('anime-assistant', {
-    body: { conversation_id: conversationId, request_id: requestId, message },
-  })
+  if (typeof navigator !== 'undefined' && !navigator.onLine) throw Object.assign(new Error("You're offline. Reconnect to continue chatting with Kitsu Assistant."), { requestId })
+  let result
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    result = await client().functions.invoke('anime-assistant', {
+      body: { conversation_id: conversationId, request_id: requestId, message },
+    })
+    if (!result.error) break
+    const status = result.error?.context?.status
+    const kind = classifyNetworkError({ ...result.error, status })
+    const recoverable = kind === 'interrupted' || kind === 'timeout' || status === 429 || status >= 500
+    if (!recoverable || attempt === 2 || (typeof navigator !== 'undefined' && !navigator.onLine)) break
+    await new Promise(resolve => setTimeout(resolve, 350 * (2 ** attempt)))
+  }
+  const { data, error } = result
   if (error) {
     let serverMessage = ''
     try { serverMessage = (await error.context?.json())?.error || '' } catch { /* Use a friendly fallback. */ }

@@ -86,6 +86,29 @@ test('a timed-out attempt falls through within the overall request deadline', as
   assert.equal(calls, 2)
 })
 
+test('a MAX_TOKENS response continues with the same conversation and merges without duplicate text', async () => {
+  const requests = []
+  const result = await generate({ fetchImpl: async (_url, init) => {
+    requests.push(JSON.parse(init.body))
+    if (requests.length === 1) return Response.json({ candidates: [{
+      finishReason: 'MAX_TOKENS',
+      content: { parts: [{ text: '{"message":"Based on your preferences, here are three picks:","recommendations":[' }] },
+    }] })
+    return Response.json({ candidates: [{ finishReason: 'STOP', content: { parts: [{
+      text: JSON.stringify({ message: 'Based on your preferences, here are three picks:\n\n- Try Odd Taxi.', recommendations: [{ title: 'Odd Taxi', reason: 'A tightly plotted mystery.' }] }),
+    }] } }] })
+  } })
+  assert.equal(requests.length, 2)
+  assert.equal(requests[1].contents[0].parts[0].text, requests[0].contents[0].parts[0].text)
+  assert.match(requests[1].contents.at(-2).parts[0].text, /MAX|recommendations|Based on your preferences/)
+  assert.equal(result.message, 'Based on your preferences, here are three picks:\n\n- Try Odd Taxi.')
+  assert.equal(result.recommendations[0].title, 'Odd Taxi')
+})
+
+test('Gemini output token budget leaves room for complete recommendation JSON', () => {
+  assert.equal(buildGeminiRequestBody('system', []).generationConfig.maxOutputTokens, 1800)
+})
+
 test('404 deprecated model is cooled down and the next model succeeds', async () => {
   let calls = 0
   const failures = []
