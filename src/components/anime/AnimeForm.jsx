@@ -2,11 +2,14 @@ import { useState } from 'react'
 import { GENRES, STATUSES, STATUS_LABELS } from '../../constants'
 import { Minus, Plus, Star } from 'lucide-react'
 import AnimeSearchForm from './AnimeSearchForm'
+import { useModalClose } from '../ui/Modal'
 
 const blank = { title: '', alternative_title: '', poster_url: '', genres: [], rating: '', notes: '' }
 const newSeason = number => ({ season_number: number, season_title: `Season ${number}`, total_episodes: '', current_episode: 0, status: 'plan_to_watch', date_started: '' })
 
 export default function AnimeForm({ initial, initialMode = 'search', onSubmit, saving, initialSearchAnime = null, onCancel = null, submitLabel = 'Add to Library', searchOnly = false }) {
+  const closeModal = useModalClose()
+  const cancel = onCancel || closeModal
   const [form, setForm] = useState({ ...blank, ...initial, genres: initial?.genres || [] })
   const [seasons, setSeasons] = useState(initial?.id ? [] : initial?.seasons?.length ? initial.seasons : [newSeason(1)])
   const [custom, setCustom] = useState('')
@@ -95,12 +98,13 @@ export default function AnimeForm({ initial, initialMode = 'search', onSubmit, s
     <label className="field notes-field">Personal notes<textarea rows="3" value={form.notes || ''} onChange={event => set('notes', event.target.value)} placeholder="Your thoughts, reminders, or where to pick back up…"/></label>
     {error && <p className="form-error" role="alert">{error}</p>}
     </div>
-    <div className="form-actions"><button type="submit" className="primary-btn" disabled={saving}>{saving ? 'Saving…' : isEditing ? 'Save changes' : 'Add series to my list'}</button></div>
+    <div className="form-actions">{cancel && <button type="button" className="outline-btn" onClick={cancel} disabled={saving}>Cancel</button>}<button type="submit" className="primary-btn" disabled={saving}>{saving ? 'Saving…' : isEditing ? 'Save changes' : 'Add series to my list'}</button></div>
   </form>
 
   if (isEditing) return manualForm
 
   return <div className="anime-add-flow">
+    <p className="anime-add-description">Search the catalog or enter anime details and season progress manually.</p>
     {!searchOnly && <div className="anime-add-tabs" role="tablist" aria-label="How to add anime">
       <button type="button" role="tab" aria-selected={mode === 'search'} className={mode === 'search' ? 'active' : ''} onClick={() => setMode('search')}>Search Anime</button>
       <button type="button" role="tab" aria-selected={mode === 'manual'} className={mode === 'manual' ? 'active' : ''} onClick={() => setMode('manual')}>Add Manually</button>

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowDown, ArrowUp, ExternalLink, LoaderCircle, Plus, Search, Trash2 } from 'lucide-react'
 import { STATUSES, STATUS_LABELS } from '../../constants'
+import { useModalClose } from '../ui/Modal'
 import { getTvmazeInstallments, getTvmazeShowAliases, getTvmazeShowById, searchTvmazeShows } from '../../services/tvmazeService'
 
 const MEDIA_TYPES = [
@@ -70,6 +71,8 @@ function publicCandidates(anime) {
 }
 
 export default function AnimeSearchForm({ onSubmit, saving, initialAnime = null, onCancel = null, submitLabel = 'Add to Library' }) {
+  const closeModal = useModalClose()
+  const cancel = onCancel || closeModal
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
   const [searching, setSearching] = useState(false)
@@ -358,9 +361,9 @@ export default function AnimeSearchForm({ onSubmit, saving, initialAnime = null,
 
       {error && <p className="form-error" role="alert">{error}</p>}
       </div>
-      <div className="anime-search-submit-row"><span>{candidates.filter(candidate => candidate.included).length} selected</span><div className="anime-search-submit-actions">{onCancel && <button type="button" className="outline-btn" onClick={onCancel} disabled={saving}>Cancel</button>}<button type="submit" className="primary-btn" disabled={saving || hydratingInitial || !candidates.some(candidate => candidate.included)}>{saving ? 'Saving…' : submitLabel}</button></div></div>
+       <div className="anime-search-submit-row"><span>{candidates.filter(candidate => candidate.included).length} selected</span><div className="anime-search-submit-actions">{cancel && <button type="button" className="outline-btn" onClick={cancel} disabled={saving}>Cancel</button>}<button type="submit" className="primary-btn" disabled={saving || hydratingInitial || !candidates.some(candidate => candidate.included)}>{saving ? 'Saving…' : submitLabel}</button></div></div>
     </form>}
-    {!selectedShow && onCancel && <div className="anime-search-submit-row"><span>Select an anime to review its installments.</span><div className="anime-search-submit-actions"><button type="button" className="outline-btn" onClick={onCancel}>Cancel</button><button type="button" className="primary-btn" disabled>Select anime first</button></div></div>}
+    {!selectedShow && cancel && <div className="anime-search-submit-row"><span>Select an anime to review its installments.</span><div className="anime-search-submit-actions"><button type="button" className="outline-btn" onClick={cancel}>Cancel</button><button type="button" className="primary-btn" disabled>Select anime first</button></div></div>}
     <p id="tvmaze-attribution" className="tvmaze-attribution">Anime metadata and artwork by <a href="https://www.tvmaze.com/" target="_blank" rel="noreferrer">TVmaze</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer">CC BY-SA</a></p>
   </div>
 }

@@ -2,13 +2,12 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import {
   ArrowUpRight, BookOpen, Clock3, LoaderCircle, Plus,
-  Send, Sparkles, Trash2, X,
+  Send, Trash2, X,
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useToast } from '../ui/Toast'
 import Modal from '../ui/Modal'
 import AnimeForm from '../anime/AnimeForm'
-import KitsuLogo from '../ui/KitsuLogo'
 import KitsuMascot from './KitsuMascot'
 import {
   createChatConversation, deleteChatConversation, getChatMessages,
@@ -18,14 +17,17 @@ import { createAnime } from '../../services/animeService'
 import { findAnimeWatchProviders } from '../../services/providers'
 import { getTvmazeInstallments, getTvmazeShowAliases } from '../../services/tvmazeService'
 
+const WELCOME_MESSAGE = "Hey there! 👋 I'm Kitsu, your personal anime companion! 💜\n\nI can help you discover anime, find hidden gems, recommend shows based on your library, and keep track of your anime journey.\n\nNot sure what to watch next? Just ask me!"
 const SUGGESTIONS = [
-  'Recommend anime like Dragon Ball.',
-  'What should I watch next based on my library?',
-  'Recommend a romance anime.',
-  'Suggest an underrated anime.',
-  'Analyze my highly rated anime.',
-  'Recommend a short anime.',
+  'Recommend an anime based on my library',
+  'Suggest an underrated anime',
+  'What anime should I watch next?',
+  'Find anime similar to my favorites',
 ]
+
+function welcomeMessage(conversationId) {
+  return { id: `welcome:${conversationId}`, role: 'assistant', content: WELCOME_MESSAGE, metadata: { recommendations: [] }, created_at: new Date().toISOString() }
+}
 
 function normalizeTitle(value = '') {
   return value.normalize('NFKC').toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim()
@@ -63,6 +65,14 @@ export default function AnimeAssistant({ openRequest = 0 }) {
   const scrollAnchor = useRef(null)
   const handledOpenRequest = useRef(0)
 
+  const introStorageKey = useCallback(id => `kitsu-assistant-intro:${user?.id || 'guest'}:${id}`, [user?.id])
+  const hasSeenIntro = useCallback(id => {
+    try { return window.localStorage.getItem(introStorageKey(id)) === 'seen' } catch { return false }
+  }, [introStorageKey])
+  const markIntroSeen = useCallback(id => {
+    try { window.localStorage.setItem(introStorageKey(id), 'seen') } catch { /* The intro remains available for this session. */ }
+  }, [introStorageKey])
+
   const loadConversationList = useCallback(async (offset = 0) => {
     const result = await listChatConversations(offset)
     setConversations(current => offset ? [...current, ...result.items] : result.items)
@@ -80,12 +90,15 @@ export default function AnimeAssistant({ openRequest = 0 }) {
     setLoadingHistory(true)
     try {
       const loaded = await getChatMessages(selected.id)
-      setMessages(loaded)
+      if (!loaded.length && !hasSeenIntro(selected.id)) {
+        setMessages([welcomeMessage(selected.id)])
+        markIntroSeen(selected.id)
+      } else setMessages(loaded)
       setHasOlderMessages(loaded.length === 50)
     }
     catch (cause) { setError(cause.message || 'Could not load this conversation.') }
     finally { setLoadingHistory(false) }
-  }, [])
+  }, [hasSeenIntro, markIntroSeen])
 
   const openAssistant = useCallback(async () => {
     setOpen(true)
@@ -94,12 +107,16 @@ export default function AnimeAssistant({ openRequest = 0 }) {
       try {
         const list = await loadConversationList()
         if (list[0]) await openConversation(list[0])
+        else if (!hasSeenIntro('draft')) {
+          setMessages([welcomeMessage('draft')])
+          markIntroSeen('draft')
+        }
         setHydrated(true)
       } catch (cause) { setError(cause.message || 'Could not load chat history.') }
       finally { setLoadingHistory(false) }
     }
     window.setTimeout(() => inputRef.current?.focus(), 80)
-  }, [hydrated, loadConversationList, openConversation])
+  }, [hydrated, hasSeenIntro, loadConversationList, markIntroSeen, openConversation])
 
   useEffect(() => {
     if (openRequest <= handledOpenRequest.current) return
@@ -152,7 +169,8 @@ export default function AnimeAssistant({ openRequest = 0 }) {
       const created = await createChatConversation()
       setConversations(current => [created, ...current.filter(item => item.id !== created.id)].slice(0, 30))
       setConversation(created)
-      setMessages([])
+      setMessages([welcomeMessage(created.id)])
+      markIntroSeen(created.id)
       setHasOlderMessages(false)
       setRetryRequest(null)
       setError('')
@@ -209,6 +227,7 @@ export default function AnimeAssistant({ openRequest = 0 }) {
         targetConversation = await createChatConversation()
         setConversation(targetConversation)
         setConversations(current => [targetConversation, ...current].slice(0, 30))
+        markIntroSeen(targetConversation.id)
       }
       if (!existingRequest) {
         setMessages(current => [...current, { id: `pending-${requestId}`, role: 'user', content: messageText, created_at: new Date().toISOString() }])
@@ -304,8 +323,8 @@ export default function AnimeAssistant({ openRequest = 0 }) {
     {open && <div className="assistant-backdrop" onMouseDown={event => { if (event.target === event.currentTarget) setOpen(false) }}>
       <section className="assistant-window" role="dialog" aria-modal="true" aria-label="Kitsu anime assistant">
         <header className="assistant-header">
-          <div className="assistant-brand-mark"><KitsuLogo iconOnly/></div>
-          <div className="assistant-heading-copy"><strong>Kitsu assistant</strong><span>Anime discovery, grounded in your library</span></div>
+          <div className="assistant-brand-mark"><img src="/mascots/kitsu-open.png" alt=""/></div>
+          <div className="assistant-heading-copy"><strong>Kitsu Assistant</strong><span>Your personal anime companion</span></div>
           <button className="assistant-icon-button" onClick={createConversation} aria-label="New conversation" title="New conversation"><Plus size={18}/></button>
           <button className={`assistant-icon-button ${showHistory ? 'selected' : ''}`} onClick={() => { setShowHistory(value => !value); loadConversationList().catch(() => {}) }} aria-label="Conversation history" title="Conversation history"><Clock3 size={17}/></button>
           <button className="assistant-icon-button" onClick={() => setOpen(false)} aria-label="Close assistant"><X size={19}/></button>
@@ -320,15 +339,12 @@ export default function AnimeAssistant({ openRequest = 0 }) {
 
         <div className="assistant-messages" ref={scrollRef} aria-live="polite">
           {messages.length > 0 && hasOlderMessages && <button className="assistant-load-older" onClick={loadOlderMessages} disabled={loadingOlder}>{loadingOlder ? <LoaderCircle className="assistant-spin" size={13}/> : <Clock3 size={13}/>} Load older messages</button>}
-          {loadingHistory ? <div className="assistant-loading"><LoaderCircle className="assistant-spin" size={18}/> Loading your chat…</div> : messages.length === 0 ? <div className="assistant-welcome">
-            <h2>What are you in the mood for?</h2>
-            <p>Discover your next favorite anime, explore recommendations, or ask about your watchlist.</p>
-            <div className="assistant-suggestions">{SUGGESTIONS.map(suggestion => <button key={suggestion} onClick={() => performSend(suggestion)}>{suggestion}</button>)}</div>
-          </div> : messages.map(message => <article className={`assistant-message ${message.role}`} key={message.id}>
-            <div className="assistant-message-avatar">{message.role === 'assistant' ? <Sparkles size={14}/> : <span>{user.email?.[0]?.toUpperCase() || 'Y'}</span>}</div>
+          {loadingHistory ? <div className="assistant-loading"><LoaderCircle className="assistant-spin" size={18}/> Loading your chat…</div> : messages.map(message => <article className={`assistant-message ${message.role} ${message.id.startsWith('welcome:') ? 'welcome-message' : ''}`} key={message.id}>
+            <div className="assistant-message-avatar">{message.role === 'assistant' ? <img src="/mascots/kitsu-open.png" alt="Kitsu"/> : <span>{user.email?.[0]?.toUpperCase() || 'Y'}</span>}</div>
             <div className="assistant-message-body"><div className="assistant-bubble">{message.role === 'assistant'
               ? <ReactMarkdown components={{ a: ({ href, children, ...props }) => <a href={href} target="_blank" rel="noreferrer" {...props}>{children}</a> }}>{message.content}</ReactMarkdown>
               : message.content}</div>
+              {message.id.startsWith('welcome:') && messages.length === 1 && <div className="assistant-suggestions">{SUGGESTIONS.map(suggestion => <button type="button" key={suggestion} onClick={() => performSend(suggestion)}>{suggestion}</button>)}</div>}
               {message.role === 'assistant' && (message.metadata?.recommendations || []).map((card, index) => {
                 const show = card.tvmaze || {}
                 const genres = show.genres || card.genres || []

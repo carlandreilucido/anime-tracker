@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase'
+import { normalizeUserSearchTerm } from './userSearch'
 
 function requireClient() {
   if (!supabase) throw new Error('Supabase is not configured.')
@@ -6,7 +7,7 @@ function requireClient() {
 }
 
 export async function searchUsers(query, { limit = 10, offset = 0 } = {}) {
-  const term = query.trim()
+  const term = normalizeUserSearchTerm(query)
   if (term.length < 2) return []
   const { data, error } = await requireClient().rpc('search_public_profiles', {
     p_query: term,

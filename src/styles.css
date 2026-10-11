@@ -2104,3 +2104,193 @@ html[data-theme] .user-search-control input:focus,html[data-theme] .user-search-
   .anime-search-submit-actions>.outline-btn{padding-inline:9px;font-size:10px}
   .public-library-import-modal .anime-candidate-edit-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+/* Anime entry/edit dialogs: fixed title and actions, one scrollable field area. */
+.modal:has(.anime-add-flow),.modal:has(>.anime-form),.modal:has(.assistant-add-modal-content){display:flex;width:min(920px,calc(100vw - 32px));min-width:0;min-height:0;max-height:min(90dvh,850px);flex-direction:column;overflow:hidden}
+.modal:has(.anime-add-flow)>.modal-head,.modal:has(>.anime-form)>.modal-head,.modal:has(.assistant-add-modal-content)>.modal-head{position:relative;top:auto;z-index:2;flex:none;border-bottom:1px solid var(--border)}
+.modal:has(>.anime-form)>.anime-form{display:flex;min-width:0;min-height:0;flex:1;flex-direction:column;overflow:hidden}
+.modal:has(>.anime-form)>.season-form{display:block;overflow-y:auto;overscroll-behavior:contain;scrollbar-color:color-mix(in srgb,var(--secondary-foreground) 45%,transparent) transparent;scrollbar-width:thin}
+.anime-add-flow{display:flex;min-width:0;min-height:0;max-height:none;flex:1;flex-direction:column;overflow:hidden;padding:10px 16px 12px}
+.anime-add-description{flex:none;margin:0 0 10px;color:var(--secondary-foreground);font-size:11px;line-height:1.5}
+.anime-add-flow .anime-add-tabs{flex:none;margin-bottom:10px}
+.anime-add-flow .anime-form{display:flex;min-width:0;min-height:0;flex:1;flex-direction:column;overflow:hidden}
+.anime-form-content{min-width:0;min-height:0;flex:1;overflow-y:auto;overscroll-behavior:contain;padding:2px 5px 14px;scrollbar-color:color-mix(in srgb,var(--secondary-foreground) 45%,transparent) transparent;scrollbar-width:thin}
+.anime-form-content::-webkit-scrollbar,.anime-search-body::-webkit-scrollbar,.anime-search-browse-body::-webkit-scrollbar{width:7px}
+.anime-form-content::-webkit-scrollbar-thumb,.anime-search-body::-webkit-scrollbar-thumb,.anime-search-browse-body::-webkit-scrollbar-thumb{border:2px solid transparent;border-radius:8px;background:color-mix(in srgb,var(--secondary-foreground) 42%,transparent);background-clip:padding-box}
+.anime-form>.form-actions{position:relative;z-index:2;display:flex;flex:none;justify-content:flex-end;gap:9px;margin:0;padding:11px 5px max(4px,env(safe-area-inset-bottom));border-top:1px solid var(--border);background:var(--surface)}
+.anime-form>.form-actions .primary-btn,.anime-form>.form-actions .outline-btn{min-height:40px}
+.anime-form>.form-actions .primary-btn{min-width:150px}
+.anime-add-flow>.anime-search-flow{display:flex;min-width:0;min-height:0;max-height:none;flex:1;flex-direction:column;overflow:hidden;padding:0 2px;overscroll-behavior:contain}
+.anime-add-flow .anime-search-browse-body,.anime-add-flow .anime-search-form .anime-search-body{min-width:0;min-height:0;flex:1;overflow-y:auto;overscroll-behavior:contain;padding:3px 5px 14px;scrollbar-color:color-mix(in srgb,var(--secondary-foreground) 45%,transparent) transparent;scrollbar-width:thin}
+.anime-add-flow .anime-search-form{display:flex;min-width:0;min-height:0;flex:1;flex-direction:column;gap:0;overflow:hidden}
+.anime-add-flow .anime-search-submit-row{position:relative;bottom:auto;z-index:2;display:flex;min-height:56px;flex:none;align-items:center;justify-content:space-between;gap:10px;margin:0;padding:9px 4px max(4px,env(safe-area-inset-bottom));border-top:1px solid var(--border);background:var(--surface)}
+.anime-search-results{max-height:none;overflow:visible;padding-right:1px}
+.anime-add-flow>.tvmaze-attribution{flex:none;margin:7px 0 0;padding:0 3px}
+.modal:has(.assistant-add-modal-content)>.assistant-add-modal-content{display:flex;min-width:0;min-height:0;max-height:none;flex:1;flex-direction:column;overflow:hidden;padding:8px 14px 10px}
+.assistant-add-modal-content>.assistant-add-note{flex:none;margin:0 0 8px}
+.assistant-add-modal-content>.anime-form{display:flex;min-width:0;min-height:0;flex:1;flex-direction:column;overflow:hidden}
+.modal:has(>.season-form)>.season-form>.form-actions{position:sticky;bottom:0;z-index:2;display:flex;justify-content:flex-end;flex:none;margin:8px -1px 0;padding:10px 2px max(4px,env(safe-area-inset-bottom));border-top:1px solid var(--border);background:var(--surface)}
+@media(max-width:767px){
+  .modal-backdrop:has(.anime-add-flow),.modal-backdrop:has(.anime-form),.modal-backdrop:has(.assistant-add-modal-content){position:fixed;top:var(--modal-viewport-top,0px);right:0;bottom:auto;left:0;display:flex;width:100%;height:var(--modal-viewport-height,100dvh);align-items:center;justify-content:center;overflow:hidden;padding:max(8px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));overscroll-behavior:contain}
+  .modal:has(.anime-add-flow),.modal:has(>.anime-form),.modal:has(.assistant-add-modal-content){width:100%;max-height:calc(var(--modal-viewport-height,100dvh) - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 16px);border-radius:13px}
+  .anime-add-flow{padding:8px 10px max(6px,env(safe-area-inset-bottom))}
+  .anime-form>.form-actions{padding:8px 3px max(4px,env(safe-area-inset-bottom))}
+  .anime-form>.form-actions .primary-btn,.anime-form>.form-actions .outline-btn{min-height:42px}
+  .anime-search-submit-row{gap:6px;padding-inline:2px}
+  .anime-search-submit-actions{gap:5px}
+  .anime-search-submit-actions>.primary-btn,.anime-search-submit-actions>.outline-btn{min-height:40px;padding-inline:9px}
+  .modal:has(.assistant-add-modal-content)>.assistant-add-modal-content{padding:5px 8px max(6px,env(safe-area-inset-bottom))}
+}
+
+/* Keep focus feedback quiet and single-layered: no purple ring plus inner rectangle. */
+html[data-theme] :focus-visible{outline:1px solid var(--secondary-foreground)!important;outline-offset:1px!important;box-shadow:none!important}
+html[data-theme] .search-field:focus-within,html[data-theme] .select-filter:focus-within,html[data-theme] .filter-dropdown.is-open .select-filter,html[data-theme] .admin-search:focus-within,html[data-theme] .user-search-control:focus-within,html[data-theme] .assistant-input-row:focus-within{border-color:var(--secondary-foreground)!important;box-shadow:none!important}
+html[data-theme] .field input:focus,html[data-theme] .field select:focus,html[data-theme] .field textarea:focus,html[data-theme] .custom-genre input:focus,html[data-theme] .admin-filter-field input:focus,html[data-theme] .admin-filter-field select:focus,html[data-theme] .episode-number-input:focus{border-color:var(--secondary-foreground)!important;box-shadow:none!important}
+html[data-theme] .search-field input:focus-visible,html[data-theme] .admin-search input:focus-visible,html[data-theme] .user-search-control input:focus-visible,html[data-theme] .field input:focus-visible,html[data-theme] .field select:focus-visible,html[data-theme] .field textarea:focus-visible,html[data-theme] .custom-genre input:focus-visible,html[data-theme] .assistant-input-row textarea:focus-visible{outline:none!important;box-shadow:none!important}
+
+/* Kitsu Assistant's mascot branding and welcome-message suggestions. */
+.assistant-brand-mark{width:46px;height:46px;overflow:visible;padding:0;border-radius:0;background:transparent!important;color:inherit}
+.assistant-brand-mark>img{display:block;width:100%;height:100%;object-fit:contain}
+.assistant-heading-copy strong{font-size:13px}
+.assistant-message.assistant .assistant-message-avatar{width:38px;height:38px;overflow:visible;border:0;border-radius:0;background:transparent;color:inherit}
+.assistant-message.assistant .assistant-message-avatar img{display:block;width:100%;height:100%;object-fit:contain}
+.assistant-message.assistant .assistant-message-body{max-width:calc(100% - 46px)}
+.assistant-message.welcome-message .assistant-bubble{line-height:1.7}
+.assistant-suggestions{display:flex;flex-wrap:wrap;gap:7px}
+.assistant-suggestions button{width:auto;min-height:34px;padding:7px 11px;border:1px solid var(--primary-border);border-radius:999px;background:var(--primary-surface);color:var(--primary);text-align:center;font-size:10px;line-height:1.3;transition:background-color .15s,border-color .15s,color .15s,transform .15s}
+.assistant-suggestions button:hover{transform:translateY(-1px);border-color:var(--primary);background:var(--primary);color:var(--primary-foreground)}
+html[data-theme="light"] .assistant-suggestions button{border-color:var(--primary-border);background:var(--primary-surface);color:var(--primary)}
+html[data-theme="light"] .assistant-suggestions button:hover{border-color:var(--primary);background:var(--primary);color:var(--primary-foreground)}
+@media(max-width:650px){
+  .assistant-brand-mark{width:44px;height:44px}
+  .assistant-message.assistant .assistant-message-avatar{width:34px;height:34px}
+  .assistant-message.assistant .assistant-message-body{max-width:calc(100% - 42px)}
+  .assistant-suggestions{gap:6px}
+  .assistant-suggestions button{min-height:33px;padding:7px 10px;font-size:9px}
+}
+@media(prefers-reduced-motion:reduce){.assistant-suggestions button{transition:none}.assistant-suggestions button:hover{transform:none}}
+
+/* Admin layout sizing and overflow containment. */
+.admin-shell,.admin-main,.admin-content,.admin-page,.admin-panel,.admin-dashboard-grid,.admin-stats-grid,.admin-anime-count-grid,.admin-user-count-grid,.admin-activity-grid{min-width:0}
+.admin-content{width:100%;max-width:1500px;padding-left:clamp(16px,2.2vw,32px);padding-right:clamp(16px,2.2vw,32px)}
+.admin-dashboard-grid{grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);align-items:stretch}
+.admin-dashboard-grid>.admin-panel{min-width:0}
+.admin-panel-heading,.admin-page-heading,.admin-subheading{min-width:0}
+.admin-panel-heading>div,.admin-page-heading>div,.admin-subheading>div{min-width:0}
+.admin-panel-heading h2,.admin-page-heading h1,.admin-subheading h2{overflow-wrap:anywhere}
+.admin-stat-card,.admin-user-count-card,.admin-filter-panel,.admin-table-panel{min-width:0}
+.admin-stat-top{min-width:0;gap:8px}
+.admin-stat-top>span:last-child{min-width:0;overflow-wrap:anywhere;text-align:right}
+.registration-chart{width:100%;min-width:0;grid-template-columns:repeat(12,minmax(0,1fr));gap:clamp(2px,.55vw,7px)}
+.chart-month,.chart-bar-track{min-width:0}
+.chart-month-label{max-width:100%;text-overflow:clip;font-size:clamp(7px,.65vw,9px)}
+.popular-list{min-width:0}
+.popular-row{display:grid;grid-template-columns:26px minmax(0,1fr) auto;align-items:center;gap:9px;min-width:0;padding:9px 0;border-top:1px solid var(--border)}
+.popular-row strong{min-width:0;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere;font-size:11px;line-height:1.35}
+.popular-row>span:last-child{justify-self:end;white-space:nowrap;font-size:10px}
+.status-count-list{min-width:0}
+.status-count-list>div{min-width:0;gap:10px;padding:7px 0;font-size:11px}
+.status-count-list>div>span{min-width:0;overflow-wrap:anywhere}
+.status-count-list strong{flex:none;white-space:nowrap}
+.admin-rank-row{min-width:0;gap:8px;padding:5px 0}
+.admin-rank-row strong{overflow-wrap:anywhere}
+.admin-rank-row b{flex:none;max-width:42%;text-align:right;white-space:normal;overflow-wrap:anywhere}
+.admin-table-panel,.admin-table-scroll{min-width:0;max-width:100%}
+.admin-table-scroll{overscroll-behavior-x:contain;scrollbar-width:thin}
+.admin-users-table{width:100%;min-width:790px}
+.admin-email-cell{overflow-wrap:anywhere}
+.admin-filter-field{min-width:130px}
+.admin-activity-copy{min-width:0}
+.admin-activity-copy strong,.admin-activity-copy small{overflow-wrap:anywhere}
+.admin-topbar{min-width:0;gap:12px}
+.admin-breadcrumb{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.admin-top-user{min-width:0;flex:none}
+.admin-mobile-page-title,.admin-mobile-back,.admin-mobile-logout,.admin-mobile-nav{display:none}
+@media(min-width:768px) and (max-width:1023px){
+  .admin-sidebar{width:184px;padding:20px 11px 12px}
+  .admin-main{margin-left:184px}
+  .admin-content{padding-left:18px;padding-right:18px}
+  .admin-topbar{padding:0 18px}
+  .admin-brand .kitsu-logo{gap:7px}
+  .admin-brand .kitsu-logo-wordmark{font-size:17px}
+  .admin-nav-link{gap:8px;padding-inline:8px;font-size:11px}
+  .admin-sidebar-bottom .admin-profile{gap:6px}
+  .admin-sidebar-bottom .admin-profile-copy strong{max-width:90px}
+  .admin-stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .admin-anime-count-grid,.admin-user-count-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .admin-dashboard-grid,.admin-activity-grid{grid-template-columns:minmax(0,1fr)}
+}
+@media(max-width:767px){
+  .admin-sidebar,.admin-drawer-scrim,.admin-menu-toggle,.admin-mobile-close{display:none!important}
+  .admin-shell{min-height:100vh;min-height:100dvh}
+  .admin-main{min-width:0;margin-left:0;padding-bottom:0}
+  .admin-topbar{position:sticky;top:0;height:58px;padding:0 14px;gap:10px}
+  .admin-breadcrumb{display:none}
+  .admin-mobile-page-title{display:block;min-width:0;flex:1;overflow:hidden;color:var(--foreground);font:650 13px Manrope,sans-serif;text-overflow:ellipsis;white-space:nowrap}
+  .admin-mobile-back{display:inline-flex;min-height:36px;flex:none;align-items:center;gap:4px;padding:0 5px;color:var(--secondary-foreground);font-size:9px;text-decoration:none;white-space:nowrap}
+  .admin-mobile-back:hover{color:var(--primary)}
+  .admin-top-user{gap:8px}
+  .admin-top-user>.avatar,.admin-top-user>span:not(.avatar){display:none}
+  .admin-mobile-logout{display:grid;width:36px;height:36px;flex:none;place-items:center;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--secondary-foreground)}
+  .admin-content{padding:0 14px calc(82px + env(safe-area-inset-bottom))}
+  .admin-page{padding-top:23px}
+  .admin-page-heading{align-items:flex-start;gap:10px;margin-bottom:17px}
+  .admin-page-heading h1{font-size:23px;line-height:1.2}
+  .admin-page-heading p{max-width:100%;font-size:11px;line-height:1.45}
+  .admin-dashboard-grid,.admin-activity-grid{grid-template-columns:minmax(0,1fr);gap:11px}
+  .admin-stats-grid,.admin-anime-count-grid,.admin-user-count-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .admin-stat-card{min-height:92px;padding:11px}
+  .admin-stat-card>strong{font-size:21px}
+  .admin-stat-top{align-items:flex-start;font-size:9px}
+  .admin-stat-top>span:last-child{max-width:60%;font-size:8px}
+  .admin-panel{padding:13px}
+  .admin-panel-heading{gap:8px;margin-bottom:11px}
+  .admin-panel-heading h2{font-size:14px}
+  .registration-chart{height:160px;gap:2px;padding-inline:0}
+  .chart-count{font-size:8px}
+  .chart-month-label{font-size:7px;letter-spacing:-.2px}
+  .popular-row{grid-template-columns:22px minmax(0,1fr) auto;gap:7px;padding:9px 0}
+  .popular-row strong{font-size:10px}
+  .popular-row>span:last-child{font-size:9px}
+  .status-count-list>div{min-height:34px;font-size:10px}
+  .admin-filter-panel{align-items:stretch;gap:8px;padding:10px}
+  .admin-search{flex:1 1 100%;min-width:0}
+  .admin-filter-field{min-width:calc(50% - 5px);flex:1 1 calc(50% - 5px)}
+  .admin-filter-field input,.admin-filter-field select{width:100%;min-width:0}
+  .admin-table-panel{overflow:hidden}
+  .admin-table-scroll{width:100%;overflow-x:auto}
+  .admin-table-footer{flex-wrap:wrap;gap:8px;padding:9px;font-size:9px}
+  .admin-table-footer>span{max-width:100%;overflow-wrap:anywhere}
+  .admin-user-hero{min-width:0;flex-wrap:wrap;gap:10px;padding:13px}
+  .admin-user-hero-copy{min-width:0;flex:1}
+  .admin-user-hero-copy h1{overflow-wrap:anywhere;font-size:16px}
+  .admin-user-hero-action{margin-left:auto}
+  .admin-user-info-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .admin-user-info-grid>div{min-width:0;padding:10px}
+  .admin-user-info-grid strong{overflow-wrap:anywhere;font-size:10px}
+  .admin-user-count-card{min-width:0;min-height:68px;padding:10px}
+  .admin-user-count-card>span{min-width:0;align-items:flex-start;font-size:9px;line-height:1.3}
+  .admin-user-count-card>span svg{flex:none}
+  .admin-user-count-card strong{font-size:17px}
+  .admin-activity-item{min-width:0;gap:7px;padding:7px 0}
+  .admin-activity-copy strong{font-size:10px}
+  .admin-activity-copy small{font-size:9px}
+  .admin-activity-time{flex:none;font-size:8px}
+  .admin-mobile-nav{position:fixed;z-index:75;right:0;bottom:0;left:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:center;gap:2px;min-height:calc(64px + env(safe-area-inset-bottom));padding:5px max(4px,env(safe-area-inset-left)) calc(5px + env(safe-area-inset-bottom)) max(4px,env(safe-area-inset-right));border-top:1px solid var(--border);background:var(--navigation);backdrop-filter:blur(14px)}
+  .admin-mobile-nav-item{display:flex;min-width:0;min-height:52px;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:3px 1px;border:0;border-radius:9px;background:transparent;color:var(--secondary-foreground);font-size:9px;font-weight:600;line-height:1.15;text-align:center;text-decoration:none;white-space:nowrap}
+  .admin-mobile-nav-item svg{flex:none}
+  .admin-mobile-nav-item.active{background:var(--primary-surface);color:var(--primary)}
+  .admin-mobile-nav-item.active svg{color:var(--primary)}
+}
+@media(max-width:390px){
+  .admin-content{padding-inline:11px}
+  .admin-topbar{padding-inline:11px}
+  .admin-panel{padding:11px}
+  .registration-chart{height:145px}
+  .admin-stat-card{padding:9px}
+  .admin-stat-top>span:last-child{font-size:7px}
+  .admin-user-info-grid{gap:6px}
+  .admin-user-info-grid>div{padding:8px}
+  .admin-user-info-grid span{font-size:8px}
+  .admin-mobile-nav-item{font-size:8px}
+}

@@ -1,6 +1,8 @@
-import { useEffect, useRef } from 'react'
+import { createContext, useContext, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
+const ModalCloseContext = createContext(null)
+export const useModalClose = () => useContext(ModalCloseContext)
 export default function Modal({ title, onClose, children, wide=false, className='', backdropClassName='' }) {
   const backdropRef = useRef(null)
   useEffect(()=>{
@@ -27,5 +29,5 @@ export default function Modal({ title, onClose, children, wide=false, className=
       document.body.style.overflow=previousOverflow
     }
   },[onClose])
-  return createPortal(<div ref={backdropRef} className={`modal-backdrop ${backdropClassName}`} onMouseDown={e=>{if(e.target===e.currentTarget)onClose()}}><section className={`modal ${wide?'modal-wide':''} ${className}`} role="dialog" aria-modal="true" aria-labelledby="modal-title"><header className="modal-head"><h2 id="modal-title">{title}</h2><button className="icon-btn" onClick={onClose} aria-label="Close"><X size={19}/></button></header>{children}</section></div>, document.body)
+  return createPortal(<div ref={backdropRef} className={`modal-backdrop ${backdropClassName}`} onMouseDown={e=>{if(e.target===e.currentTarget)onClose()}}><section className={`modal ${wide?'modal-wide':''} ${className}`} role="dialog" aria-modal="true" aria-labelledby="modal-title"><header className="modal-head"><h2 id="modal-title">{title}</h2><button className="icon-btn" onClick={onClose} aria-label="Close"><X size={19}/></button></header><ModalCloseContext.Provider value={onClose}>{children}</ModalCloseContext.Provider></section></div>, document.body)
 }
