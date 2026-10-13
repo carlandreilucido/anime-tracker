@@ -10,7 +10,7 @@ export default defineConfig({
       includeAssets: ['logo.png', 'offline.html'],
       manifest: {
         id: '/',
-        name: 'Kitsu — Anime Tracker',
+        name: 'Kitsu',
         short_name: 'Kitsu',
         description: 'A personal anime watchlist and progress tracker.',
         theme_color: '#0B0D14',
