@@ -1,60 +1,100 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useRegisterSW } from 'virtual:pwa-register/react'
+import { getInstallPlatform, isRunningStandalone } from '../utils/pwa'
 
 const PwaContext = createContext(null)
-
-function isIosDevice() {
-  return /iphone|ipad|ipod/i.test(navigator.userAgent)
-    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-}
 
 export function PwaProvider({ children }) {
   const [installPrompt, setInstallPrompt] = useState(null)
   const [installed, setInstalled] = useState(false)
-  const [ios, setIos] = useState(false)
+  const [platform, setPlatform] = useState('other')
+  const [installMessage, setInstallMessage] = useState('')
+  const registrationRef = useRef(null)
+  const updateTimerRef = useRef(null)
   const { needRefresh: [needRefresh], updateServiceWorker } = useRegisterSW({
     immediate: true,
     onRegisteredSW(_url, registration) {
-      if (registration) window.setInterval(() => registration.update().catch(() => {}), 60 * 60 * 1000)
+      registrationRef.current = registration || null
+      if (updateTimerRef.current) window.clearInterval(updateTimerRef.current)
+      if (registration) {
+        updateTimerRef.current = window.setInterval(() => registration.update().catch(() => {}), 60 * 60 * 1000)
+      }
     },
   })
 
+  const refreshBrowserState = useCallback(() => {
+    setInstalled(isRunningStandalone(window))
+    registrationRef.current?.update().catch(() => {})
+  }, [])
+
   useEffect(() => {
-    const standalone = window.matchMedia('(display-mode: standalone)')
-    const checkInstalled = () => setInstalled(standalone.matches || window.navigator.standalone === true)
+    const displayMode = window.matchMedia('(display-mode: standalone)')
+    const updateStandalone = () => setInstalled(isRunningStandalone(window))
     const onInstallPrompt = event => {
+      // Save the browser's one-shot prompt for a direct user click. Its absence
+      // means only that this browser did not offer a prompt, not that it is installed.
       event.preventDefault()
+      if (isRunningStandalone(window)) return
       setInstallPrompt(event)
+      setInstallMessage('')
     }
     const onInstalled = () => {
-      setInstalled(true)
       setInstallPrompt(null)
+      setInstallMessage('Kitsu was added. Open it from your home screen or app launcher.')
+      updateStandalone()
     }
-    checkInstalled()
-    setIos(isIosDevice())
-    standalone.addEventListener?.('change', checkInstalled)
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') refreshBrowserState()
+    }
+
+    setPlatform(getInstallPlatform(navigator))
+    updateStandalone()
+    displayMode.addEventListener?.('change', updateStandalone)
     window.addEventListener('beforeinstallprompt', onInstallPrompt)
     window.addEventListener('appinstalled', onInstalled)
+    window.addEventListener('pageshow', refreshBrowserState)
+    window.addEventListener('focus', refreshBrowserState)
+    document.addEventListener('visibilitychange', onVisibilityChange)
     return () => {
-      standalone.removeEventListener?.('change', checkInstalled)
+      displayMode.removeEventListener?.('change', updateStandalone)
       window.removeEventListener('beforeinstallprompt', onInstallPrompt)
       window.removeEventListener('appinstalled', onInstalled)
+      window.removeEventListener('pageshow', refreshBrowserState)
+      window.removeEventListener('focus', refreshBrowserState)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+      if (updateTimerRef.current) window.clearInterval(updateTimerRef.current)
     }
-  }, [])
+  }, [refreshBrowserState])
+
+  const install = useCallback(async () => {
+    const promptEvent = installPrompt
+    if (!promptEvent || installed) return false
+    try {
+      // Must be called synchronously from the Settings button's click gesture.
+      const choice = promptEvent.prompt()
+      const result = await (choice && typeof choice.then === 'function' ? choice : promptEvent.userChoice)
+      const userChoice = result?.outcome ? result : await promptEvent.userChoice
+      setInstallPrompt(null) // Browser prompts are one-shot; never reuse this event.
+      if (userChoice?.outcome === 'accepted') {
+        setInstallMessage('Installation was accepted. If Kitsu does not appear in your launcher, see the reinstall tips below.')
+        return true
+      }
+      setInstallMessage('Installation was dismissed. You can use the browser menu to try again.')
+      return false
+    } catch {
+      setInstallPrompt(null)
+      setInstallMessage('The installation prompt is no longer available. Use your browser menu or reload Kitsu and try again.')
+      return false
+    }
+  }, [installPrompt, installed])
 
   const value = useMemo(() => ({
     installed,
-    ios,
-    canPromptInstall: Boolean(installPrompt),
-    async install() {
-      if (!installPrompt) return false
-      await installPrompt.prompt()
-      const result = await installPrompt.userChoice
-      setInstallPrompt(null)
-      if (result?.outcome === 'accepted') setInstalled(true)
-      return result?.outcome === 'accepted'
-    },
-  }), [installed, ios, installPrompt])
+    platform,
+    installMessage,
+    canPromptInstall: Boolean(installPrompt) && !installed,
+    install,
+  }), [installed, platform, installMessage, installPrompt, install])
 
   return <PwaContext.Provider value={value}>
     {children}

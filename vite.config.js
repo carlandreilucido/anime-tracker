@@ -9,6 +9,7 @@ export default defineConfig({
       registerType: 'prompt',
       includeAssets: ['logo.png', 'offline.html'],
       manifest: {
+        // Keep this stable: Chrome uses it as the PWA identity across updates.
         id: '/',
         name: 'Kitsu',
         short_name: 'Kitsu',
@@ -26,6 +27,7 @@ export default defineConfig({
         ],
       },
       workbox: {
+        cleanupOutdatedCaches: true,
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/rest\//, /^\/auth\//, /^\/functions\//, /^\/storage\//],
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,jpg,jpeg,woff2}'],
