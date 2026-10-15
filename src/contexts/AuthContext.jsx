@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { supabase, hasSupabaseConfig } from '../lib/supabase'
+import { EMAIL_VERIFICATION_NOTICE, hasVerifiedEmail } from '../utils/accountStatus'
 
 const AuthContext = createContext(null)
 
@@ -24,6 +25,7 @@ export function AuthProvider({ children }) {
       authEventsSeen += 1
       const previousSession = sessionRef.current
       sessionRef.current = nextSession
+      const needsEmailVerification = Boolean(nextSession?.user?.email) && !hasVerifiedEmail(nextSession.user)
 
       if (event === 'PASSWORD_RECOVERY') {
         sessionStorage.setItem('kitsu-password-recovery', 'true')
@@ -43,7 +45,9 @@ export function AuthProvider({ children }) {
         explicitSignOut.current = false
       } else {
         setSession(nextSession)
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        if (needsEmailVerification && ['INITIAL_SESSION', 'SIGNED_IN', 'TOKEN_REFRESHED'].includes(event)) {
+          setAuthNotice(EMAIL_VERIFICATION_NOTICE)
+        } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           setAuthNotice('')
           explicitSignOut.current = false
         }
@@ -57,6 +61,7 @@ export function AuthProvider({ children }) {
       if (authEventsSeen === 0) {
         sessionRef.current = data.session
         setSession(data.session)
+        if (data.session?.user?.email && !hasVerifiedEmail(data.session.user)) setAuthNotice(EMAIL_VERIFICATION_NOTICE)
       }
       if (error && !data.session) sessionRef.current = null
       setLoading(false)
@@ -89,7 +94,7 @@ export function AuthProvider({ children }) {
   }, [])
 
   const clearAuthNotice = useCallback(() => setAuthNotice(''), [])
-  const user = isRecovering ? null : session?.user ?? null
+  const user = isRecovering || !hasVerifiedEmail(session?.user) ? null : session?.user ?? null
 
   return <AuthContext.Provider value={{
     session,

@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react'
-import { ArrowUpRight, Check, CircleDashed, LoaderCircle, Play, ShieldCheck, Users, UserPlus, Library, RefreshCw } from 'lucide-react'
+import { ArrowUpRight, Ban, Check, CircleDashed, LoaderCircle, Play, ShieldCheck, Users, UserPlus, Library, RefreshCw } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { getAdminStats } from '../services/adminService'
+import { getAdminAccountCounts, getAdminStats } from '../services/adminService'
 import { readableError } from '../utils/format'
 
 const cards = [
-  { key: 'total_users', label: 'Total users', icon: Users, note: 'Registered accounts' },
+  { key: 'registered_accounts', label: 'Registered accounts', icon: Users, note: 'All Auth records' },
+  { key: 'verified_accounts', label: 'Verified accounts', icon: ShieldCheck, note: 'Email confirmed' },
+  { key: 'pending_verification_accounts', label: 'Pending verification', icon: UserPlus, note: 'Awaiting email confirmation' },
+  { key: 'disabled_accounts', label: 'Disabled accounts', icon: Ban, note: 'Banned or deleted' },
   { key: 'new_users_today', label: 'New users today', icon: UserPlus, note: 'Since midnight' },
   { key: 'new_users_this_month', label: 'New this month', icon: CircleDashed, note: 'Current month' },
   { key: 'unique_anime_titles', label: 'Unique anime titles', icon: Library, note: 'Distinct collection entries' },
@@ -19,7 +22,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const load = async () => { setLoading(true); setError(''); try { setStats(await getAdminStats()) } catch (cause) { setError(readableError(cause)) } finally { setLoading(false) } }
+  const load = async () => { setLoading(true); setError(''); try { const [dashboard, accounts] = await Promise.all([getAdminStats(), getAdminAccountCounts()]); setStats({ ...dashboard, ...accounts }) } catch (cause) { setError(readableError(cause)) } finally { setLoading(false) } }
   useEffect(() => { load() }, [])
   const registrations = stats?.registrations_by_month || []
   const maxRegistrations = Math.max(1, ...registrations.map(row => row.count || 0))

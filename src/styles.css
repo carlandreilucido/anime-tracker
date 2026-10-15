@@ -2302,3 +2302,10 @@ html[data-theme="light"] .assistant-suggestions button:hover{border-color:var(--
   .admin-user-info-grid span{font-size:8px}
   .admin-mobile-nav-item{font-size:8px}
 }
+
+.admin-verification-badge{display:inline-flex;align-items:center;max-width:100%;padding:4px 7px;border:1px solid transparent;border-radius:999px;font-size:9px;font-weight:700;line-height:1.2;white-space:nowrap}
+.admin-verification-badge.verified{border-color:color-mix(in srgb,var(--success) 35%,transparent);background:var(--success-background);color:var(--success)}
+.admin-verification-badge.pending_verification{border-color:color-mix(in srgb,var(--warning) 40%,transparent);background:color-mix(in srgb,var(--warning) 13%,var(--surface));color:var(--warning)}
+.admin-verification-badge.disabled{border-color:color-mix(in srgb,var(--danger) 35%,transparent);background:var(--danger-background);color:var(--danger)}
+.admin-account-stats{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:1000px){.admin-account-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}

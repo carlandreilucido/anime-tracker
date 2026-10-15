@@ -6,6 +6,7 @@ import { useToast } from '../components/ui/Toast'
 import { useAuth } from '../contexts/AuthContext'
 import KitsuLogo from '../components/ui/KitsuLogo'
 import { authErrorMessage, classifyNetworkError } from '../lib/network'
+import { EMAIL_VERIFICATION_NOTICE } from '../utils/accountStatus'
 
 function normalizedEmail(value) {
   const email = value.trim().toLowerCase()
@@ -45,8 +46,12 @@ export default function AuthPage({ register = false, resetPassword = false }) {
   useEffect(() => {
     if (!authNotice) return
     setError(authNotice)
+    if (authNotice === EMAIL_VERIFICATION_NOTICE) {
+      setConfirmationPending(true)
+      setEmail(current => current || session?.user?.email || '')
+    }
     clearAuthNotice()
-  }, [authNotice, clearAuthNotice])
+  }, [authNotice, clearAuthNotice, session])
 
   useEffect(() => {
     if (!isResetPassword) return
@@ -101,7 +106,7 @@ export default function AuthPage({ register = false, resetPassword = false }) {
           options: { data: { name: cleanName }, emailRedirectTo },
         })
         if (authError) throw authError
-        if (data.session) {
+        if (data.session && data.user?.email_confirmed_at) {
           navigate('/')
           toast('Welcome to your new watchlist!')
         } else {

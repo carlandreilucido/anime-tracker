@@ -12,22 +12,25 @@ export async function getAdminStats() {
   return data
 }
 
-export async function getAdminUsers({ page = 0, search = '', role = '', fromDate = '', toDate = '' } = {}) {
-  let query = requireClient().from('profiles')
-    .select('id,email,username,full_name,avatar_url,role,created_at', { count: 'exact' })
-    .order('created_at', { ascending: false })
-  if (role) query = query.eq('role', role)
-  if (fromDate) query = query.gte('created_at', `${fromDate}T00:00:00.000Z`)
-  if (toDate) {
-    const exclusiveEnd = new Date(`${toDate}T00:00:00.000Z`)
-    exclusiveEnd.setUTCDate(exclusiveEnd.getUTCDate() + 1)
-    query = query.lt('created_at', exclusiveEnd.toISOString())
-  }
-  const term = search.trim().replace(/[(),%"\\]/g, '')
-  if (term) query = query.or(`full_name.ilike.%${term}%,username.ilike.%${term}%,email.ilike.%${term}%`)
-  const { data, error, count } = await query.range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1)
+export async function getAdminAccountCounts() {
+  const { data, error } = await requireClient().rpc('admin_auth_account_counts')
   if (error) throw error
-  return { data: data || [], count: count || 0, hasMore: (page + 1) * PAGE_SIZE < (count || 0) }
+  return data
+}
+
+export async function getAdminUsers({ page = 0, search = '', role = '', fromDate = '', toDate = '', verificationStatus = '' } = {}) {
+  const { data, error } = await requireClient().rpc('admin_user_directory', {
+    p_page: page,
+    p_page_size: PAGE_SIZE,
+    p_search: search.trim() || null,
+    p_role: role || null,
+    p_from_date: fromDate || null,
+    p_to_date: toDate || null,
+    p_verification_status: verificationStatus || null,
+  })
+  if (error) throw error
+  if (!data || !Array.isArray(data.data)) throw new Error('The secure user directory returned an invalid response.')
+  return data
 }
 
 export async function getAdminUserDetail(userId) {
