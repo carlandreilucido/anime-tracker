@@ -7,7 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'prompt',
-      includeAssets: ['logo.png', 'offline.html'],
+      includeAssets: ['logo.webp', 'offline.html'],
       manifest: {
         // Keep this stable: Chrome uses it as the PWA identity across updates.
         id: '/',
@@ -28,9 +28,12 @@ export default defineConfig({
       },
       workbox: {
         cleanupOutdatedCaches: true,
+      globIgnores: ['**/mascots/**', '**/providers/**', 'logo.png'],
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/rest\//, /^\/auth\//, /^\/functions\//, /^\/storage\//],
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,jpg,jpeg,woff2}'],
+        // JavaScript route chunks are cached on first use by runtimeCaching below;
+        // precaching them all would download lazy admin/chat pages during install.
+        globPatterns: ['**/*.{css,html,ico,png,svg,webp,jpg,jpeg,woff2}'],
         runtimeCaching: [
           {
             urlPattern: ({ url }) => url.origin !== self.location.origin,

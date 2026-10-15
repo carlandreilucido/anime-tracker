@@ -17,12 +17,11 @@ export function classifyNetworkError(error, wasOnline = typeof navigator === 'un
 
 export function authErrorMessage(error) {
   const code = String(error?.code || '').toLowerCase()
-  const message = String(error?.message || '').toLowerCase()
-  if (code === 'invalid_credentials' || /invalid login credentials/.test(message)) return 'Invalid email or password. Please try again.'
+  const status = Number(error?.status ?? error?.context?.status)
+  if (status === 429 || ['over_email_send_rate_limit', 'over_request_rate_limit', 'over_sms_send_rate_limit'].includes(code)) return 'Too many attempts. Please wait before trying again.'
+  if (code === 'invalid_credentials') return 'Invalid email or password. Please try again.'
   const kind = classifyNetworkError(error)
-  if (kind === 'offline') return OFFLINE_MESSAGE
-  if (kind === 'interrupted') return INTERRUPTED_MESSAGE
-  if (kind === 'timeout') return TIMEOUT_MESSAGE
-  if (kind === 'server') return SERVER_MESSAGE
+  if (kind === 'offline' || kind === 'interrupted' || kind === 'timeout') return 'Unable to connect. Please check your internet connection and try again.'
+  if (kind === 'server') return 'Unable to connect to the server. Please check your connection and try again.'
   return 'Something went wrong. Please try again.'
 }

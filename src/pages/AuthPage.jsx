@@ -7,8 +7,6 @@ import { useAuth } from '../contexts/AuthContext'
 import KitsuLogo from '../components/ui/KitsuLogo'
 import { authErrorMessage, classifyNetworkError } from '../lib/network'
 
-const PRODUCTION_URL = 'https://animewatchlisttracker.vercel.app/'
-
 function normalizedEmail(value) {
   const email = value.trim().toLowerCase()
   if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -28,6 +26,7 @@ export default function AuthPage({ register = false, resetPassword = false }) {
   const [name, setName] = useState('')
   const [forgotMode, setForgotMode] = useState(false)
   const [resetSent, setResetSent] = useState(false)
+  const [resetComplete, setResetComplete] = useState(false)
   const [show, setShow] = useState(false)
   const [busy, setBusy] = useState(false)
   const [resending, setResending] = useState(false)
@@ -36,7 +35,8 @@ export default function AuthPage({ register = false, resetPassword = false }) {
   const [error, setError] = useState('')
   const [retryAvailable, setRetryAvailable] = useState(false)
   const submitLock = useRef(false)
-  const { authNotice, clearAuthNotice } = useAuth()
+  const resendLock = useRef(false)
+  const { authNotice, clearAuthNotice, session, isRecovering } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const toast = useToast()
@@ -48,10 +48,22 @@ export default function AuthPage({ register = false, resetPassword = false }) {
     clearAuthNotice()
   }, [authNotice, clearAuthNotice])
 
+  useEffect(() => {
+    if (!isResetPassword) return
+    const params = new URLSearchParams(window.location.search)
+    const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''))
+    if (params.get('error') || hash.get('error')) {
+      setError('This password reset link is invalid or has expired. Please request a new one.')
+      return
+    }
+    if (!isRecovering && !session) setError('Open the password reset link from your email, or request a new one.')
+  }, [isResetPassword, isRecovering, session])
+
   const submit = async event => {
     event.preventDefault()
     if (submitLock.current || busy) return
     setError('')
+    setConfirmationPending(false)
     setRetryAvailable(false)
     if (!hasSupabaseConfig) return setError('Supabase is not configured yet. Add your project URL and anon key to .env.local.')
     submitLock.current = true
@@ -65,20 +77,24 @@ export default function AuthPage({ register = false, resetPassword = false }) {
       if (register) setName(cleanName)
 
       if (isResetPassword) {
+        if (!session || !isRecovering) throw new Error('This password reset link is invalid or has expired. Please request a new one.')
         if (password.length < 6) throw new Error('Your new password must be at least 6 characters.')
         if (password !== confirmPassword) throw new Error('The passwords do not match.')
         const { error: updateError } = await supabase.auth.updateUser({ password })
         if (updateError) throw updateError
-        toast('Your password has been reset.')
-        navigate('/')
+        sessionStorage.removeItem('kitsu-password-recovery')
+        setResetComplete(true)
+        setError('')
+        setPassword('')
+        setConfirmPassword('')
+        setResetSent(true)
       } else if (forgotMode) {
-        const baseUrl = import.meta.env.PROD ? PRODUCTION_URL : `${window.location.origin}/`
-        const redirectTo = new URL('reset-password', baseUrl).toString()
+        const redirectTo = new URL('/reset-password', window.location.origin).toString()
         const { error: resetError } = await supabase.auth.resetPasswordForEmail(cleanEmail, { redirectTo })
         if (resetError) throw resetError
         setResetSent(true)
       } else if (register) {
-        const emailRedirectTo = import.meta.env.PROD ? PRODUCTION_URL : window.location.origin
+        const emailRedirectTo = new URL('/', window.location.origin).toString()
         const { data, error: authError } = await supabase.auth.signUp({
           email: cleanEmail,
           password,
@@ -90,7 +106,7 @@ export default function AuthPage({ register = false, resetPassword = false }) {
           toast('Welcome to your new watchlist!')
         } else {
           setConfirmationPending(true)
-          setResendMessage('Check your email for a confirmation link.')
+          setResendMessage('If this email is eligible for registration, you’ll receive a confirmation email. If you already have an account, please sign in.')
         }
       } else {
         const { error: authError } = await supabase.auth.signInWithPassword({ email: cleanEmail, password })
@@ -98,25 +114,34 @@ export default function AuthPage({ register = false, resetPassword = false }) {
         navigate('/')
       }
     } catch (cause) {
+      if (import.meta.env.DEV) console.warn('Authentication request failed', { code: cause?.code, status: cause?.status || cause?.context?.status, name: cause?.name })
+      const errorCode = String(cause.code || '').toLowerCase()
+      const status = Number(cause.status || cause.context?.status || 0)
       const networkKind = classifyNetworkError(cause)
+      if (status === 429 || ['over_email_send_rate_limit', 'over_request_rate_limit', 'over_sms_send_rate_limit'].includes(errorCode)) {
+        setError('Too many attempts. Please wait before trying again.')
+        return
+      }
       if (networkKind === 'offline' || networkKind === 'interrupted' || networkKind === 'timeout' || networkKind === 'server') {
         setError(authErrorMessage(cause))
         setRetryAvailable(true)
         return
       }
-      const errorCode = String(cause.code || '').toLowerCase()
       const errorMessage = String(cause.message || '')
-      const accountMissing = ['user_not_found', 'email_not_found', 'account_not_found'].includes(errorCode)
-        || /user not found|email not found|no account found/i.test(errorMessage)
-      const emailNotConfirmed = errorCode === 'email_not_confirmed' || /email not confirmed/i.test(errorMessage)
-      const invalidCredentials = errorCode === 'invalid_credentials' || /invalid login credentials/i.test(errorMessage)
+      const emailNotConfirmed = errorCode === 'email_not_confirmed'
+      const invalidCredentials = errorCode === 'invalid_credentials'
 
-      if (isSignIn && accountMissing) {
-        setError('No account is registered with this email yet. Please create an account first.')
-      } else if (isSignIn && emailNotConfirmed) {
-        setError('Please confirm your email address before signing in. You can resend the confirmation email from the registration page.')
+      if (isSignIn && emailNotConfirmed) {
+        setError('Your email address is not verified yet. Please check your inbox for the verification link.')
+        setConfirmationPending(true)
       } else if (isSignIn && invalidCredentials) {
-        setError('Invalid email or password. Please try again.')
+        setError('Invalid email or password, or the account may not exist yet. Please try again.')
+      } else if (isSignIn && ['user_not_found', 'email_not_found', 'account_not_found'].includes(errorCode)) {
+        setError('No account found with this email address. Please create an account first.')
+      } else if (isResetPassword && (errorCode === 'session_not_found' || errorCode === 'refresh_token_not_found' || /expired|invalid.*token/i.test(errorMessage))) {
+        setError('This password reset link has expired. Please request a new one.')
+      } else if (cause instanceof Error && ['Enter a valid email address.', 'Enter your name to create an account.', 'Your new password must be at least 6 characters.', 'The passwords do not match.'].includes(cause.message)) {
+        setError(cause.message)
       } else {
         setError(isSignIn ? authErrorMessage(cause) : authErrorMessage(cause))
       }
@@ -127,21 +152,24 @@ export default function AuthPage({ register = false, resetPassword = false }) {
   }
 
   const resendConfirmation = async () => {
+    if (resendLock.current) return
     if (!email) return setResendMessage('Enter your email address first.')
+    resendLock.current = true
     setResending(true)
     setResendMessage('')
     try {
-      const emailRedirectTo = import.meta.env.PROD ? PRODUCTION_URL : window.location.origin
+       const emailRedirectTo = new URL('/', window.location.origin).toString()
       const { error: resendError } = await supabase.auth.resend({
         type: 'signup',
         email: normalizedEmail(email),
         options: { emailRedirectTo },
       })
       if (resendError) throw resendError
-      setResendMessage('A new confirmation email has been sent.')
+      setResendMessage('If this account needs verification, a confirmation email will be sent shortly.')
     } catch (cause) {
-      setResendMessage(cause.message || 'Could not resend the confirmation email.')
+      setResendMessage(authErrorMessage(cause))
     } finally {
+      resendLock.current = false
       setResending(false)
     }
   }
@@ -164,18 +192,19 @@ export default function AuthPage({ register = false, resetPassword = false }) {
         <span className="eyebrow">{isResetPassword ? 'RESET PASSWORD' : forgotMode ? 'ACCOUNT RECOVERY' : register ? 'GET STARTED' : 'WELCOME BACK'}</span>
         <h2>{isResetPassword ? 'Choose a new password.' : forgotMode ? 'Reset your password.' : register ? 'Make it yours.' : 'Pick up where you left off.'}</h2>
         <p className="auth-description">{isResetPassword ? 'Enter and confirm your new password below.' : forgotMode ? 'We’ll email you a secure link to reset your password.' : register ? 'Create your account and keep every episode in its place.' : 'Sign in to get back to your watchlist.'}</p>
-        <form onSubmit={submit} className="auth-form">
+        {!resetComplete && <form onSubmit={submit} className="auth-form">
           {register && <label className="field">Your name<input value={name} onChange={event => setName(event.target.value)} placeholder="What should we call you?" autoComplete="name" maxLength={80} required/></label>}
           {!isResetPassword && <label className="field">Email address<input type="email" name="email" value={email} onChange={event => setEmail(event.target.value)} placeholder="you@example.com" autoComplete="email" maxLength={254} required/></label>}
           {!forgotMode && <label className="field">{isResetPassword ? 'New password' : 'Password'}<div className="password-wrap"><input type={show ? 'text' : 'password'} value={password} onChange={event => setPassword(event.target.value)} placeholder={isResetPassword || register ? 'At least 6 characters' : 'Your password'} autoComplete={isResetPassword || register ? 'new-password' : 'current-password'} minLength={6} required/><button type="button" className="password-toggle" onClick={() => setShow(value => !value)} aria-label={show ? 'Hide password' : 'Show password'}>{show ? <EyeOff size={16}/> : <Eye size={16}/>}</button></div></label>}
           {isResetPassword && <label className="field">Confirm new password<div className="password-wrap"><input type={show ? 'text' : 'password'} value={confirmPassword} onChange={event => setConfirmPassword(event.target.value)} placeholder="Re-enter your new password" autoComplete="new-password" minLength={6} required/></div></label>}
           {error && <div className="auth-error" role="alert">{error}{retryAvailable && <button type="button" className="auth-retry" onClick={() => { setRetryAvailable(false); document.querySelector('.auth-form')?.requestSubmit() }} disabled={busy || (typeof navigator !== 'undefined' && !navigator.onLine)}>Retry</button>}</div>}
           {!isResetPassword && !forgotMode && !register && <button type="button" className="auth-forgot-link" onClick={() => { setForgotMode(true); setError(''); setResetSent(false) }}>Forgot password?</button>}
-          {resetSent && <p className="auth-confirmation-message" role="status">If an account exists for this email, a password reset link has been sent.</p>}
+          {resetSent && !isResetPassword && <p className="auth-confirmation-message" role="status">If an account exists with this email, you’ll receive a password reset link shortly.</p>}
           {!resetSent && <button className="primary-btn auth-submit" disabled={busy}>{busy ? 'Please wait…' : isResetPassword ? 'Save new password' : forgotMode ? 'Send reset email' : register ? 'Create account' : 'Sign in'}</button>}
-        </form>
-        {(forgotMode || isResetPassword) && <button type="button" className="auth-back-link" onClick={() => isResetPassword ? navigate('/login') : setForgotMode(false)}>Back to sign in</button>}
-        {register && confirmationPending && <div className="auth-confirmation" role="status"><span>{resendMessage}</span><button type="button" onClick={resendConfirmation} disabled={resending || !email}>{resending ? 'Sending…' : 'Resend confirmation email'}</button></div>}
+        </form>}
+        {resetComplete && <div className="auth-confirmation-message" role="status">Your password has been updated successfully. <Link to="/login">Return to sign in</Link></div>}
+        {(forgotMode || isResetPassword) && !resetComplete && <button type="button" className="auth-back-link" onClick={() => isResetPassword ? navigate('/login') : setForgotMode(false)}>Back to sign in</button>}
+        {confirmationPending && <div className="auth-confirmation" role="status">{register && <span>{resendMessage}</span>}<button type="button" onClick={resendConfirmation} disabled={resending || !email}>{resending ? 'Sending…' : 'Resend confirmation email'}</button>{resendMessage && !register && <span>{resendMessage}</span>}</div>}
         <p className="auth-switch">{register ? 'Already have an account?' : 'New to Kitsu?'} <Link to={register ? '/login' : '/register'}>{register ? 'Sign in' : 'Create account'}</Link></p>
         <p className="auth-privacy">Your watchlist is private to your account.</p>
         <div className="auth-legal-links">

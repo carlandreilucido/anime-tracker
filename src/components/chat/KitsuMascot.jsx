@@ -1,7 +1,7 @@
 import { memo, useEffect, useRef, useState } from 'react'
 
-const OPEN_IMAGE = '/mascots/kitsu-open.png'
-const CLOSED_IMAGE = '/mascots/kitsu-closed.png'
+const OPEN_IMAGE = '/mascots/kitsu-open.webp'
+const CLOSED_IMAGE = '/mascots/kitsu-closed.webp'
 const POSITION_KEY = 'kitsu-mascot-position-v1'
 
 function clampPosition(position, width, height) {

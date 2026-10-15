@@ -22,7 +22,7 @@ function seasonProgress(season) {
   return Math.min(100, Math.round(((Number(season.current_episode) || 0) / total) * 100))
 }
 
-export default function AnimeCard({ anime, onOpen, onProgress, onSetEpisode, onInvalidEpisode, onFavorite, busy = false, readOnly = false, onAddToLibrary, addState = '', addingToLibrary = false }) {
+export default function AnimeCard({ anime, onOpen, onProgress, onSetEpisode, onInvalidEpisode, onFavorite, busy = false, readOnly = false, prioritizePoster = false, onAddToLibrary, addState = '', addingToLibrary = false }) {
   const [showSeasonBreakdown, setShowSeasonBreakdown] = useState(false)
   const seasons = [...(anime.seasons || [])].sort((a, b) => a.season_number - b.season_number)
   const episodeNumbers = getSeasonEpisodeNumbers(seasons)
@@ -38,7 +38,7 @@ export default function AnimeCard({ anime, onOpen, onProgress, onSetEpisode, onI
       <button className="poster-button" onClick={() => readOnly ? setShowSeasonBreakdown(true) : onOpen?.()} aria-label={`View ${anime.title}`}>
         <div className="poster-frame">
           {anime.poster_url
-            ? <img src={anime.poster_url} alt={`${anime.title} poster`} loading="lazy" onError={event => { event.currentTarget.style.display = 'none' }}/>
+            ? <img src={anime.poster_url} alt={`${anime.title} poster`} loading={prioritizePoster ? 'eager' : 'lazy'} fetchPriority={prioritizePoster ? 'high' : 'auto'} decoding="async" onError={event => { event.currentTarget.style.display = 'none' }}/>
             : <div className="poster-placeholder">{anime.title?.slice(0, 1)}</div>}
           <span className="poster-shade"/>
           {!readOnly && <span className="poster-progress">{percentage}%</span>}

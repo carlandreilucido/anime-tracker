@@ -63,6 +63,8 @@ export default function AnimeAssistant({ openRequest = 0 }) {
   const inputRef = useRef(null)
   const requestInFlight = useRef(false)
   const resolvingRef = useRef(new Set())
+  const recommendationLookupKey = useRef('')
+  const recommendationLookups = useRef(new Map())
   const scrollAnchor = useRef(null)
   const handledOpenRequest = useRef(0)
 
@@ -81,16 +83,25 @@ export default function AnimeAssistant({ openRequest = 0 }) {
         item,
       })).filter(({ item }) => item?.title))
     if (!recommendations.length) {
-      setInLibraryRecommendations(new Set())
+      recommendationLookupKey.current = `${user?.id || ''}:empty`
+      setInLibraryRecommendations(current => current.size ? new Set() : current)
       return undefined
     }
-    let active = true
-    getMyAnimeMatchKeys(recommendations.map(({ item }) => ({
-      title: item.title,
-      external_provider: item.tvmaze?.id ? 'tvmaze' : null,
-      external_id: item.tvmaze?.id || null,
-    }))).then(keys => {
-      if (active) setInLibraryRecommendations(new Set(recommendations
+    const lookupKey = `${user?.id || ''}:${recommendations.map(({ id }) => id).join('|')}`
+    if (recommendationLookupKey.current === lookupKey && recommendationLookups.current.has(lookupKey)) return undefined
+    recommendationLookupKey.current = lookupKey
+    let lookup = recommendationLookups.current.get(lookupKey)
+    if (!lookup) {
+      lookup = getMyAnimeMatchKeys(recommendations.map(({ item }) => ({
+        title: item.title,
+        external_provider: item.tvmaze?.id ? 'tvmaze' : null,
+        external_id: item.tvmaze?.id || null,
+      })))
+      recommendationLookups.current.set(lookupKey, lookup)
+      if (recommendationLookups.current.size > 20) recommendationLookups.current.delete(recommendationLookups.current.keys().next().value)
+    }
+    lookup.then(keys => {
+      if (recommendationLookupKey.current === lookupKey) setInLibraryRecommendations(new Set(recommendations
         .filter(({ item }) => animeMatchKeys({
           title: item.title,
           external_provider: item.tvmaze?.id ? 'tvmaze' : null,
@@ -98,9 +109,10 @@ export default function AnimeAssistant({ openRequest = 0 }) {
         }).some(key => keys.has(key)))
         .map(({ id }) => id)))
     }).catch(() => {
-      if (active) setInLibraryRecommendations(new Set())
+      recommendationLookups.current.delete(lookupKey)
+      if (recommendationLookupKey.current === lookupKey) setInLibraryRecommendations(new Set())
     })
-    return () => { active = false }
+    return undefined
   }, [messages, user?.id])
 
   const loadConversationList = useCallback(async (offset = 0) => {
@@ -454,7 +466,7 @@ export default function AnimeAssistant({ openRequest = 0 }) {
     {open && <div className="assistant-backdrop" onMouseDown={event => { if (event.target === event.currentTarget) setOpen(false) }}>
       <section className="assistant-window" role="dialog" aria-modal="true" aria-label="Kitsu anime assistant">
         <header className="assistant-header">
-          <div className="assistant-brand-mark"><img src="/mascots/kitsu-open.png" alt=""/></div>
+          <div className="assistant-brand-mark"><img src="/mascots/kitsu-open.webp" alt="" width="40" height="40"/></div>
           <div className="assistant-heading-copy"><strong>Kitsu Assistant</strong><span>Your personal anime companion</span></div>
           <button className="assistant-icon-button" onClick={createConversation} aria-label="New conversation" title="New conversation"><Plus size={18}/></button>
           <button className={`assistant-icon-button ${showHistory ? 'selected' : ''}`} onClick={() => { setShowHistory(value => !value); loadConversationList().catch(() => {}) }} aria-label="Conversation history" title="Conversation history"><Clock3 size={17}/></button>
@@ -471,7 +483,7 @@ export default function AnimeAssistant({ openRequest = 0 }) {
         <div className="assistant-messages" ref={scrollRef} aria-live="polite">
           {messages.length > 0 && hasOlderMessages && <button className="assistant-load-older" onClick={loadOlderMessages} disabled={loadingOlder}>{loadingOlder ? <LoaderCircle className="assistant-spin" size={13}/> : <Clock3 size={13}/>} Load older messages</button>}
           {loadingHistory ? <div className="assistant-loading"><LoaderCircle className="assistant-spin" size={18}/> Loading your chat…</div> : messages.map(message => <article className={`assistant-message ${message.role} ${message.id.startsWith('welcome:') ? 'welcome-message' : ''}`} key={message.id}>
-            <div className="assistant-message-avatar">{message.role === 'assistant' ? <img src="/mascots/kitsu-open.png" alt="Kitsu"/> : <span>{user.email?.[0]?.toUpperCase() || 'Y'}</span>}</div>
+          <div className="assistant-message-avatar">{message.role === 'assistant' ? <img src="/mascots/kitsu-open.webp" alt="Kitsu" width="32" height="32"/> : <span>{user.email?.[0]?.toUpperCase() || 'Y'}</span>}</div>
             <div className="assistant-message-body"><div className="assistant-bubble">{message.role === 'assistant'
               ? <ReactMarkdown components={{ a: ({ href, children, ...props }) => <a href={href} target="_blank" rel="noreferrer" {...props}>{children}</a> }}>{message.content}</ReactMarkdown>
               : message.content}</div>

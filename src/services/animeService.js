@@ -1,7 +1,8 @@
 import { supabase } from '../lib/supabase'
 import { PAGE_SIZE } from '../constants'
 
-const ANIME_WITH_SEASONS = '*, seasons:anime_seasons(*)'
+const ANIME_WITH_SEASONS = 'id,user_id,title,alternative_title,poster_url,genres,total_episodes,current_episode,status,rating,notes,is_favorite,season_number,date_started,date_completed,created_at,updated_at,synopsis,release_date,community_rating,external_provider,external_id,external_url,metadata_updated_at,seasons:anime_seasons(id,anime_id,user_id,season_number,season_title,total_episodes,current_episode,status,date_started,date_completed,created_at,updated_at,media_type,external_provider,external_id,external_show_id,external_url)'
+const ANIME_LIBRARY_FIELDS = 'id,title,alternative_title,poster_url,genres,total_episodes,current_episode,status,rating,is_favorite,created_at,updated_at,seasons:anime_seasons(id,anime_id,season_number,season_title,total_episodes,current_episode,status,date_started,date_completed,media_type)'
 
 function ensureClient() {
   if (!supabase) throw new Error('Connect Supabase to use your personal watchlist. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to .env.local.')
@@ -71,9 +72,9 @@ export function withOptimisticEpisodeNumber(anime, seasonId, episodeNumber) {
   return { ...anime, ...seriesSummary(updatedSeasons), seasons: updatedSeasons }
 }
 
-export async function getAnime({ page = 0, search = '', status = '', genre = '', favorites = false, rating = '', sort = 'created_at', direction = 'desc' } = {}) {
+export async function getAnime({ page = 0, limit = PAGE_SIZE, withCount = true, signal, search = '', status = '', genre = '', favorites = false, rating = '', sort = 'created_at', direction = 'desc' } = {}) {
   ensureClient()
-  let query = supabase.from('anime').select(ANIME_WITH_SEASONS, { count: 'exact' })
+  let query = supabase.from('anime').select(ANIME_LIBRARY_FIELDS, withCount ? { count: 'exact' } : undefined)
   if (search.trim()) {
     const term = search.trim().replace(/[{}",]/g, '')
     query = query.or(`title.ilike.%${term}%,alternative_title.ilike.%${term}%,genres.cs.{${term}}`)
@@ -84,10 +85,11 @@ export async function getAnime({ page = 0, search = '', status = '', genre = '',
   if (rating === 'rated') query = query.not('rating', 'is', null)
   if (/^[1-9]$|^10$/.test(rating)) query = query.gte('rating', Number(rating))
   const sortColumn = ({ 'Recently added': 'created_at', 'Recently updated': 'updated_at', 'Title A–Z': 'title', 'Title Z–A': 'title', 'Highest rated': 'rating', 'Lowest rated': 'rating', Progress: 'current_episode' })[sort] || sort
-  query = query.order(sortColumn, { ascending: direction === 'asc', nullsFirst: false }).range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1)
+  query = query.order(sortColumn, { ascending: direction === 'asc', nullsFirst: false }).range(page * limit, (page + 1) * limit - 1)
+  if (signal) query = query.abortSignal(signal)
   const { data, error, count } = await query
   if (error) throw error
-  return { data: (data || []).map(anime => ({ ...anime, seasons: sortSeasons(anime.seasons) })), count: count || 0, hasMore: (page + 1) * PAGE_SIZE < (count || 0) }
+  return { data: (data || []).map(anime => ({ ...anime, seasons: sortSeasons(anime.seasons) })), count: count || 0, hasMore: (page + 1) * limit < (count || 0) }
 }
 
 export async function getAnimeById(id) {
@@ -99,17 +101,14 @@ export async function getAnimeById(id) {
 
 export async function getStats() {
   ensureClient()
+  const { data, error } = await supabase.rpc('get_my_anime_stats')
+  if (!error) return Object.fromEntries(['watching', 'plan_to_watch', 'completed', 'on_hold', 'dropped'].map(status => [status, Number(data?.find(row => row.status === status)?.anime_count) || 0]))
+  if (!['PGRST202', '42883'].includes(error.code)) throw error
+  // Backward-compatible while the compact stats RPC migration is being deployed.
   const results = await Promise.all(['watching','plan_to_watch','completed','on_hold','dropped'].map(status => supabase.from('anime').select('id', { count: 'exact', head: true }).eq('status', status)))
   const failed = results.find(result => result.error)
   if (failed) throw failed.error
   return Object.fromEntries(['watching','plan_to_watch','completed','on_hold','dropped'].map((status, i) => [status, results[i].count || 0]))
-}
-
-export async function getRecentlyWatched() {
-  ensureClient()
-  const { data, error } = await supabase.from('anime').select(ANIME_WITH_SEASONS).eq('status', 'watching').order('updated_at', { ascending: false }).limit(5)
-  if (error) throw error
-  return (data || []).map(anime => ({ ...anime, seasons: sortSeasons(anime.seasons) }))
 }
 
 export async function createAnime(values) {
@@ -237,7 +236,7 @@ export async function updateEpisodeProgress(anime, increment, seasonId) {
     date_completed: status === 'completed' ? (target.date_completed || today) : null,
   }).eq('id', target.id)
   if (error) throw error
-  return getAnimeById(anime.id)
+  return withOptimisticEpisodeChange(anime, target.id, increment)
 }
 
 export async function setSeasonEpisodeProgress(anime, seasonId, episodeNumber) {
@@ -259,7 +258,7 @@ export async function setSeasonEpisodeProgress(anime, seasonId, episodeNumber) {
     date_completed: status === 'completed' ? (target.date_completed || today) : null,
   }).eq('id', target.id)
   if (error) throw error
-  return getAnimeById(anime.id)
+  return withOptimisticEpisodeNumber(anime, target.id, episodeNumber)
 }
 
 export async function markAnimeCompleted(anime) {
@@ -274,5 +273,9 @@ export async function markAnimeCompleted(anime) {
 }
 
 export async function toggleFavorite(anime) {
-  return updateAnime(anime.id, { is_favorite: !anime.is_favorite })
+  ensureClient()
+  const { data, error } = await supabase.from('anime').update({ is_favorite: !anime.is_favorite })
+    .eq('id', anime.id).select('id,is_favorite').single()
+  if (error) throw error
+  return { ...anime, is_favorite: data.is_favorite }
 }

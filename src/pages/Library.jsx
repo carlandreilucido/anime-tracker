@@ -27,6 +27,9 @@ export default function Library({ refresh, onAdd }) {
   const [error, setError] = useState('')
   const [busy, setBusy] = useState({})
   const timer = useRef()
+  const activeLoad = useRef(null)
+  const loadRequest = useRef(0)
+  const hasLoaded = useRef(false)
   const heading = filter.favorites ? 'Favorites' : filter.status ? STATUS_LABELS[filter.status] : 'My library'
 
   useEffect(() => {
@@ -35,23 +38,33 @@ export default function Library({ refresh, onAdd }) {
   }, [location.search])
 
   const load = useCallback(async ({ reset = true, pageNumber = 0 } = {}) => {
-    reset ? setLoading(true) : setLoadingMore(true)
+    activeLoad.current?.abort()
+    const controller = new AbortController()
+    activeLoad.current = controller
+    const request = ++loadRequest.current
+    if (reset) setLoading(!hasLoaded.current)
+    else setLoadingMore(true)
     setError('')
     try {
       const [sort, , direction] = sortOptions[sortIndex]
-      const result = await getAnime({ page: pageNumber, search, status: filter.status, genre: filter.genre, favorites: filter.favorites, rating: filter.rating, sort, direction })
+      const result = await getAnime({ page: pageNumber, search, status: filter.status, genre: filter.genre, favorites: filter.favorites, rating: filter.rating, sort, direction, signal: controller.signal })
+      if (request !== loadRequest.current) return
       setItems(current => reset ? result.data : [...current, ...result.data])
       setCount(result.count)
       setHasMore(result.hasMore)
       setPage(pageNumber)
-    } catch (cause) { setError(readableError(cause)) }
-    finally { setLoading(false); setLoadingMore(false) }
+      hasLoaded.current = true
+    } catch (cause) {
+      if (!controller.signal.aborted && request === loadRequest.current) setError(readableError(cause))
+    } finally {
+      if (request === loadRequest.current) { setLoading(false); setLoadingMore(false) }
+    }
   }, [search, filter, sortIndex])
 
   useEffect(() => {
     clearTimeout(timer.current)
     timer.current = setTimeout(() => load({ reset: true, pageNumber: 0 }), search ? 260 : 0)
-    return () => clearTimeout(timer.current)
+    return () => { clearTimeout(timer.current); activeLoad.current?.abort() }
   }, [load, search, refresh])
 
   useEffect(() => {
@@ -59,6 +72,8 @@ export default function Library({ refresh, onAdd }) {
     window.addEventListener('kitsu:library-refresh', handleLibraryRefresh)
     return () => window.removeEventListener('kitsu:library-refresh', handleLibraryRefresh)
   }, [load])
+
+  useEffect(() => () => activeLoad.current?.abort(), [])
 
   const changeProgress = async (anime, step, seasonId) => {
     const optimistic = withOptimisticEpisodeChange(anime, seasonId, step)
@@ -71,7 +86,9 @@ export default function Library({ refresh, onAdd }) {
         setCount(current => Math.max(0, current - 1))
       } else setItems(current => current.map(item => item.id === anime.id ? updated : item))
     } catch (cause) {
-      setItems(current => current.map(item => item.id === anime.id ? anime : item))
+      setItems(current => current.some(item => item.id === anime.id)
+        ? current.map(item => item.id === anime.id ? anime : item)
+        : [...current, anime])
       toast(readableError(cause), 'error')
     } finally { setBusy(current => ({ ...current, [anime.id]: false })) }
   }
@@ -93,11 +110,18 @@ export default function Library({ refresh, onAdd }) {
   }
 
   const favorite = async anime => {
+    const optimistic = { ...anime, is_favorite: !anime.is_favorite }
+    setItems(current => filter.favorites && !optimistic.is_favorite ? current.filter(item => item.id !== anime.id) : current.map(item => item.id === anime.id ? optimistic : item))
+    if (filter.favorites) setCount(current => Math.max(0, current + (optimistic.is_favorite ? 1 : -1)))
     try {
       const updated = await toggleFavorite(anime)
       setItems(current => filter.favorites && !updated.is_favorite ? current.filter(item => item.id !== anime.id) : current.map(item => item.id === anime.id ? updated : item))
       toast(updated.is_favorite ? 'Added to favorites.' : 'Removed from favorites.')
-    } catch (cause) { toast(readableError(cause), 'error') }
+    } catch (cause) {
+      setItems(current => current.map(item => item.id === anime.id ? anime : item))
+      if (filter.favorites) setCount(current => Math.max(0, current - (optimistic.is_favorite ? 1 : -1)))
+      toast(readableError(cause), 'error')
+    }
   }
 
   const clearFilters = () => { setFilter({ status: '', favorites: false, genre: '', rating: '' }); setSearch('') }

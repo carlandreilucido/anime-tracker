@@ -25,8 +25,15 @@ export function AuthProvider({ children }) {
       const previousSession = sessionRef.current
       sessionRef.current = nextSession
 
-      if (event === 'PASSWORD_RECOVERY') setIsRecovering(true)
-      else if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'USER_UPDATED' || event === 'SIGNED_OUT' || event === 'USER_DELETED') setIsRecovering(false)
+      if (event === 'PASSWORD_RECOVERY') {
+        sessionStorage.setItem('kitsu-password-recovery', 'true')
+        setIsRecovering(true)
+      }
+      else if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+        sessionStorage.removeItem('kitsu-password-recovery')
+        setIsRecovering(false)
+      }
+      else if (event === 'INITIAL_SESSION') setIsRecovering(window.location.pathname === '/reset-password' && Boolean(nextSession) && sessionStorage.getItem('kitsu-password-recovery') === 'true')
 
       if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
         setSession(null)
@@ -87,6 +94,7 @@ export function AuthProvider({ children }) {
   return <AuthContext.Provider value={{
     session,
     user,
+    isRecovering,
     loading,
     authNotice,
     clearAuthNotice,

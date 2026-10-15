@@ -3,8 +3,5 @@ project_id = "kitsu"
 [functions.find-watch-providers]
 verify_jwt = true
 
-[functions.check-email-account]
-verify_jwt = false
-
 [functions.anime-assistant]
 verify_jwt = true
